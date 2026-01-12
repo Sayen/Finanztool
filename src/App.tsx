@@ -1,7 +1,9 @@
 import { useState } from 'react'
 import { QuickStart } from './components/calculator/QuickStart'
+import { DetailedParameters } from './components/calculator/DetailedParameters'
 import { ResultsOverview } from './components/calculator/KpiCards'
 import { CostComparisonChart, WealthChart } from './components/charts/CostCharts'
+import { ScenarioLibrary } from './components/scenario/ScenarioLibrary'
 import { useScenarioStore } from './stores/scenarioStore'
 import { Button } from './components/ui/Button'
 import { Home, BarChart3, Settings, FileText } from 'lucide-react'
@@ -105,11 +107,19 @@ function App() {
         )}
 
         {activeTab === 'detailed' && (
-          <div className="text-center py-12">
-            <h2 className="text-2xl font-semibold mb-4">Detaillierte Parametereinstellung</h2>
-            <p className="text-muted-foreground">
-              Hier können Sie alle Parameter im Detail anpassen (wird noch implementiert)
-            </p>
+          <div className="space-y-6">
+            <DetailedParameters />
+            
+            {currentScenario?.results && (
+              <ResultsOverview
+                monthlyRent={currentScenario.results.kpis.monthlyRent}
+                monthlyOwnership={currentScenario.results.kpis.monthlyOwnership}
+                isAffordable={currentScenario.results.affordabilityCheck.isAffordable}
+                utilizationPercent={currentScenario.results.affordabilityCheck.utilizationPercent}
+                breakEvenYear={currentScenario.results.breakEvenYear}
+                equityAfter10Years={currentScenario.results.kpis.equityAfter10Years}
+              />
+            )}
           </div>
         )}
 
@@ -121,12 +131,7 @@ function App() {
         )}
 
         {activeTab === 'scenarios' && (
-          <div className="text-center py-12">
-            <h2 className="text-2xl font-semibold mb-4">Szenarien-Verwaltung</h2>
-            <p className="text-muted-foreground">
-              Anzahl gespeicherter Szenarien: {scenarios.length}
-            </p>
-          </div>
+          <ScenarioLibrary />
         )}
       </main>
 
