@@ -278,7 +278,7 @@ export function DetailedParameters() {
                   </div>
                   
                   <div className="space-y-2">
-                    <Label htmlFor="firstMortgageTerm">Zinsfestschreibung (Jahre)</Label>
+                    <Label htmlFor="firstMortgageTerm">Zinsfestschreibung (Jahre) - Info</Label>
                     <Input
                       id="firstMortgageTerm"
                       type="number"
@@ -287,6 +287,7 @@ export function DetailedParameters() {
                         mortgage: { ...params.mortgage, firstMortgageTerm: Number(e.target.value) }
                       })}
                     />
+                    <p className="text-xs text-muted-foreground">Nur informativ, nicht in Berechnungen verwendet</p>
                   </div>
                 </div>
               </div>
@@ -322,7 +323,7 @@ export function DetailedParameters() {
                   </div>
                   
                   <div className="space-y-2">
-                    <Label htmlFor="secondMortgageTerm">Zinsfestschreibung (Jahre)</Label>
+                    <Label htmlFor="secondMortgageTerm">Zinsfestschreibung (Jahre) - Info</Label>
                     <Input
                       id="secondMortgageTerm"
                       type="number"
@@ -331,6 +332,7 @@ export function DetailedParameters() {
                         mortgage: { ...params.mortgage, secondMortgageTerm: Number(e.target.value) }
                       })}
                     />
+                    <p className="text-xs text-muted-foreground">Nur informativ, nicht in Berechnungen verwendet</p>
                   </div>
                   
                   <div className="space-y-2">

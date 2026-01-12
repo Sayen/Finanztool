@@ -25,6 +25,14 @@ export function QuickStart() {
   
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
+    
+    // Validation: Equity must be at least 20% of purchase price
+    const minEquity = params.purchasePrice * 0.20
+    if (params.equity < minEquity) {
+      alert(`Eigenkapital muss mindestens 20% des Kaufpreises betragen (${formatCurrency(minEquity)})`)
+      return
+    }
+    
     const derived = deriveFromQuickStart(params)
     createScenario(scenarioName, derived)
     setShowResults(true)
@@ -33,6 +41,7 @@ export function QuickStart() {
   const mortgageNeed = params.purchasePrice - params.equity
   const ltv = (mortgageNeed / params.purchasePrice * 100).toFixed(1)
   const equityRatio = (params.equity / params.purchasePrice * 100).toFixed(1)
+  const isEquityTooLow = params.equity < params.purchasePrice * 0.20
   
   const handleSet65LTV = () => {
     setParams({ ...params, equity: Math.round(params.purchasePrice * 0.35) })
@@ -142,8 +151,12 @@ export function QuickStart() {
                 value={params.equity}
                 onChange={(e) => setParams({ ...params, equity: Number(e.target.value) })}
                 required
+                className={isEquityTooLow ? "border-destructive" : ""}
               />
-              <p className="text-xs text-muted-foreground">{formatCurrency(params.equity)} ({equityRatio}%)</p>
+              <p className={`text-xs ${isEquityTooLow ? "text-destructive font-semibold" : "text-muted-foreground"}`}>
+                {formatCurrency(params.equity)} ({equityRatio}%)
+                {isEquityTooLow && " - Mindestens 20% erforderlich!"}
+              </p>
             </div>
             
             <div className="space-y-2">
