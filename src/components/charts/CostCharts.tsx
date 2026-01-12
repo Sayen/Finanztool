@@ -1,4 +1,4 @@
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, BarChart, Bar } from 'recharts'
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/Card'
 import { formatCurrency } from '../../lib/utils'
 import type { YearlyCalculation } from '../../types'
@@ -107,6 +107,58 @@ export function WealthChart({ data, maxYears = 30 }: WealthChartProps) {
               dot={false}
             />
           </LineChart>
+        </ResponsiveContainer>
+      </CardContent>
+    </Card>
+  )
+}
+
+interface AnnualCostBreakdownProps {
+  data: YearlyCalculation[]
+  displayYears?: number[]
+}
+
+export function AnnualCostBreakdown({ data, displayYears = [1, 5, 10, 15, 20, 30] }: AnnualCostBreakdownProps) {
+  const chartData = displayYears
+    .filter(year => year <= data.length)
+    .map((year) => {
+      const item = data[year - 1]
+      return {
+        year: `Jahr ${year}`,
+        'Miete': item.rentCost,
+        'Nebenkosten (Miete)': item.rentUtilities + item.rentInsurance,
+        'Hypothekarzins': item.ownershipMortgageInterest,
+        'Amortisation': item.ownershipAmortization,
+        'Nebenkosten (Eigentum)': item.ownershipUtilities + item.ownershipInsurance,
+        'Unterhalt': item.ownershipMaintenance,
+      }
+    })
+  
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Jährliche Kostenaufteilung</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <ResponsiveContainer width="100%" height={400}>
+          <BarChart data={chartData}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="year" />
+            <YAxis 
+              tickFormatter={(value) => formatCurrency(value as number, 0)}
+              label={{ value: 'Kosten (CHF)', angle: -90, position: 'insideLeft' }}
+            />
+            <Tooltip 
+              formatter={(value) => formatCurrency(value as number)}
+            />
+            <Legend />
+            <Bar dataKey="Miete" stackId="rent" fill="#47C881" />
+            <Bar dataKey="Nebenkosten (Miete)" stackId="rent" fill="#60D394" />
+            <Bar dataKey="Hypothekarzins" stackId="ownership" fill="#E8731B" />
+            <Bar dataKey="Amortisation" stackId="ownership" fill="#F59E42" />
+            <Bar dataKey="Nebenkosten (Eigentum)" stackId="ownership" fill="#FFB366" />
+            <Bar dataKey="Unterhalt" stackId="ownership" fill="#FFC98A" />
+          </BarChart>
         </ResponsiveContainer>
       </CardContent>
     </Card>

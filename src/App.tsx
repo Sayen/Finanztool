@@ -2,16 +2,45 @@ import { useState } from 'react'
 import { QuickStart } from './components/calculator/QuickStart'
 import { DetailedParameters } from './components/calculator/DetailedParameters'
 import { ResultsOverview } from './components/calculator/KpiCards'
-import { CostComparisonChart, WealthChart } from './components/charts/CostCharts'
+import { CostComparisonChart, WealthChart, AnnualCostBreakdown } from './components/charts/CostCharts'
 import { ScenarioLibrary } from './components/scenario/ScenarioLibrary'
 import { useScenarioStore } from './stores/scenarioStore'
 import { Button } from './components/ui/Button'
-import { Home, BarChart3, Settings, FileText } from 'lucide-react'
+import { exportToPDF, exportToExcel, generateShareableUrl, copyToClipboard } from './lib/export'
+import { useTheme } from './hooks/useTheme'
+import { Home, BarChart3, Settings, FileText, Download, Share2, Moon, Sun } from 'lucide-react'
 
 function App() {
   const [activeTab, setActiveTab] = useState<'quickstart' | 'detailed' | 'charts' | 'scenarios'>('quickstart')
+  const [shareMessage, setShareMessage] = useState<string>('')
   const currentScenario = useScenarioStore((state) => state.getCurrentScenario())
   const scenarios = useScenarioStore((state) => state.scenarios)
+  const { theme, toggleTheme } = useTheme()
+  
+  const handleExportPDF = () => {
+    if (currentScenario) {
+      exportToPDF(currentScenario)
+    }
+  }
+  
+  const handleExportExcel = () => {
+    if (currentScenario) {
+      exportToExcel(currentScenario)
+    }
+  }
+  
+  const handleShare = async () => {
+    if (currentScenario) {
+      const url = generateShareableUrl(currentScenario)
+      try {
+        await copyToClipboard(url)
+        setShareMessage('Link in Zwischenablage kopiert!')
+        setTimeout(() => setShareMessage(''), 3000)
+      } catch (err) {
+        setShareMessage('Fehler beim Kopieren')
+      }
+    }
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -24,12 +53,37 @@ function App() {
               <p className="text-sm text-muted-foreground">Vergleichstool für Kanton Zürich</p>
             </div>
             <div className="flex items-center gap-2">
+              <Button variant="ghost" size="sm" onClick={toggleTheme}>
+                {theme === 'light' ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
+              </Button>
+              {currentScenario && (
+                <>
+                  <Button variant="outline" size="sm" onClick={handleShare}>
+                    <Share2 className="h-4 w-4 mr-2" />
+                    Teilen
+                  </Button>
+                  <Button variant="outline" size="sm" onClick={handleExportExcel}>
+                    <Download className="h-4 w-4 mr-2" />
+                    Excel
+                  </Button>
+                  <Button variant="outline" size="sm" onClick={handleExportPDF}>
+                    <Download className="h-4 w-4 mr-2" />
+                    PDF
+                  </Button>
+                </>
+              )}
               <Button variant="outline" size="sm">
                 <FileText className="h-4 w-4 mr-2" />
                 Szenarien: {scenarios.length}
               </Button>
             </div>
           </div>
+          
+          {shareMessage && (
+            <div className="mt-2 text-sm text-green-600 text-right">
+              {shareMessage}
+            </div>
+          )}
         </div>
       </header>
 
@@ -127,6 +181,7 @@ function App() {
           <div className="space-y-6">
             <CostComparisonChart data={currentScenario.results.yearlyData} />
             <WealthChart data={currentScenario.results.yearlyData} />
+            <AnnualCostBreakdown data={currentScenario.results.yearlyData} />
           </div>
         )}
 
