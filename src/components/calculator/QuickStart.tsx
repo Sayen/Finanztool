@@ -3,13 +3,16 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui
 import { Button } from '../ui/Button'
 import { Input } from '../ui/Input'
 import { Label } from '../ui/Label'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/Tooltip'
 import { useScenarioStore } from '../../stores/scenarioStore'
 import { deriveFromQuickStart } from '../../lib/calculator'
 import { formatCurrency } from '../../lib/utils'
+import { Info } from 'lucide-react'
 import type { QuickStartParams } from '../../types'
 
 export function QuickStart() {
   const createScenario = useScenarioStore((state) => state.createScenario)
+  const [scenarioName, setScenarioName] = useState('Neues Szenario')
   const [params, setParams] = useState<QuickStartParams>({
     purchasePrice: 1000000,
     propertyType: 'apartment',
@@ -23,15 +26,21 @@ export function QuickStart() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     const derived = deriveFromQuickStart(params)
-    createScenario('Neues Szenario', derived)
+    createScenario(scenarioName, derived)
     setShowResults(true)
   }
   
   const mortgageNeed = params.purchasePrice - params.equity
   const ltv = (mortgageNeed / params.purchasePrice * 100).toFixed(1)
+  const equityRatio = (params.equity / params.purchasePrice * 100).toFixed(1)
+  
+  const handleSet65LTV = () => {
+    setParams({ ...params, equity: Math.round(params.purchasePrice * 0.35) })
+  }
   
   return (
-    <Card className="w-full">
+    <TooltipProvider>
+      <Card className="w-full">
       <CardHeader>
         <CardTitle>Schnellstart</CardTitle>
         <CardDescription>
@@ -41,8 +50,29 @@ export function QuickStart() {
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2 md:col-span-2">
+              <Label htmlFor="scenarioName">Szenario-Name</Label>
+              <Input
+                id="scenarioName"
+                type="text"
+                value={scenarioName}
+                onChange={(e) => setScenarioName(e.target.value)}
+                placeholder="z.B. Wohnung Zürich City"
+              />
+            </div>
+            
             <div className="space-y-2">
-              <Label htmlFor="purchasePrice">Kaufpreis</Label>
+              <div className="flex items-center gap-2">
+                <Label htmlFor="purchasePrice">Kaufpreis</Label>
+                <Tooltip>
+                  <TooltipTrigger type="button">
+                    <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p className="max-w-xs">Der Kaufpreis der Immobilie ohne Kaufnebenkosten (Notar, Grundbuch, Makler)</p>
+                  </TooltipContent>
+                </Tooltip>
+              </div>
               <Input
                 id="purchasePrice"
                 type="number"
@@ -54,7 +84,17 @@ export function QuickStart() {
             </div>
             
             <div className="space-y-2">
-              <Label htmlFor="propertyType">Immobilientyp</Label>
+              <div className="flex items-center gap-2">
+                <Label htmlFor="propertyType">Immobilientyp</Label>
+                <Tooltip>
+                  <TooltipTrigger type="button">
+                    <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p className="max-w-xs">Wohnung = Mietwohnung zum Vergleich | Stockwerkeigentum = Eigentumswohnung | Haus = Einfamilienhaus</p>
+                  </TooltipContent>
+                </Tooltip>
+              </div>
               <select
                 id="propertyType"
                 value={params.propertyType}
@@ -68,7 +108,34 @@ export function QuickStart() {
             </div>
             
             <div className="space-y-2">
-              <Label htmlFor="equity">Eigenkapital</Label>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Label htmlFor="equity">Eigenkapital</Label>
+                  <Tooltip>
+                    <TooltipTrigger type="button">
+                      <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p className="max-w-xs">Ihr verfügbares Kapital für den Kauf. Mindestens 20% des Kaufpreises erforderlich, 10% davon als 'hartes' Eigenkapital</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </div>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button 
+                      type="button"
+                      variant="outline" 
+                      size="sm"
+                      onClick={handleSet65LTV}
+                    >
+                      Auf 65% LTV setzen
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p className="max-w-xs">Setzt das Eigenkapital so, dass keine 2. Hypothek erforderlich ist (35% Eigenkapital, 65% 1. Hypothek)</p>
+                  </TooltipContent>
+                </Tooltip>
+              </div>
               <Input
                 id="equity"
                 type="number"
@@ -76,11 +143,21 @@ export function QuickStart() {
                 onChange={(e) => setParams({ ...params, equity: Number(e.target.value) })}
                 required
               />
-              <p className="text-xs text-muted-foreground">{formatCurrency(params.equity)}</p>
+              <p className="text-xs text-muted-foreground">{formatCurrency(params.equity)} ({equityRatio}%)</p>
             </div>
             
             <div className="space-y-2">
-              <Label htmlFor="householdIncome">Haushaltseinkommen (jährlich)</Label>
+              <div className="flex items-center gap-2">
+                <Label htmlFor="householdIncome">Haushaltseinkommen (jährlich)</Label>
+                <Tooltip>
+                  <TooltipTrigger type="button">
+                    <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p className="max-w-xs">Jährliches Bruttoeinkommen aller im Haushalt lebenden Personen</p>
+                  </TooltipContent>
+                </Tooltip>
+              </div>
               <Input
                 id="householdIncome"
                 type="number"
@@ -92,7 +169,17 @@ export function QuickStart() {
             </div>
             
             <div className="space-y-2">
-              <Label htmlFor="location">Wohnlage</Label>
+              <div className="flex items-center gap-2">
+                <Label htmlFor="location">Wohnlage</Label>
+                <Tooltip>
+                  <TooltipTrigger type="button">
+                    <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p className="max-w-xs">Toplage = Stadtzentrum | Gute Lage = Nähe Zentrum | Durchschnittlich = Aussenquartiere | Randlage = Periphere Gemeinden</p>
+                  </TooltipContent>
+                </Tooltip>
+              </div>
               <select
                 id="location"
                 value={params.location}
@@ -135,5 +222,6 @@ export function QuickStart() {
         )}
       </CardContent>
     </Card>
+    </TooltipProvider>
   )
 }

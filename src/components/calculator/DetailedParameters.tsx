@@ -2,8 +2,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui
 import { Input } from '../ui/Input'
 import { Label } from '../ui/Label'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/Tabs'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/Tooltip'
 import { useScenarioStore } from '../../stores/scenarioStore'
 import { formatCurrency } from '../../lib/utils'
+import { Info } from 'lucide-react'
 import type { CalculationParams } from '../../types'
 
 export function DetailedParameters() {
@@ -29,7 +31,8 @@ export function DetailedParameters() {
   }
   
   return (
-    <div className="space-y-6">
+    <TooltipProvider>
+      <div className="space-y-6">
       <Tabs defaultValue="rent" className="w-full">
         <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="rent">Miete</TabsTrigger>
@@ -48,7 +51,17 @@ export function DetailedParameters() {
             <CardContent className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="netRent">Netto-Miete (monatlich)</Label>
+                  <div className="flex items-center gap-2">
+                    <Label htmlFor="netRent">Netto-Miete (monatlich)</Label>
+                    <Tooltip>
+                      <TooltipTrigger type="button">
+                        <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p className="max-w-xs">Monatliche Kaltmiete ohne Nebenkosten</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </div>
                   <Input
                     id="netRent"
                     type="number"
@@ -74,7 +87,7 @@ export function DetailedParameters() {
                 </div>
                 
                 <div className="space-y-2">
-                  <Label htmlFor="rentInsurance">Hausratversicherung (monatlich)</Label>
+                  <Label htmlFor="rentInsurance">Hausratversicherung (jährlich)</Label>
                   <Input
                     id="rentInsurance"
                     type="number"
@@ -83,11 +96,21 @@ export function DetailedParameters() {
                       rent: { ...params.rent, insurance: Number(e.target.value) }
                     })}
                   />
-                  <p className="text-xs text-muted-foreground">{formatCurrency(params.rent.insurance)}/Monat</p>
+                  <p className="text-xs text-muted-foreground">{formatCurrency(params.rent.insurance)}/Jahr</p>
                 </div>
                 
                 <div className="space-y-2">
-                  <Label htmlFor="rentIncrease">Jährliche Mietsteigerung (%)</Label>
+                  <div className="flex items-center gap-2">
+                    <Label htmlFor="rentIncrease">Jährliche Mietsteigerung (%)</Label>
+                    <Tooltip>
+                      <TooltipTrigger type="button">
+                        <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p className="max-w-xs">Erwartete jährliche Erhöhung der Miete (Durchschnitt Schweiz ca. 1-2%)</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </div>
                   <Input
                     id="rentIncrease"
                     type="number"
@@ -104,7 +127,7 @@ export function DetailedParameters() {
               <div className="bg-muted p-4 rounded-lg">
                 <h4 className="font-semibold mb-2">Gesamtkosten Miete</h4>
                 <p className="text-2xl font-mono">
-                  {formatCurrency((params.rent.netRent + params.rent.utilities + params.rent.insurance) * 12)}/Jahr
+                  {formatCurrency((params.rent.netRent + params.rent.utilities) * 12 + params.rent.insurance)}/Jahr
                 </p>
               </div>
             </CardContent>
@@ -231,7 +254,17 @@ export function DetailedParameters() {
                   </div>
                   
                   <div className="space-y-2">
-                    <Label htmlFor="firstMortgageRate">Zinssatz (%)</Label>
+                    <div className="flex items-center gap-2">
+                      <Label htmlFor="firstMortgageRate">Zinssatz (%)</Label>
+                      <Tooltip>
+                        <TooltipTrigger type="button">
+                          <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p className="max-w-xs">Aktueller Zinssatz für die Hypothek (Stand 2024-2026: ca. 1.5-2.5%)</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </div>
                     <Input
                       id="firstMortgageRate"
                       type="number"
@@ -301,7 +334,17 @@ export function DetailedParameters() {
                   </div>
                   
                   <div className="space-y-2">
-                    <Label htmlFor="amortizationYears">Amortisation (Jahre)</Label>
+                    <div className="flex items-center gap-2">
+                      <Label htmlFor="amortizationYears">Amortisation (Jahre)</Label>
+                      <Tooltip>
+                        <TooltipTrigger type="button">
+                          <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p className="max-w-xs">Zeitraum zur Rückzahlung der 2. Hypothek auf 65% Belehnung (gesetzlich innerhalb 15 Jahren oder bis Pensionierung)</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </div>
                     <Input
                       id="amortizationYears"
                       type="number"
@@ -349,7 +392,7 @@ export function DetailedParameters() {
                 </div>
                 
                 <div className="space-y-2">
-                  <Label htmlFor="ownershipInsurance">Gebäudeversicherung (monatlich)</Label>
+                  <Label htmlFor="ownershipInsurance">Gebäudeversicherung (jährlich)</Label>
                   <Input
                     id="ownershipInsurance"
                     type="number"
@@ -358,11 +401,21 @@ export function DetailedParameters() {
                       runningCosts: { ...params.runningCosts, insurance: Number(e.target.value) }
                     })}
                   />
-                  <p className="text-xs text-muted-foreground">{formatCurrency(params.runningCosts.insurance)}/Monat</p>
+                  <p className="text-xs text-muted-foreground">{formatCurrency(params.runningCosts.insurance)}/Jahr</p>
                 </div>
                 
                 <div className="space-y-2">
-                  <Label htmlFor="maintenanceSimple">Unterhalt (% vom Kaufpreis p.a.)</Label>
+                  <div className="flex items-center gap-2">
+                    <Label htmlFor="maintenanceSimple">Unterhalt (% vom Kaufpreis p.a.)</Label>
+                    <Tooltip>
+                      <TooltipTrigger type="button">
+                        <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p className="max-w-xs">Laufende Instandhaltung: Richtwert 1% des Kaufpreises pro Jahr</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </div>
                   <Input
                     id="maintenanceSimple"
                     type="number"
@@ -382,7 +435,7 @@ export function DetailedParameters() {
                 <h4 className="font-semibold mb-2">Geschätzte jährliche Kosten</h4>
                 <p className="text-2xl font-mono">
                   {formatCurrency(
-                    (params.runningCosts.utilities + params.runningCosts.insurance) * 12 +
+                    params.runningCosts.utilities * 12 + params.runningCosts.insurance +
                     params.purchase.purchasePrice * params.runningCosts.maintenanceSimple / 100
                   )}/Jahr
                 </p>
@@ -414,7 +467,17 @@ export function DetailedParameters() {
                 </div>
                 
                 <div className="space-y-2">
-                  <Label htmlFor="rentalValueRate">Eigenmietwert (% vom Immobilienwert)</Label>
+                  <div className="flex items-center gap-2">
+                    <Label htmlFor="rentalValueRate">Eigenmietwert (% vom Immobilienwert)</Label>
+                    <Tooltip>
+                      <TooltipTrigger type="button">
+                        <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p className="max-w-xs">Fiktives Einkommen aus selbstgenutztem Wohneigentum (steuerbar, ca. 3.5% des Immobilienwerts)</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </div>
                   <Input
                     id="rentalValueRate"
                     type="number"
@@ -468,7 +531,17 @@ export function DetailedParameters() {
             <CardContent className="space-y-4">
               <div className="grid grid-cols-3 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="propertyAppreciation">Wertsteigerung Immobilie (% p.a.)</Label>
+                  <div className="flex items-center gap-2">
+                    <Label htmlFor="propertyAppreciation">Wertsteigerung Immobilie (% p.a.)</Label>
+                    <Tooltip>
+                      <TooltipTrigger type="button">
+                        <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p className="max-w-xs">Erwartete jährliche Wertsteigerung der Immobilie (historisch 1-3% in der Schweiz)</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </div>
                   <Input
                     id="propertyAppreciation"
                     type="number"
@@ -482,7 +555,17 @@ export function DetailedParameters() {
                 </div>
                 
                 <div className="space-y-2">
-                  <Label htmlFor="etfReturn">ETF-Rendite (% p.a.)</Label>
+                  <div className="flex items-center gap-2">
+                    <Label htmlFor="etfReturn">ETF-Rendite (% p.a.)</Label>
+                    <Tooltip>
+                      <TooltipTrigger type="button">
+                        <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p className="max-w-xs">Alternativrendite bei Anlage des Eigenkapitals in ETFs (Opportunitätskosten)</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </div>
                   <Input
                     id="etfReturn"
                     type="number"
@@ -514,5 +597,6 @@ export function DetailedParameters() {
         </TabsContent>
       </Tabs>
     </div>
+    </TooltipProvider>
   )
 }

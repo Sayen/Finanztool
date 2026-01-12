@@ -32,7 +32,7 @@ export function calculateScenario(params: CalculationParams): CalculationResults
     // Rent calculations
     const rentCost = currentRent * 12
     const rentUtilities = params.rent.utilities * 12
-    const rentInsurance = params.rent.insurance * 12
+    const rentInsurance = params.rent.insurance
     const rentTotalAnnual = rentCost + rentUtilities + rentInsurance
     cumulativeRentCost += rentTotalAnnual
     
@@ -53,7 +53,7 @@ export function calculateScenario(params: CalculationParams): CalculationResults
     mortgageBalance = Math.max(0, mortgageBalance - annualAmortization)
     
     const ownershipUtilities = params.runningCosts.utilities * 12
-    const ownershipInsurance = params.runningCosts.insurance * 12
+    const ownershipInsurance = params.runningCosts.insurance
     const maintenanceCost = calculateMaintenanceCost(params, year)
     
     const ownershipTotalAnnual = mortgageInterest + annualAmortization + 
@@ -216,8 +216,8 @@ export function deriveFromQuickStart(quickStart: import('../types').QuickStartPa
     rent: {
       netRent: comparisonRent,
       utilities: comparisonRent * 0.15, // Estimate 15% of rent
-      insurance: 50, // Standard monthly estimate
-      annualIncrease: 2.0, // 2% per year
+      insurance: 600, // Annual estimate
+      annualIncrease: 1.0, // 1% per year
     },
     purchase: {
       propertyType: quickStart.propertyType,
@@ -225,20 +225,20 @@ export function deriveFromQuickStart(quickStart: import('../types').QuickStartPa
       equity: quickStart.equity,
       notaryFees: 0.5,
       landRegistryFees: 0.3,
-      brokerFees: 3.0,
+      brokerFees: 1.0,
     },
     mortgage: {
       firstMortgage: quickStart.purchasePrice * firstMortgageRatio,
-      firstMortgageRate: 2.5,
+      firstMortgageRate: 1.5,
       firstMortgageTerm: 10,
       secondMortgage: quickStart.purchasePrice * secondMortgageRatio,
-      secondMortgageRate: 3.0,
+      secondMortgageRate: 1.5,
       secondMortgageTerm: 5,
       amortizationYears: 15,
     },
     runningCosts: {
       utilities: comparisonRent * 0.15, // Same as rent estimate
-      insurance: 100, // Monthly estimate for ownership
+      insurance: 1200, // Annual estimate for ownership
       maintenanceSimple: 1.0, // 1% of purchase price annually
     },
     tax: {
