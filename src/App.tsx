@@ -36,7 +36,7 @@ function App() {
         await copyToClipboard(url)
         setShareMessage('Link in Zwischenablage kopiert!')
         setTimeout(() => setShareMessage(''), 3000)
-      } catch (err) {
+      } catch {
         setShareMessage('Fehler beim Kopieren')
       }
     }

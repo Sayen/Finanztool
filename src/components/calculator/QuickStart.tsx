@@ -8,7 +8,7 @@ import { useScenarioStore } from '../../stores/scenarioStore'
 import { deriveFromQuickStart } from '../../lib/calculator'
 import { formatCurrency } from '../../lib/utils'
 import { Info } from 'lucide-react'
-import type { QuickStartParams } from '../../types'
+import type { QuickStartParams, PropertyType, LocationQuality } from '../../types'
 
 export function QuickStart() {
   const createScenario = useScenarioStore((state) => state.createScenario)
@@ -107,7 +107,7 @@ export function QuickStart() {
               <select
                 id="propertyType"
                 value={params.propertyType}
-                onChange={(e) => setParams({ ...params, propertyType: e.target.value as any })}
+                onChange={(e) => setParams({ ...params, propertyType: e.target.value as PropertyType })}
                 className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
               >
                 <option value="apartment">Wohnung</option>
@@ -196,7 +196,7 @@ export function QuickStart() {
               <select
                 id="location"
                 value={params.location}
-                onChange={(e) => setParams({ ...params, location: e.target.value as any })}
+                onChange={(e) => setParams({ ...params, location: e.target.value as LocationQuality })}
                 className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
               >
                 <option value="prime">Toplage</option>
