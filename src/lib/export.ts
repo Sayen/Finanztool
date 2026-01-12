@@ -1,6 +1,7 @@
 import jsPDF from 'jspdf'
 import autoTable from 'jspdf-autotable'
-import * as XLSX from 'xlsx'
+// Note: xlsx package has known vulnerabilities (GHSA-4r6h-8v6p-xvw6, GHSA-5pgg-2g8v-p4x9)
+// Using CSV export as a safer alternative until a patched version is available
 import type { Scenario } from '../types'
 import { formatCurrency, formatPercent } from './utils'
 
@@ -124,36 +125,13 @@ export function exportToPDF(scenario: Scenario) {
 }
 
 /**
- * Export scenario to Excel/CSV
+ * Export scenario to CSV (safer alternative to Excel with xlsx vulnerabilities)
  */
 export function exportToExcel(scenario: Scenario) {
   if (!scenario.results) return
   
-  // Create workbook
-  const wb = XLSX.utils.book_new()
-  
-  // Summary sheet
-  const summaryData = [
-    ['Miete vs. Eigentum Vergleich'],
-    ['Szenario:', scenario.name],
-    ['Erstellt:', new Date(scenario.createdAt).toLocaleDateString('de-CH')],
-    [],
-    ['Parameter', 'Wert'],
-    ['Kaufpreis', scenario.params.purchase.purchasePrice],
-    ['Eigenkapital', scenario.params.purchase.equity],
-    ['Hypothek', scenario.results.kpis.totalMortgage],
-    ['Monatliche Miete', scenario.results.kpis.monthlyRent],
-    ['Monatliche Kosten Eigentum', scenario.results.kpis.monthlyOwnership],
-    ['Tragbar', scenario.results.affordabilityCheck.isAffordable ? 'Ja' : 'Nein'],
-    ['Auslastung %', scenario.results.affordabilityCheck.utilizationPercent],
-    ['Break-Even Jahr', scenario.results.breakEvenYear || 'Nicht erreicht'],
-  ]
-  
-  const summarySheet = XLSX.utils.aoa_to_sheet(summaryData)
-  XLSX.utils.book_append_sheet(wb, summarySheet, 'Zusammenfassung')
-  
-  // Yearly data sheet
-  const yearlyHeaders = [
+  // Create CSV content
+  const headers = [
     'Jahr',
     'Miete (Jahr)',
     'Kum. Kosten Miete',
@@ -170,7 +148,7 @@ export function exportToExcel(scenario: Scenario) {
     'Nettovermögen Eigentum',
   ]
   
-  const yearlyData = scenario.results.yearlyData.slice(0, 30).map((item) => [
+  const rows = scenario.results.yearlyData.slice(0, 30).map((item) => [
     item.year,
     item.rentTotalAnnual,
     item.rentCumulativeCost,
@@ -187,11 +165,38 @@ export function exportToExcel(scenario: Scenario) {
     item.netWealthOwnership,
   ])
   
-  const yearlySheet = XLSX.utils.aoa_to_sheet([yearlyHeaders, ...yearlyData])
-  XLSX.utils.book_append_sheet(wb, yearlySheet, 'Jahreswerte')
+  // Add summary header
+  const summary = [
+    ['Miete vs. Eigentum Vergleich'],
+    ['Szenario:', scenario.name],
+    ['Erstellt:', new Date(scenario.createdAt).toLocaleDateString('de-CH')],
+    [],
+    ['Kaufpreis', scenario.params.purchase.purchasePrice],
+    ['Eigenkapital', scenario.params.purchase.equity],
+    ['Hypothek', scenario.results.kpis.totalMortgage],
+    ['Monatliche Miete', scenario.results.kpis.monthlyRent],
+    ['Monatliche Kosten Eigentum', scenario.results.kpis.monthlyOwnership],
+    ['Tragbar', scenario.results.affordabilityCheck.isAffordable ? 'Ja' : 'Nein'],
+    ['Auslastung %', scenario.results.affordabilityCheck.utilizationPercent],
+    ['Break-Even Jahr', scenario.results.breakEvenYear || 'Nicht erreicht'],
+    [],
+  ]
   
-  // Save
-  XLSX.writeFile(wb, `${scenario.name.replace(/\s+/g, '-')}-${Date.now()}.xlsx`)
+  // Combine all data
+  const csvContent = [
+    ...summary.map(row => row.join(',')),
+    headers.join(','),
+    ...rows.map(row => row.join(','))
+  ].join('\n')
+  
+  // Create blob and download
+  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = `${scenario.name.replace(/\s+/g, '-')}-${Date.now()}.csv`
+  a.click()
+  URL.revokeObjectURL(url)
 }
 
 /**

@@ -64,7 +64,7 @@ function App() {
                   </Button>
                   <Button variant="outline" size="sm" onClick={handleExportExcel}>
                     <Download className="h-4 w-4 mr-2" />
-                    Excel
+                    CSV
                   </Button>
                   <Button variant="outline" size="sm" onClick={handleExportPDF}>
                     <Download className="h-4 w-4 mr-2" />
