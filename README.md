@@ -1,73 +1,144 @@
-# React + TypeScript + Vite
+# Miete vs. Eigentum Vergleichstool
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Eine vollständige, produktionsreife Webapplikation zum Vergleich von Miete und Wohneigentum im Kanton Zürich.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+### 🚀 Schnellstart-Modul
+- 5 Kernparameter für schnelle Berechnung
+- Automatische Ableitung von Hypothekenbedarf und Vergleichsmiete
+- Sofortige Ergebnisanzeige mit KPI-Cards
+- Tragfähigkeitsprüfung nach 33%-Regel
 
-## React Compiler
+### 📊 Detaillierte Parametereinstellung
+- **Miete**: Netto-Miete, Nebenkosten, Versicherungen, jährliche Steigerung
+- **Eigentum**: Kaufpreis, Eigenkapital, Kaufnebenkosten (Notar, Grundbuch, Makler)
+- **Hypothek**: 1. & 2. Hypothek mit Zinssätzen, Amortisation, Zinsfestschreibung
+- **Laufende Kosten**: Nebenkosten, Versicherungen, Unterhalt (vereinfacht + detailliertes zyklisches Modell)
+- **Steuern**: Grenzsteuersatz, Zinsabzug, Eigenmietwert-Besteuerung
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+### 💰 Umfassende Berechnungs-Engine
+- Hypothekarkosten (Zins + Amortisation)
+- Vermögensaufbau über Zeit mit Wertsteigerung
+- Break-Even-Punkt Berechnung
+- Tragfähigkeitsprüfung mit 5% kalkulatorischem Zins
+- Steuerersparnis durch Zinsabzug
+- Eigenmietwert-Besteuerung
+- Kumulierte Kosten über 50 Jahre
+- Opportunitätskosten (ETF-Rendite auf Eigenkapital)
 
-## Expanding the ESLint configuration
+### 📈 Visualisierungen
+- Linien-Chart: Kumulierte Kosten über Zeit
+- Linien-Chart: Nettovermögen-Entwicklung
+- Stacked Bar: Jährliche Kostenaufteilung
+- KPI-Cards mit Kennzahlen
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+### 💾 Szenarien-Management
+- Mehrere Szenarien erstellen, benennen, duplizieren, löschen
+- LocalStorage-Persistierung für alle Szenarien
+- Favoriten markieren
+- JSON Export/Import für Backup und Sharing
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+### 📤 Export-Funktionen
+- PDF-Bericht mit professionellem Layout
+- Excel/CSV Export mit detaillierten Jahreswerten
+- Link-Sharing (URL mit Query-Params)
+- Zwischenablage-Funktion
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+### 🎨 Benutzerfreundlichkeit
+- Dark Mode Support
+- Responsive Design (Mobile-First)
+- Schweizer Währungsformatierung (CHF 1'300'000)
+- Vollständig auf Deutsch (DE-CH)
+- Moderne UI mit Tailwind CSS & Radix UI
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+## Technologie-Stack
+
+- **Framework**: React 18 + TypeScript
+- **Build Tool**: Vite
+- **UI**: Tailwind CSS + Radix UI (Shadcn/ui Komponenten)
+- **State Management**: Zustand mit localStorage persistence
+- **Charts**: Recharts
+- **Export**: jsPDF + SheetJS (xlsx)
+- **Icons**: Lucide React
+
+## Installation & Entwicklung
+
+```bash
+# Dependencies installieren
+npm install
+
+# Entwicklungsserver starten
+npm run dev
+
+# Production Build erstellen
+npm run build
+
+# Build testen
+npm run preview
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Deployment
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+Die App ist als statische Website konzipiert und kann auf jedem Standard-Webhosting deployed werden:
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+1. Build erstellen: `npm run build`
+2. `dist/` Ordner auf Webserver hochladen
+3. Fertig!
+
+### Kompatible Hosting-Plattformen
+- Netlify
+- Vercel
+- GitHub Pages
+- Cloudflare Pages
+- Beliebiger statischer Webserver (Apache, Nginx, etc.)
+
+## Verwendung
+
+### Schnellstart
+1. Öffnen Sie die Anwendung
+2. Geben Sie die 5 Kernparameter ein:
+   - Kaufpreis der Immobilie
+   - Immobilientyp (Wohnung, Haus, Stockwerkeigentum)
+   - Ihr Eigenkapital
+   - Haushaltseinkommen (jährlich)
+   - Wohnlage
+3. Klicken Sie auf "Berechnung starten"
+4. Ergebnisse werden sofort angezeigt
+
+### Detaillierte Anpassung
+1. Wechseln Sie zum Tab "Detailliert"
+2. Passen Sie alle Parameter nach Ihren Bedürfnissen an
+3. Die Berechnung aktualisiert sich automatisch
+
+### Szenarien verwalten
+1. Erstellen Sie mehrere Szenarien für verschiedene Immobilien
+2. Vergleichen Sie die Szenarien in der Übersicht
+3. Exportieren Sie Ihre Favoriten als PDF oder Excel
+4. Teilen Sie Berechnungen über den Link
+
+## Berechnungslogik
+
+Die App verwendet folgende Formeln und Annahmen:
+
+- **Tragbarkeit**: Max. 33% des Bruttoeinkommens, kalkuliert mit 5% Zins
+- **Steuerersparnis**: Hypothekarzinsen × Grenzsteuersatz
+- **Eigenmietwert**: ca. 3.5% des Immobilienwerts (steuerbar)
+- **Wertsteigerung**: Konfigurierbar (Standard: 2% p.a.)
+- **ETF-Rendite**: Für Opportunitätskosten (Standard: 6% p.a.)
+- **Inflation**: Berücksichtigt bei Mietsteigerung (Standard: 2% p.a.)
+
+## Browser-Kompatibilität
+
+- Chrome/Edge 90+
+- Firefox 88+
+- Safari 14+
+- Mobile Browser (iOS Safari, Chrome Mobile)
+
+## Lizenz
+
+© 2026 Finanztool - Alle Rechte vorbehalten
+
+## Support
+
+Bei Fragen oder Problemen erstellen Sie bitte ein Issue im GitHub Repository.
