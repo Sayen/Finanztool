@@ -283,6 +283,9 @@ export function DetailedParameters() {
                         <p className="text-xs mt-1 text-muted-foreground">
                           💡 Richtwert: CHF 150-300/Monat • 2 Zimmer: CHF 150-200 • 3-4 Zimmer: CHF 200-250 • 5+ Zimmer: CHF 250-300
                         </p>
+                        <p className="text-xs mt-1 text-muted-foreground">
+                          Standard: Berechnet als ca. 15% der Nettomiete
+                        </p>
                       </TooltipContent>
                     </Tooltip>
                   </div>
@@ -839,6 +842,9 @@ export function DetailedParameters() {
                         <p className="text-xs mt-1 text-muted-foreground">
                           💡 Richtwert: CHF 200-400/Monat • Wohnung: CHF 150-250 • Stockwerkeigentum: CHF 200-300 • Einfamilienhaus: CHF 250-400
                         </p>
+                        <p className="text-xs mt-1 text-muted-foreground">
+                          Standard: Berechnet als ca. 15% der Vergleichsmiete
+                        </p>
                       </TooltipContent>
                     </Tooltip>
                   </div>
@@ -900,6 +906,9 @@ export function DetailedParameters() {
                           </p>
                           <p className="text-xs mt-1 text-muted-foreground">
                             💡 Richtwert: 1.0-1.5% p.a. • Neubau (0-10 Jahre): 0.5-0.8% • Standard (10-30 Jahre): 1.0-1.5% • Altbau (30+ Jahre): 1.5-2.5%
+                          </p>
+                          <p className="text-xs mt-1 font-semibold text-muted-foreground">
+                            Standard: 1.0% p.a.
                           </p>
                         </TooltipContent>
                       </Tooltip>
@@ -1387,6 +1396,9 @@ export function DetailedParameters() {
                         <p className="text-xs mt-1 text-muted-foreground">
                           💡 Richtwert: 1.0-2.5% p.a. (historisch langfristig ~2%, konservativ 1-1.5%, Toplagen Zürich 2-2.5%)
                         </p>
+                        <p className="text-xs mt-1 font-semibold text-muted-foreground">
+                          Standard: 2.0% p.a.
+                        </p>
                       </TooltipContent>
                     </Tooltip>
                   </div>
@@ -1425,6 +1437,9 @@ export function DetailedParameters() {
                         <p className="text-xs mt-1 text-muted-foreground">
                           💡 Richtwert: 5-7% p.a. (MSCI World historisch ~7%, nach Steuern &amp; Gebühren ~5-6%. ⚠️ Mit Volatilität verbunden)
                         </p>
+                        <p className="text-xs mt-1 font-semibold text-muted-foreground">
+                          Standard: 6.0% p.a.
+                        </p>
                       </TooltipContent>
                     </Tooltip>
                   </div>
@@ -1462,6 +1477,9 @@ export function DetailedParameters() {
                         </p>
                         <p className="text-xs mt-1 text-muted-foreground">
                           💡 Richtwert: 1.0-1.5% p.a. (langfristiger CH-Durchschnitt, 2021-2023 temporär 2-3%, langfristig stabil ~1%)
+                        </p>
+                        <p className="text-xs mt-1 font-semibold text-muted-foreground">
+                          Standard: 1.5% p.a.
                         </p>
                       </TooltipContent>
                     </Tooltip>
