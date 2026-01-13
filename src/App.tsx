@@ -36,7 +36,7 @@ function App() {
         await copyToClipboard(url)
         setShareMessage('Link in Zwischenablage kopiert!')
         setTimeout(() => setShareMessage(''), 3000)
-      } catch (err) {
+      } catch {
         setShareMessage('Fehler beim Kopieren')
       }
     }
@@ -72,7 +72,7 @@ function App() {
                   </Button>
                 </>
               )}
-              <Button variant="outline" size="sm">
+              <Button variant="outline" size="sm" onClick={() => setActiveTab('scenarios')}>
                 <FileText className="h-4 w-4 mr-2" />
                 Szenarien: {scenarios.length}
               </Button>
@@ -138,6 +138,17 @@ function App() {
           </div>
         </div>
       </nav>
+
+      {/* Current Scenario Name Display */}
+      {currentScenario && (
+        <div className="border-b bg-muted/50 py-3">
+          <div className="container mx-auto px-4">
+            <h2 className="text-xl font-semibold text-primary">
+              Aktuelles Szenario: {currentScenario.name}
+            </h2>
+          </div>
+        </div>
+      )}
 
       {/* Main Content */}
       <main className="container mx-auto px-4 py-8">
