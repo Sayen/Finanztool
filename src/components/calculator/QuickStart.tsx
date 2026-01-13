@@ -108,7 +108,7 @@ export function QuickStart() {
                 id="propertyType"
                 value={params.propertyType}
                 onChange={(e) => setParams({ ...params, propertyType: e.target.value as PropertyType })}
-                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm dark:text-foreground"
               >
                 <option value="apartment">Wohnung</option>
                 <option value="condo">Stockwerkeigentum</option>
@@ -197,7 +197,7 @@ export function QuickStart() {
                 id="location"
                 value={params.location}
                 onChange={(e) => setParams({ ...params, location: e.target.value as LocationQuality })}
-                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm dark:text-foreground"
               >
                 <option value="prime">Toplage</option>
                 <option value="good">Gute Lage</option>
