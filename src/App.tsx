@@ -3,9 +3,15 @@ import { QuickStart } from './components/calculator/QuickStart'
 import { DetailedParameters } from './components/calculator/DetailedParameters'
 import { ResultsOverview } from './components/calculator/KpiCards'
 import { CostComparisonChart, WealthChart, AnnualCostBreakdown } from './components/charts/CostCharts'
+import { CashflowChart } from './components/charts/CashflowChart'
+import { AffordabilityChart } from './components/charts/AffordabilityChart'
+import { TaxChart } from './components/charts/TaxChart'
+import { BreakEvenChart } from './components/charts/BreakEvenChart'
+import { OpportunityCostChart } from './components/charts/OpportunityCostChart'
 import { ScenarioLibrary } from './components/scenario/ScenarioLibrary'
 import { useScenarioStore } from './stores/scenarioStore'
 import { Button } from './components/ui/Button'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from './components/ui/Tabs'
 import { exportToPDF, exportToExcel, generateShareableUrl, copyToClipboard } from './lib/export'
 import { useTheme } from './hooks/useTheme'
 import { Home, BarChart3, Settings, FileText, Download, Share2, Moon, Sun } from 'lucide-react'
@@ -52,27 +58,33 @@ function App() {
               <h1 className="text-2xl font-bold text-primary">Miete vs. Eigentum</h1>
               <p className="text-sm text-muted-foreground">Vergleichstool für Kanton Zürich</p>
             </div>
-            <div className="flex items-center gap-2">
-              <Button variant="ghost" size="sm" onClick={toggleTheme}>
+            <div className="flex flex-wrap items-center gap-2">
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={toggleTheme}
+                className="dark:ring-1 dark:ring-border"
+                aria-label={theme === 'light' ? 'Zu Dark Mode wechseln' : 'Zu Light Mode wechseln'}
+              >
                 {theme === 'light' ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
               </Button>
               {currentScenario && (
                 <>
-                  <Button variant="outline" size="sm" onClick={handleShare}>
+                  <Button variant="outline" size="sm" onClick={handleShare} aria-label="Szenario teilen">
                     <Share2 className="h-4 w-4 mr-2" />
                     Teilen
                   </Button>
-                  <Button variant="outline" size="sm" onClick={handleExportExcel}>
+                  <Button variant="outline" size="sm" onClick={handleExportExcel} aria-label="Als CSV exportieren">
                     <Download className="h-4 w-4 mr-2" />
                     CSV
                   </Button>
-                  <Button variant="outline" size="sm" onClick={handleExportPDF}>
+                  <Button variant="outline" size="sm" onClick={handleExportPDF} aria-label="Als PDF exportieren">
                     <Download className="h-4 w-4 mr-2" />
                     PDF
                   </Button>
                 </>
               )}
-              <Button variant="outline" size="sm" onClick={() => setActiveTab('scenarios')}>
+              <Button variant="outline" size="sm" onClick={() => setActiveTab('scenarios')} aria-label="Szenarien anzeigen">
                 <FileText className="h-4 w-4 mr-2" />
                 Szenarien: {scenarios.length}
               </Button>
@@ -90,47 +102,51 @@ function App() {
       {/* Navigation */}
       <nav className="border-b bg-card">
         <div className="container mx-auto px-4">
-          <div className="flex gap-1">
+          <div className="flex gap-1 overflow-x-auto">
             <button
               onClick={() => setActiveTab('quickstart')}
-              className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
+              className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
                 activeTab === 'quickstart'
                   ? 'border-primary text-primary'
                   : 'border-transparent text-muted-foreground hover:text-foreground'
               }`}
+              aria-label="Schnellstart Tab"
             >
               <Home className="h-4 w-4 inline mr-2" />
               Schnellstart
             </button>
             <button
               onClick={() => setActiveTab('detailed')}
-              className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
+              className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
                 activeTab === 'detailed'
                   ? 'border-primary text-primary'
                   : 'border-transparent text-muted-foreground hover:text-foreground'
               }`}
+              aria-label="Detailliert Tab"
             >
               <Settings className="h-4 w-4 inline mr-2" />
               Detailliert
             </button>
             <button
               onClick={() => setActiveTab('charts')}
-              className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
+              className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
                 activeTab === 'charts'
                   ? 'border-primary text-primary'
                   : 'border-transparent text-muted-foreground hover:text-foreground'
               }`}
+              aria-label="Visualisierungen Tab"
             >
               <BarChart3 className="h-4 w-4 inline mr-2" />
               Visualisierungen
             </button>
             <button
               onClick={() => setActiveTab('scenarios')}
-              className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
+              className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
                 activeTab === 'scenarios'
                   ? 'border-primary text-primary'
                   : 'border-transparent text-muted-foreground hover:text-foreground'
               }`}
+              aria-label="Szenarien Tab"
             >
               <FileText className="h-4 w-4 inline mr-2" />
               Szenarien
@@ -189,11 +205,47 @@ function App() {
         )}
 
         {activeTab === 'charts' && currentScenario?.results && (
-          <div className="space-y-6">
-            <CostComparisonChart data={currentScenario.results.yearlyData} />
-            <WealthChart data={currentScenario.results.yearlyData} />
-            <AnnualCostBreakdown data={currentScenario.results.yearlyData} />
-          </div>
+          <Tabs defaultValue="overview" className="w-full">
+            <TabsList className="grid w-full grid-cols-3 lg:grid-cols-6">
+              <TabsTrigger value="overview">Übersicht</TabsTrigger>
+              <TabsTrigger value="cashflow">Cashflow</TabsTrigger>
+              <TabsTrigger value="affordability">Tragbarkeit</TabsTrigger>
+              <TabsTrigger value="taxes">Steuern</TabsTrigger>
+              <TabsTrigger value="breakeven">Break-Even</TabsTrigger>
+              <TabsTrigger value="opportunity">Opportunität</TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="overview" className="space-y-6 mt-6">
+              <CostComparisonChart data={currentScenario.results.yearlyData} />
+              <WealthChart data={currentScenario.results.yearlyData} />
+              <AnnualCostBreakdown data={currentScenario.results.yearlyData} />
+            </TabsContent>
+            
+            <TabsContent value="cashflow" className="space-y-6 mt-6">
+              <CashflowChart data={currentScenario.results.yearlyData} />
+              <AnnualCostBreakdown data={currentScenario.results.yearlyData} displayYears={[1, 2, 3, 5, 10]} />
+            </TabsContent>
+            
+            <TabsContent value="affordability" className="space-y-6 mt-6">
+              <AffordabilityChart params={currentScenario.params} />
+            </TabsContent>
+            
+            <TabsContent value="taxes" className="space-y-6 mt-6">
+              <TaxChart data={currentScenario.results.yearlyData} />
+            </TabsContent>
+            
+            <TabsContent value="breakeven" className="space-y-6 mt-6">
+              <BreakEvenChart 
+                data={currentScenario.results.yearlyData} 
+                breakEvenYear={currentScenario.results.breakEvenYear}
+              />
+            </TabsContent>
+            
+            <TabsContent value="opportunity" className="space-y-6 mt-6">
+              <OpportunityCostChart data={currentScenario.results.yearlyData} />
+              <WealthChart data={currentScenario.results.yearlyData} />
+            </TabsContent>
+          </Tabs>
         )}
 
         {activeTab === 'scenarios' && (

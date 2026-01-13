@@ -24,6 +24,8 @@ export interface PurchaseParams {
   notaryFees: number // as percentage
   landRegistryFees: number // as percentage
   brokerFees: number // as percentage
+  mortgageProcessingFee?: number // as percentage (typically 0.5-1%)
+  propertyValuationFee?: number // fixed amount (typically CHF 500-2000)
 }
 
 export interface MortgageParams {
@@ -40,6 +42,9 @@ export interface RunningCostsParams {
   utilities: number
   insurance: number
   maintenanceSimple: number // as percentage of purchase price
+  parkingCost?: number // monthly parking costs
+  condominiumFees?: number // monthly condominium management fees
+  renovationReserve?: number // annual renovation reserve
   // Detailed maintenance (optional)
   roofRenovation?: number
   roofInterval?: number
