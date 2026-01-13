@@ -30,7 +30,7 @@ export function AffordabilityChart({ params, maxYears = 30 }: AffordabilityChart
       : 0
     
     // Apply inflation to running costs
-    const inflationFactor = Math.pow(1 + params.inflationRate / 100, year - 1)
+    const inflationFactor = Math.pow(1 + params.additional.inflationRate / 100, year - 1)
     const annualCosts = calculatedInterest + annualAmortization + 
                         (params.runningCosts.utilities + 
                          (params.runningCosts.parkingCost || 0) +
