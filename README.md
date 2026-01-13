@@ -211,9 +211,9 @@ Die App ist als statische Website konzipiert und kann auf jedem Standard-Webhost
 | Parameter | Beschreibung | Richtwert |
 |-----------|--------------|-----------|
 | **1. Hypothek** | Bis max. 65% des Kaufpreises | ≤ 65% LTV |
-| **1. Hypothek Zinssatz** | Aktueller Marktzins | 1.5-2.5% p.a. |
+| **1. Hypothek Zinssatz** | Aktueller Marktzins | 2.0-3.0% p.a. |
 | **2. Hypothek** | Bis max. 15% des Kaufpreises | ≤ 15% LTV |
-| **2. Hypothek Zinssatz** | Meist gleich wie 1. Hypothek | 1.5-2.5% p.a. |
+| **2. Hypothek Zinssatz** | Meist gleich wie 1. Hypothek | 2.0-3.0% p.a. |
 | **Amortisation** | Rückzahlung 2. Hypothek | Max. 15 Jahre |
 
 ### Laufende Kosten (Eigentum)
@@ -237,9 +237,9 @@ Die App ist als statische Website konzipiert und kann auf jedem Standard-Webhost
 ### Weitere Parameter
 | Parameter | Beschreibung | Richtwert |
 |-----------|--------------|-----------|
-| **Wertsteigerung Immobilie** | Historische Performance CH | 1-3% p.a. |
+| **Wertsteigerung Immobilie** | Historische Performance CH | 1.0-2.5% p.a. |
 | **ETF-Rendite** | Alternative Kapitalanlage | 5-7% p.a. |
-| **Inflation** | Teuerung (auf alle Kosten) | 1-2% p.a. |
+| **Inflation** | Teuerung (auf alle Kosten) | 1.0-1.5% p.a. |
 
 
 ## Berechnungslogik
