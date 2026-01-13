@@ -6,7 +6,23 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/
 import { useScenarioStore } from '../../stores/scenarioStore'
 import { formatCurrency } from '../../lib/utils'
 import { Info } from 'lucide-react'
-import type { CalculationParams } from '../../types'
+import type { CalculationParams, AdditionalParams } from '../../types'
+
+// Helper to safely access additional params with defaults
+const getAdditionalParam = <K extends keyof AdditionalParams>(
+  params: CalculationParams,
+  key: K,
+  defaultValue: AdditionalParams[K]
+): AdditionalParams[K] => {
+  if (params.additional) {
+    return params.additional[key] ?? defaultValue
+  }
+  // Backward compatibility: check old location
+  if (key in params) {
+    return (params as any)[key] ?? defaultValue
+  }
+  return defaultValue
+}
 
 export function DetailedParameters() {
   const currentScenario = useScenarioStore((state) => state.getCurrentScenario())
@@ -1226,7 +1242,7 @@ export function DetailedParameters() {
                     id="propertyAppreciation"
                     type="number"
                     step="0.1"
-                    value={(params.additional || params as any).propertyAppreciationRate || params.propertyAppreciationRate || 2.0}
+                    value={getAdditionalParam(params, 'propertyAppreciationRate', 2.0)}
                     onChange={(e) => {
                       const value = Number(e.target.value)
                       if (params.additional) {
@@ -1238,7 +1254,7 @@ export function DetailedParameters() {
                       }
                     }}
                   />
-                  <p className="text-xs text-muted-foreground">{(params.additional || params as any).propertyAppreciationRate || params.propertyAppreciationRate || 2.0}% pro Jahr</p>
+                  <p className="text-xs text-muted-foreground">{getAdditionalParam(params, 'propertyAppreciationRate', 2.0)}% pro Jahr</p>
                 </div>
                 
                 <div className="space-y-2">
@@ -1264,7 +1280,7 @@ export function DetailedParameters() {
                     id="etfReturn"
                     type="number"
                     step="0.1"
-                    value={(params.additional || params as any).etfReturnRate || params.etfReturnRate || 6.0}
+                    value={getAdditionalParam(params, 'etfReturnRate', 6.0)}
                     onChange={(e) => {
                       const value = Number(e.target.value)
                       if (params.additional) {
@@ -1276,7 +1292,7 @@ export function DetailedParameters() {
                       }
                     }}
                   />
-                  <p className="text-xs text-muted-foreground">{(params.additional || params as any).etfReturnRate || params.etfReturnRate || 6.0}% pro Jahr</p>
+                  <p className="text-xs text-muted-foreground">{getAdditionalParam(params, 'etfReturnRate', 6.0)}% pro Jahr</p>
                 </div>
                 
                 <div className="space-y-2">
@@ -1302,7 +1318,7 @@ export function DetailedParameters() {
                     id="inflation"
                     type="number"
                     step="0.1"
-                    value={(params.additional || params as any).inflationRate || params.inflationRate || 1.5}
+                    value={getAdditionalParam(params, 'inflationRate', 1.5)}
                     onChange={(e) => {
                       const value = Number(e.target.value)
                       if (params.additional) {
@@ -1314,7 +1330,7 @@ export function DetailedParameters() {
                       }
                     }}
                   />
-                  <p className="text-xs text-muted-foreground">{(params.additional || params as any).inflationRate || params.inflationRate || 1.5}% pro Jahr</p>
+                  <p className="text-xs text-muted-foreground">{getAdditionalParam(params, 'inflationRate', 1.5)}% pro Jahr</p>
                 </div>
               </div>
             </CardContent>
@@ -1333,7 +1349,7 @@ export function DetailedParameters() {
                       <input
                         id="investCashInRent"
                         type="checkbox"
-                        checked={(params.additional || { investCashInRent: true } as any).investCashInRent}
+                        checked={getAdditionalParam(params, 'investCashInRent', true)}
                         onChange={(e) => {
                           if (params.additional) {
                             handleUpdate({
@@ -1379,7 +1395,7 @@ export function DetailedParameters() {
                       <input
                         id="investCashInOwnership"
                         type="checkbox"
-                        checked={(params.additional || { investCashInOwnership: false } as any).investCashInOwnership}
+                        checked={getAdditionalParam(params, 'investCashInOwnership', false)}
                         onChange={(e) => {
                           if (params.additional) {
                             handleUpdate({

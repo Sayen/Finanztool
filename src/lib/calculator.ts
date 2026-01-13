@@ -47,8 +47,8 @@ export function calculateScenario(params: CalculationParams): CalculationResults
   let breakEvenYear: number | null = null
   
   // Wealth tracking with income
-  let rentWealthAccumulated = initialTotalWealth - params.purchase.equity // Remaining cash after not buying
-  let ownershipWealthAccumulated = initialTotalWealth - initialInvestment // Remaining cash after buying
+  let rentScenarioWealth = initialTotalWealth - params.purchase.equity // Remaining cash after not buying
+  let ownershipScenarioWealth = initialTotalWealth - initialInvestment // Remaining cash after buying
   
   for (let year = 1; year <= CALCULATION_YEARS; year++) {
     // Calculate inflation factor for this year
@@ -115,22 +115,22 @@ export function calculateScenario(params: CalculationParams): CalculationResults
     
     // Accumulate wealth over time
     // For rent scenario: start with remaining cash, add net savings, invest if enabled
-    if (additional.investCashInRent && rentWealthAccumulated > 0) {
-      rentWealthAccumulated = rentWealthAccumulated * (1 + additional.etfReturnRate / 100)
+    if (additional.investCashInRent && rentScenarioWealth > 0) {
+      rentScenarioWealth = rentScenarioWealth * (1 + additional.etfReturnRate / 100)
     }
-    rentWealthAccumulated += netSavingsRent
+    rentScenarioWealth += netSavingsRent
     
     // For ownership scenario: start with remaining cash, add net savings, invest if enabled
-    if (additional.investCashInOwnership && ownershipWealthAccumulated > 0) {
-      ownershipWealthAccumulated = ownershipWealthAccumulated * (1 + additional.etfReturnRate / 100)
+    if (additional.investCashInOwnership && ownershipScenarioWealth > 0) {
+      ownershipScenarioWealth = ownershipScenarioWealth * (1 + additional.etfReturnRate / 100)
     }
-    ownershipWealthAccumulated += netSavingsOwnership
+    ownershipScenarioWealth += netSavingsOwnership
     
     // Wealth calculations
     const netEquity = propertyValue - mortgageBalance
     const opportunityCostETF = params.purchase.equity * Math.pow(1 + additional.etfReturnRate / 100, year)
-    const netWealthRent = rentWealthAccumulated
-    const netWealthOwnership = netEquity + ownershipWealthAccumulated
+    const netWealthRent = rentScenarioWealth
+    const netWealthOwnership = netEquity + ownershipScenarioWealth
     
     // Check for break-even
     if (breakEvenYear === null && cumulativeOwnershipCost < cumulativeRentCost) {
@@ -162,7 +162,7 @@ export function calculateScenario(params: CalculationParams): CalculationResults
       netWealthOwnership,
       annualIncome,
       annualLivingExpenses: livingExpenses,
-      netAnnualSavings: year === 1 ? netSavingsRent : (netSavingsRent + netSavingsOwnership) / 2, // Average for display
+      netAnnualSavings: netSavingsRent, // Net savings in rent scenario (income - living - housing)
     })
   }
   
