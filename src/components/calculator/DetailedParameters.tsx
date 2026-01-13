@@ -239,7 +239,21 @@ export function DetailedParameters() {
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="purchasePrice">Kaufpreis</Label>
+                  <div className="flex items-center gap-2">
+                    <Label htmlFor="purchasePrice">Kaufpreis</Label>
+                    <Tooltip>
+                      <TooltipTrigger type="button">
+                        <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                      </TooltipTrigger>
+                      <TooltipContent className="max-w-md">
+                        <p className="font-semibold mb-1">Kaufpreis</p>
+                        <p className="text-sm mb-2">Der reine Preis der Immobilie ohne Nebenkosten. Wichtigster Faktor für die Berechnung der Hypothek und des Eigenkapitalbedarfs.</p>
+                        <p className="text-sm text-muted-foreground">
+                          <strong>Einfluss:</strong> Bestimmt die Höhe der Hypothek, des benötigten Eigenkapitals und der Kaufnebenkosten.
+                        </p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </div>
                   <Input
                     id="purchasePrice"
                     type="number"
@@ -252,7 +266,24 @@ export function DetailedParameters() {
                 </div>
                 
                 <div className="space-y-2">
-                  <Label htmlFor="equity">Eigenkapital</Label>
+                  <div className="flex items-center gap-2">
+                    <Label htmlFor="equity">Eigenkapital</Label>
+                    <Tooltip>
+                      <TooltipTrigger type="button">
+                        <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                      </TooltipTrigger>
+                      <TooltipContent className="max-w-md">
+                        <p className="font-semibold mb-1">Eigenkapital</p>
+                        <p className="text-sm mb-2">Ihre eigenen finanziellen Mittel (Ersparnisse, 3a, Erbvorbezug). Mindestens 20% des Kaufpreises sind in der Schweiz erforderlich.</p>
+                        <p className="text-sm text-muted-foreground">
+                          <strong>Einfluss:</strong> Reduziert die benötigte Hypothek und damit die Zinskosten. Mehr Eigenkapital verbessert die Tragbarkeit.
+                        </p>
+                        <p className="text-xs mt-1 text-muted-foreground">
+                          💡 Richtwert: Mindestens 20% des Kaufpreises. 10% müssen "hartes" Eigenkapital sein (nicht aus Pensionskasse).
+                        </p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </div>
                   <Input
                     id="equity"
                     type="number"
@@ -459,7 +490,24 @@ export function DetailedParameters() {
                 <h4 className="font-semibold">1. Hypothek</h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="firstMortgage">Betrag</Label>
+                    <div className="flex items-center gap-2">
+                      <Label htmlFor="firstMortgage">Betrag</Label>
+                      <Tooltip>
+                        <TooltipTrigger type="button">
+                          <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                        </TooltipTrigger>
+                        <TooltipContent className="max-w-md">
+                          <p className="font-semibold mb-1">1. Hypothek</p>
+                          <p className="text-sm mb-2">Der erste Teil der Hypothek, bis maximal 65% des Kaufpreises. Normalerweise nicht amortisationspflichtig.</p>
+                          <p className="text-sm text-muted-foreground">
+                            <strong>Einfluss:</strong> Hauptteil der Finanzierung. Bestimmt zusammen mit dem Zinssatz die monatlichen Zinskosten.
+                          </p>
+                          <p className="text-xs mt-1 text-muted-foreground">
+                            💡 Richtwert: Max. 65% des Kaufpreises
+                          </p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </div>
                     <Input
                       id="firstMortgage"
                       type="number"
@@ -531,7 +579,24 @@ export function DetailedParameters() {
                 <h4 className="font-semibold">2. Hypothek</h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="secondMortgage">Betrag</Label>
+                    <div className="flex items-center gap-2">
+                      <Label htmlFor="secondMortgage">Betrag</Label>
+                      <Tooltip>
+                        <TooltipTrigger type="button">
+                          <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                        </TooltipTrigger>
+                        <TooltipContent className="max-w-md">
+                          <p className="font-semibold mb-1">2. Hypothek</p>
+                          <p className="text-sm mb-2">Der zweite Teil der Hypothek, von 65% bis max. 80% des Kaufpreises. Muss innerhalb von 15 Jahren amortisiert werden.</p>
+                          <p className="text-sm text-muted-foreground">
+                            <strong>Einfluss:</strong> Erhöht die monatlichen Kosten durch Zins und obligatorische Amortisation.
+                          </p>
+                          <p className="text-xs mt-1 text-muted-foreground">
+                            💡 Richtwert: Max. 15% des Kaufpreises (Differenz zwischen Eigenkapital und 65% LTV)
+                          </p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </div>
                     <Input
                       id="secondMortgage"
                       type="number"
@@ -544,7 +609,24 @@ export function DetailedParameters() {
                   </div>
                   
                   <div className="space-y-2">
-                    <Label htmlFor="secondMortgageRate">Zinssatz (%)</Label>
+                    <div className="flex items-center gap-2">
+                      <Label htmlFor="secondMortgageRate">Zinssatz (%)</Label>
+                      <Tooltip>
+                        <TooltipTrigger type="button">
+                          <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                        </TooltipTrigger>
+                        <TooltipContent className="max-w-md">
+                          <p className="font-semibold mb-1">Zinssatz 2. Hypothek</p>
+                          <p className="text-sm mb-2">Zinssatz für die 2. Hypothek. Oft gleich wie die 1. Hypothek, kann aber bei einigen Anbietern leicht höher sein.</p>
+                           <p className="text-sm text-muted-foreground">
+                            <strong>Einfluss:</strong> Direkte Auswirkung auf monatliche Zinskosten.
+                          </p>
+                          <p className="text-xs mt-1 text-muted-foreground">
+                            💡 Richtwert: 1.5-2.5% p.a. (ähnlich wie 1. Hypothek)
+                          </p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </div>
                     <Input
                       id="secondMortgageRate"
                       type="number"
