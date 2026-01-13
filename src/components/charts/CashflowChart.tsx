@@ -5,6 +5,7 @@ import type { YearlyCalculation } from '../../types'
 
 interface CashflowChartProps {
   data: YearlyCalculation[]
+  maxYears?: number
 }
 
 export function CashflowChart({ data }: CashflowChartProps) {

@@ -116,11 +116,14 @@ export function WealthChart({ data, maxYears = 30 }: WealthChartProps) {
 interface AnnualCostBreakdownProps {
   data: YearlyCalculation[]
   displayYears?: number[]
+  maxYears?: number
 }
 
-export function AnnualCostBreakdown({ data, displayYears = [1, 5, 10, 15, 20, 30] }: AnnualCostBreakdownProps) {
-  const chartData = displayYears
-    .filter(year => year <= data.length)
+export function AnnualCostBreakdown({ data, displayYears, maxYears = 30 }: AnnualCostBreakdownProps) {
+  // Use displayYears if provided, otherwise use default years based on maxYears
+  const yearsToDisplay = displayYears || [1, 5, 10, 15, 20, Math.min(30, maxYears)]
+  const chartData = yearsToDisplay
+    .filter(year => year <= data.length && year <= maxYears)
     .map((year) => {
       const item = data[year - 1]
       return {

@@ -6,11 +6,14 @@ import type { YearlyCalculation } from '../../types'
 interface TaxChartProps {
   data: YearlyCalculation[]
   displayYears?: number[]
+  maxYears?: number
 }
 
-export function TaxChart({ data, displayYears = [1, 5, 10, 15, 20, 30] }: TaxChartProps) {
-  const chartData = displayYears
-    .filter(year => year <= data.length)
+export function TaxChart({ data, displayYears, maxYears = 30 }: TaxChartProps) {
+  // Use displayYears if provided, otherwise use default years based on maxYears
+  const yearsToDisplay = displayYears || [1, 5, 10, 15, 20, Math.min(30, maxYears)]
+  const chartData = yearsToDisplay
+    .filter(year => year <= data.length && year <= maxYears)
     .map((year) => {
       const item = data[year - 1]
       return {

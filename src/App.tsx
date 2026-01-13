@@ -19,6 +19,7 @@ import { Home, BarChart3, Settings, FileText, Download, Share2, Moon, Sun } from
 function App() {
   const [activeTab, setActiveTab] = useState<'quickstart' | 'detailed' | 'charts' | 'scenarios'>('quickstart')
   const [shareMessage, setShareMessage] = useState<string>('')
+  const [timeHorizon, setTimeHorizon] = useState<number>(30) // Default 30 years
   const currentScenario = useScenarioStore((state) => state.getCurrentScenario())
   const scenarios = useScenarioStore((state) => state.scenarios)
   const { theme, toggleTheme } = useTheme()
@@ -194,47 +195,70 @@ function App() {
         )}
 
         {activeTab === 'charts' && currentScenario?.results && (
-          <Tabs defaultValue="overview" className="w-full">
-            <TabsList className="grid w-full grid-cols-3 lg:grid-cols-6">
-              <TabsTrigger value="overview">Übersicht</TabsTrigger>
-              <TabsTrigger value="cashflow">Cashflow</TabsTrigger>
-              <TabsTrigger value="affordability">Tragbarkeit</TabsTrigger>
-              <TabsTrigger value="taxes">Steuern</TabsTrigger>
-              <TabsTrigger value="breakeven">Break-Even</TabsTrigger>
-              <TabsTrigger value="opportunity">Opportunität</TabsTrigger>
-            </TabsList>
-            
-            <TabsContent value="overview" className="space-y-6 mt-6">
-              <CostComparisonChart data={currentScenario.results.yearlyData} />
-              <WealthChart data={currentScenario.results.yearlyData} />
-              <AnnualCostBreakdown data={currentScenario.results.yearlyData} />
-            </TabsContent>
-            
-            <TabsContent value="cashflow" className="space-y-6 mt-6">
-              <CashflowChart data={currentScenario.results.yearlyData} />
-              <AnnualCostBreakdown data={currentScenario.results.yearlyData} displayYears={[1, 2, 3, 5, 10]} />
-            </TabsContent>
-            
-            <TabsContent value="affordability" className="space-y-6 mt-6">
-              <AffordabilityChart params={currentScenario.params} />
-            </TabsContent>
-            
-            <TabsContent value="taxes" className="space-y-6 mt-6">
-              <TaxChart data={currentScenario.results.yearlyData} />
-            </TabsContent>
-            
-            <TabsContent value="breakeven" className="space-y-6 mt-6">
-              <BreakEvenChart 
-                data={currentScenario.results.yearlyData} 
-                breakEvenYear={currentScenario.results.breakEvenYear}
+          <div className="space-y-4">
+            {/* Time Horizon Slider */}
+            <div className="bg-card border rounded-lg p-4">
+              <div className="flex items-center justify-between mb-2">
+                <label htmlFor="timeHorizon" className="font-medium">
+                  Zeithorizont: <span className="text-primary">{timeHorizon} Jahre</span>
+                </label>
+                <span className="text-xs text-muted-foreground">5-50 Jahre</span>
+              </div>
+              <input
+                id="timeHorizon"
+                type="range"
+                min="5"
+                max="50"
+                step="1"
+                value={timeHorizon}
+                onChange={(e) => setTimeHorizon(Number(e.target.value))}
+                className="w-full h-2 bg-muted rounded-lg appearance-none cursor-pointer"
               />
-            </TabsContent>
+            </div>
             
-            <TabsContent value="opportunity" className="space-y-6 mt-6">
-              <OpportunityCostChart data={currentScenario.results.yearlyData} />
-              <WealthChart data={currentScenario.results.yearlyData} />
-            </TabsContent>
-          </Tabs>
+            <Tabs defaultValue="overview" className="w-full">
+              <TabsList className="grid w-full grid-cols-3 lg:grid-cols-6">
+                <TabsTrigger value="overview">Übersicht</TabsTrigger>
+                <TabsTrigger value="cashflow">Cashflow</TabsTrigger>
+                <TabsTrigger value="affordability">Tragbarkeit</TabsTrigger>
+                <TabsTrigger value="taxes">Steuern</TabsTrigger>
+                <TabsTrigger value="breakeven">Break-Even</TabsTrigger>
+                <TabsTrigger value="opportunity">Opportunität</TabsTrigger>
+              </TabsList>
+              
+              <TabsContent value="overview" className="space-y-6 mt-6">
+                <CostComparisonChart data={currentScenario.results.yearlyData} maxYears={timeHorizon} />
+                <WealthChart data={currentScenario.results.yearlyData} maxYears={timeHorizon} />
+                <AnnualCostBreakdown data={currentScenario.results.yearlyData} maxYears={timeHorizon} />
+              </TabsContent>
+              
+              <TabsContent value="cashflow" className="space-y-6 mt-6">
+                <CashflowChart data={currentScenario.results.yearlyData} maxYears={timeHorizon} />
+                <AnnualCostBreakdown data={currentScenario.results.yearlyData} displayYears={[1, 2, 3, 5, 10]} maxYears={timeHorizon} />
+              </TabsContent>
+              
+              <TabsContent value="affordability" className="space-y-6 mt-6">
+                <AffordabilityChart params={currentScenario.params} maxYears={timeHorizon} />
+              </TabsContent>
+              
+              <TabsContent value="taxes" className="space-y-6 mt-6">
+                <TaxChart data={currentScenario.results.yearlyData} maxYears={timeHorizon} />
+              </TabsContent>
+              
+              <TabsContent value="breakeven" className="space-y-6 mt-6">
+                <BreakEvenChart 
+                  data={currentScenario.results.yearlyData} 
+                  breakEvenYear={currentScenario.results.breakEvenYear}
+                  maxYears={timeHorizon}
+                />
+              </TabsContent>
+              
+              <TabsContent value="opportunity" className="space-y-6 mt-6">
+                <OpportunityCostChart data={currentScenario.results.yearlyData} maxYears={timeHorizon} />
+                <WealthChart data={currentScenario.results.yearlyData} maxYears={timeHorizon} />
+              </TabsContent>
+            </Tabs>
+          </div>
         )}
 
         {activeTab === 'scenarios' && (
