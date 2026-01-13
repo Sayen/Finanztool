@@ -139,7 +139,7 @@ export function ScenarioLibrary() {
               <select
                 value={filter}
                 onChange={(e) => setFilter(e.target.value as typeof filter)}
-                className="flex h-10 rounded-md border border-input bg-background px-3 py-2 text-sm"
+                className="flex h-10 rounded-md border border-input bg-background px-3 py-2 text-sm dark:text-foreground"
               >
                 <option value="all">Alle</option>
                 <option value="favorites">Nur Favoriten</option>
@@ -151,7 +151,7 @@ export function ScenarioLibrary() {
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
-              className="flex h-10 rounded-md border border-input bg-background px-3 py-2 text-sm"
+              className="flex h-10 rounded-md border border-input bg-background px-3 py-2 text-sm dark:text-foreground"
             >
               <option value="date">Nach Datum</option>
               <option value="name">Nach Name</option>
