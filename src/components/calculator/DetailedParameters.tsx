@@ -30,9 +30,71 @@ export function DetailedParameters() {
     updateScenario(currentScenario.id, updates)
   }
   
+  // Validation checks
+  const equityRatio = (params.purchase.equity / params.purchase.purchasePrice) * 100
+  const isEquityTooLow = equityRatio < 20
+  const totalMortgage = params.mortgage.firstMortgage + params.mortgage.secondMortgage
+  const loanToValue = (totalMortgage / params.purchase.purchasePrice) * 100
+  const isLTVTooHigh = loanToValue > 80
+  const isFirstMortgageTooHigh = (params.mortgage.firstMortgage / params.purchase.purchasePrice) > 0.65
+  
   return (
     <TooltipProvider>
       <div className="space-y-6">
+        {/* Validation Warnings */}
+        {(isEquityTooLow || isLTVTooHigh || isFirstMortgageTooHigh) && (
+          <Card className="border-orange-500 bg-orange-50 dark:bg-orange-950">
+            <CardContent className="py-4">
+              <h4 className="font-semibold text-orange-800 dark:text-orange-200 mb-2">⚠️ Validierungshinweise</h4>
+              <ul className="space-y-1 text-sm text-orange-700 dark:text-orange-300">
+                {isEquityTooLow && (
+                  <li>• Eigenkapital unter 20% ({equityRatio.toFixed(1)}%) - Mindestens 20% erforderlich für Schweizer Hypotheken</li>
+                )}
+                {isLTVTooHigh && (
+                  <li>• Gesamtbelehnung über 80% ({loanToValue.toFixed(1)}%) - Maximal 80% LTV in der Schweiz erlaubt</li>
+                )}
+                {isFirstMortgageTooHigh && (
+                  <li>• 1. Hypothek über 65% - Standard ist max. 65% für die 1. Hypothek, Rest als 2. Hypothek</li>
+                )}
+              </ul>
+            </CardContent>
+          </Card>
+        )}
+        
+        {/* Live Preview */}
+        {currentScenario?.results && (
+          <Card className="bg-primary/5 border-primary/20">
+            <CardContent className="py-4">
+              <h4 className="font-semibold mb-3">📊 Live Berechnungsvorschau</h4>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                <div>
+                  <p className="text-muted-foreground">Monatl. Miete:</p>
+                  <p className="font-mono font-semibold text-lg text-green-600">
+                    {formatCurrency(currentScenario.results.kpis.monthlyRent)}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-muted-foreground">Monatl. Eigentum:</p>
+                  <p className="font-mono font-semibold text-lg text-orange-600">
+                    {formatCurrency(currentScenario.results.kpis.monthlyOwnership)}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-muted-foreground">Tragbarkeit:</p>
+                  <p className={`font-mono font-semibold text-lg ${currentScenario.results.affordabilityCheck.isAffordable ? 'text-green-600' : 'text-red-600'}`}>
+                    {currentScenario.results.affordabilityCheck.utilizationPercent.toFixed(1)}%
+                  </p>
+                </div>
+                <div>
+                  <p className="text-muted-foreground">Break-Even:</p>
+                  <p className="font-mono font-semibold text-lg">
+                    {currentScenario.results.breakEvenYear ? `Jahr ${currentScenario.results.breakEvenYear}` : 'Kein BE'}
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
       <Tabs defaultValue="rent" className="w-full">
         <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="rent">Miete</TabsTrigger>

@@ -1,8 +1,10 @@
+import { useState } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/Card'
 import { Button } from '../ui/Button'
+import { Input } from '../ui/Input'
 import { useScenarioStore } from '../../stores/scenarioStore'
 import { formatCurrency } from '../../lib/utils'
-import { Star, Copy, Trash2, Download, Upload, Plus } from 'lucide-react'
+import { Star, Copy, Trash2, Download, Upload, Plus, Search, Filter } from 'lucide-react'
 
 export function ScenarioLibrary() {
   const scenarios = useScenarioStore((state) => state.scenarios)
@@ -14,6 +16,10 @@ export function ScenarioLibrary() {
   const createScenario = useScenarioStore((state) => state.createScenario)
   const exportScenarios = useScenarioStore((state) => state.exportScenarios)
   const importScenarios = useScenarioStore((state) => state.importScenarios)
+  
+  const [searchQuery, setSearchQuery] = useState('')
+  const [filter, setFilter] = useState<'all' | 'favorites' | 'affordable' | 'not-affordable'>('all')
+  const [sortBy, setSortBy] = useState<'date' | 'name' | 'price' | 'affordability'>('date')
   
   const handleExport = () => {
     const json = exportScenarios()
@@ -44,12 +50,41 @@ export function ScenarioLibrary() {
     input.click()
   }
   
-  const sortedScenarios = [...scenarios].sort((a, b) => {
-    // Favorites first
+  // Filter scenarios based on search and filters
+  let filteredScenarios = scenarios.filter(scenario => {
+    // Search filter
+    const matchesSearch = scenario.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         (scenario.description?.toLowerCase().includes(searchQuery.toLowerCase()))
+    
+    if (!matchesSearch) return false
+    
+    // Other filters
+    if (filter === 'favorites' && !scenario.isFavorite) return false
+    if (filter === 'affordable' && scenario.results && !scenario.results.affordabilityCheck.isAffordable) return false
+    if (filter === 'not-affordable' && scenario.results && scenario.results.affordabilityCheck.isAffordable) return false
+    
+    return true
+  })
+  
+  // Sort scenarios
+  const sortedScenarios = [...filteredScenarios].sort((a, b) => {
+    // Favorites always first
     if (a.isFavorite && !b.isFavorite) return -1
     if (!a.isFavorite && b.isFavorite) return 1
-    // Then by update date
-    return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
+    
+    // Then by selected sort
+    switch (sortBy) {
+      case 'name':
+        return a.name.localeCompare(b.name)
+      case 'price':
+        return a.params.purchase.purchasePrice - b.params.purchase.purchasePrice
+      case 'affordability':
+        if (!a.results || !b.results) return 0
+        return a.results.affordabilityCheck.utilizationPercent - b.results.affordabilityCheck.utilizationPercent
+      case 'date':
+      default:
+        return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
+    }
   })
   
   return (
@@ -57,7 +92,10 @@ export function ScenarioLibrary() {
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
           <h2 className="text-2xl font-bold text-foreground">Szenarien-Bibliothek</h2>
-          <p className="text-muted-foreground">Verwalten Sie alle Ihre Berechnungen</p>
+          <p className="text-muted-foreground">
+            {scenarios.length} {scenarios.length === 1 ? 'Szenario' : 'Szenarien'}
+            {filteredScenarios.length !== scenarios.length && ` (${filteredScenarios.length} angezeigt)`}
+          </p>
         </div>
         <div className="flex flex-wrap gap-2">
           <Button variant="outline" onClick={handleImport} aria-label="Szenarien importieren">
@@ -75,6 +113,51 @@ export function ScenarioLibrary() {
         </div>
       </div>
       
+      {/* Search and Filter Controls */}
+      {scenarios.length > 0 && (
+        <div className="flex flex-col md:flex-row gap-4">
+          <div className="flex-1">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                type="text"
+                placeholder="Szenarien durchsuchen..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+          </div>
+          
+          <div className="flex gap-2">
+            <div className="flex items-center gap-2">
+              <Filter className="h-4 w-4 text-muted-foreground" />
+              <select
+                value={filter}
+                onChange={(e) => setFilter(e.target.value as typeof filter)}
+                className="flex h-10 rounded-md border border-input bg-background px-3 py-2 text-sm"
+              >
+                <option value="all">Alle</option>
+                <option value="favorites">Nur Favoriten</option>
+                <option value="affordable">Tragbar</option>
+                <option value="not-affordable">Nicht tragbar</option>
+              </select>
+            </div>
+            
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
+              className="flex h-10 rounded-md border border-input bg-background px-3 py-2 text-sm"
+            >
+              <option value="date">Nach Datum</option>
+              <option value="name">Nach Name</option>
+              <option value="price">Nach Kaufpreis</option>
+              <option value="affordability">Nach Tragbarkeit</option>
+            </select>
+          </div>
+        </div>
+      )}
+      
       {scenarios.length === 0 ? (
         <Card>
           <CardContent className="py-12 text-center">
@@ -84,6 +167,17 @@ export function ScenarioLibrary() {
             <Button onClick={() => createScenario('Mein erstes Szenario')}>
               <Plus className="h-4 w-4 mr-2" />
               Erstes Szenario erstellen
+            </Button>
+          </CardContent>
+        </Card>
+      ) : sortedScenarios.length === 0 ? (
+        <Card>
+          <CardContent className="py-12 text-center">
+            <p className="text-muted-foreground mb-4">
+              Keine Szenarien gefunden, die Ihren Filterkriterien entsprechen
+            </p>
+            <Button variant="outline" onClick={() => { setSearchQuery(''); setFilter('all'); }}>
+              Filter zurücksetzen
             </Button>
           </CardContent>
         </Card>
