@@ -68,27 +68,51 @@ export function DetailedParameters() {
               <h4 className="font-semibold mb-3">📊 Live Berechnungsvorschau</h4>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                 <div>
-                  <p className="text-muted-foreground">Monatl. Miete:</p>
-                  <p className="font-mono font-semibold text-lg text-green-600">
+                  <p className="text-muted-foreground">Monatl. Miete</p>
+                  <p className="font-mono font-semibold text-lg text-green-600 dark:text-green-500">
                     {formatCurrency(currentScenario.results.kpis.monthlyRent)}
                   </p>
                 </div>
                 <div>
-                  <p className="text-muted-foreground">Monatl. Eigentum:</p>
-                  <p className="font-mono font-semibold text-lg text-orange-600">
+                  <p className="text-muted-foreground">Monatl. Eigentum (Jahr 1)</p>
+                  <p className="font-mono font-semibold text-lg text-orange-600 dark:text-orange-500">
                     {formatCurrency(currentScenario.results.kpis.monthlyOwnership)}
                   </p>
                 </div>
                 <div>
-                  <p className="text-muted-foreground">Tragbarkeit:</p>
-                  <p className={`font-mono font-semibold text-lg ${currentScenario.results.affordabilityCheck.isAffordable ? 'text-green-600' : 'text-red-600'}`}>
+                  <p className="text-muted-foreground">Tragbarkeit</p>
+                  <p className={`font-mono font-semibold text-lg ${currentScenario.results.affordabilityCheck.isAffordable ? 'text-green-600 dark:text-green-500' : 'text-red-600 dark:text-red-500'}`}>
                     {currentScenario.results.affordabilityCheck.utilizationPercent.toFixed(1)}%
                   </p>
                 </div>
                 <div>
-                  <p className="text-muted-foreground">Break-Even:</p>
+                  <p className="text-muted-foreground">Break-Even</p>
                   <p className="font-mono font-semibold text-lg">
-                    {currentScenario.results.breakEvenYear ? `Jahr ${currentScenario.results.breakEvenYear}` : 'Kein BE'}
+                    {currentScenario.results.breakEvenYear ? `in ${currentScenario.results.breakEvenYear} Jahren` : 'N/A'}
+                  </p>
+                </div>
+                 <div>
+                  <p className="text-muted-foreground">Anfangsinvestition</p>
+                  <p className="font-mono font-semibold text-lg">
+                    {formatCurrency(currentScenario.results.kpis.initialInvestment)}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-muted-foreground">Gesamthypothek</p>
+                  <p className="font-mono font-semibold text-lg">
+                    {formatCurrency(currentScenario.results.kpis.totalMortgage)}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-muted-foreground">Netto-Steuereffekt (J1)</p>
+                  <p className={`font-mono font-semibold text-lg ${currentScenario.results.yearlyData[0].netTaxEffect > 0 ? 'text-green-600 dark:text-green-500' : 'text-red-600 dark:text-red-500'}`}>
+                    {formatCurrency(currentScenario.results.yearlyData[0].netTaxEffect)}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-muted-foreground">Vermögen nach 10 J.</p>
+                  <p className="font-mono font-semibold text-lg">
+                    {formatCurrency(currentScenario.results.kpis.equityAfter10Years)}
                   </p>
                 </div>
               </div>
@@ -220,12 +244,6 @@ export function DetailedParameters() {
                 </div>
               </div>
               
-              <div className="bg-muted p-4 rounded-lg">
-                <h4 className="font-semibold mb-2">Gesamtkosten Miete</h4>
-                <p className="text-2xl font-mono">
-                  {formatCurrency((params.rent.netRent + params.rent.utilities) * 12 + params.rent.insurance)}/Jahr
-                </p>
-              </div>
             </CardContent>
           </Card>
         </TabsContent>
@@ -460,21 +478,6 @@ export function DetailedParameters() {
                 </div>
               </div>
               
-              <div className="bg-muted p-4 rounded-lg">
-                <h4 className="font-semibold mb-2">Gesamte Anfangsinvestition</h4>
-                <p className="text-2xl font-mono">
-                  {formatCurrency(
-                    params.purchase.equity +
-                    params.purchase.purchasePrice * 
-                    (params.purchase.notaryFees + params.purchase.landRegistryFees + params.purchase.brokerFees) / 100 +
-                    (params.mortgage.firstMortgage + params.mortgage.secondMortgage) * (params.purchase.mortgageProcessingFee || 0) / 100 +
-                    (params.purchase.propertyValuationFee || 0)
-                  )}
-                </p>
-                <p className="text-xs text-muted-foreground mt-1">
-                  Eigenkapital + Kaufnebenkosten + Hypothekargebühren
-                </p>
-              </div>
             </CardContent>
           </Card>
         </TabsContent>
@@ -543,35 +546,6 @@ export function DetailedParameters() {
                     <p className="text-xs text-muted-foreground">{params.mortgage.firstMortgageRate}% p.a.</p>
                   </div>
                   
-                  <div className="space-y-2">
-                    <div className="flex items-center gap-2">
-                      <Label htmlFor="firstMortgageTerm">Zinsfestschreibung (Jahre)</Label>
-                      <Tooltip>
-                        <TooltipTrigger type="button">
-                          <Info className="h-4 w-4 text-muted-foreground cursor-help" />
-                        </TooltipTrigger>
-                        <TooltipContent className="max-w-md">
-                          <p className="font-semibold mb-1">Zinsfestschreibung (Informativ)</p>
-                          <p className="text-sm mb-2">Zeitraum, für den der Hypothekarzins vertraglich fixiert ist.</p>
-                          <p className="text-sm text-muted-foreground">
-                            <strong>Hinweis:</strong> Dieser Wert wird NICHT in Berechnungen verwendet, dient nur als Notiz für Ihre Planung.
-                          </p>
-                          <p className="text-xs mt-1 text-muted-foreground">
-                            💡 Typisch: 5, 10 oder 15 Jahre
-                          </p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </div>
-                    <Input
-                      id="firstMortgageTerm"
-                      type="number"
-                      value={params.mortgage.firstMortgageTerm}
-                      onChange={(e) => handleUpdate({
-                        mortgage: { ...params.mortgage, firstMortgageTerm: Number(e.target.value) }
-                      })}
-                    />
-                    <p className="text-xs text-muted-foreground italic">Nur zur Information, nicht in Berechnungen</p>
-                  </div>
                 </div>
               </div>
               
@@ -641,36 +615,6 @@ export function DetailedParameters() {
                   
                   <div className="space-y-2">
                     <div className="flex items-center gap-2">
-                      <Label htmlFor="secondMortgageTerm">Zinsfestschreibung (Jahre)</Label>
-                      <Tooltip>
-                        <TooltipTrigger type="button">
-                          <Info className="h-4 w-4 text-muted-foreground cursor-help" />
-                        </TooltipTrigger>
-                        <TooltipContent className="max-w-md">
-                          <p className="font-semibold mb-1">Zinsfestschreibung (Informativ)</p>
-                          <p className="text-sm mb-2">Zeitraum, für den der Hypothekarzins vertraglich fixiert ist.</p>
-                          <p className="text-sm text-muted-foreground">
-                            <strong>Hinweis:</strong> Dieser Wert wird NICHT in Berechnungen verwendet, dient nur als Notiz für Ihre Planung.
-                          </p>
-                          <p className="text-xs mt-1 text-muted-foreground">
-                            💡 Typisch: 5, 10 oder 15 Jahre
-                          </p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </div>
-                    <Input
-                      id="secondMortgageTerm"
-                      type="number"
-                      value={params.mortgage.secondMortgageTerm}
-                      onChange={(e) => handleUpdate({
-                        mortgage: { ...params.mortgage, secondMortgageTerm: Number(e.target.value) }
-                      })}
-                    />
-                    <p className="text-xs text-muted-foreground italic">Nur zur Information, nicht in Berechnungen</p>
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <div className="flex items-center gap-2">
                       <Label htmlFor="amortizationYears">Amortisation (Jahre)</Label>
                       <Tooltip>
                         <TooltipTrigger type="button">
@@ -693,15 +637,6 @@ export function DetailedParameters() {
                 </div>
               </div>
               
-              <div className="bg-muted p-4 rounded-lg">
-                <h4 className="font-semibold mb-2">Gesamthypothek</h4>
-                <p className="text-2xl font-mono">
-                  {formatCurrency(params.mortgage.firstMortgage + params.mortgage.secondMortgage)}
-                </p>
-                <p className="text-sm text-muted-foreground mt-1">
-                  Belehnung: {((params.mortgage.firstMortgage + params.mortgage.secondMortgage) / params.purchase.purchasePrice * 100).toFixed(1)}%
-                </p>
-              </div>
             </CardContent>
           </Card>
         </TabsContent>
@@ -898,22 +833,63 @@ export function DetailedParameters() {
                 </div>
               </div>
               
-              <div className="bg-muted p-4 rounded-lg">
-                <h4 className="font-semibold mb-2">Geschätzte jährliche Kosten</h4>
-                <p className="text-2xl font-mono">
-                  {formatCurrency(
-                    params.runningCosts.utilities * 12 + 
-                    params.runningCosts.insurance +
-                    params.purchase.purchasePrice * params.runningCosts.maintenanceSimple / 100 +
-                    (params.runningCosts.parkingCost || 0) * 12 +
-                    (params.runningCosts.condominiumFees || 0) * 12 +
-                    (params.runningCosts.renovationReserve || 0)
-                  )}/Jahr
-                </p>
-                <p className="text-xs text-muted-foreground mt-1">
-                  Nebenkosten + Versicherung + Unterhalt + Zusatzkosten
-                </p>
-              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader>
+              <CardTitle>Zyklischer Unterhalt</CardTitle>
+              <CardDescription>
+                Geplante, grössere Renovationen. Kosten fallen erstmalig nach "Initialintervall" an, danach wiederholend gemäss "Folgeintervall".
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {['Dach', 'Fassade', 'Heizung', 'Küche/Bad'].map((item) => {
+                const key = item === 'Küche/Bad' ? 'kitchenBath' : item.toLowerCase();
+                const renovation = `${key}Renovation` as keyof typeof params.runningCosts;
+                const initialInterval = `${key}InitialInterval` as keyof typeof params.runningCosts;
+                const interval = `${key}Interval` as keyof typeof params.runningCosts;
+
+                return (
+                  <div key={key} className="space-y-3 p-3 bg-muted/50 rounded-lg">
+                    <h5 className="font-semibold">{item}</h5>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor={`${key}Cost`}>Kosten (CHF)</Label>
+                        <Input
+                          id={`${key}Cost`}
+                          type="number"
+                          value={params.runningCosts[renovation] as number || 0}
+                          onChange={(e) => handleUpdate({
+                            runningCosts: { ...params.runningCosts, [renovation]: Number(e.target.value) }
+                          })}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor={`${key}InitialInterval`}>Initialintervall (Jahre)</Label>
+                        <Input
+                          id={`${key}InitialInterval`}
+                          type="number"
+                          value={params.runningCosts[initialInterval] as number || 0}
+                          onChange={(e) => handleUpdate({
+                            runningCosts: { ...params.runningCosts, [initialInterval]: Number(e.target.value) }
+                          })}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor={`${key}Interval`}>Folgeintervall (Jahre)</Label>
+                        <Input
+                          id={`${key}Interval`}
+                          type="number"
+                          value={params.runningCosts[interval] as number || 0}
+                          onChange={(e) => handleUpdate({
+                            runningCosts: { ...params.runningCosts, [interval]: Number(e.target.value) }
+                          })}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )
+              })}
             </CardContent>
           </Card>
         </TabsContent>

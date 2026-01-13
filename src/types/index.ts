@@ -31,10 +31,8 @@ export interface PurchaseParams {
 export interface MortgageParams {
   firstMortgage: number // amount
   firstMortgageRate: number // as percentage
-  firstMortgageTerm: number // years
   secondMortgage: number // amount
   secondMortgageRate: number // as percentage
-  secondMortgageTerm: number // years
   amortizationYears: number
 }
 
@@ -47,12 +45,16 @@ export interface RunningCostsParams {
   renovationReserve?: number // annual renovation reserve
   // Detailed maintenance (optional)
   roofRenovation?: number
+  roofInitialInterval?: number
   roofInterval?: number
   facadeRenovation?: number
+  facadeInitialInterval?: number
   facadeInterval?: number
   heatingRenovation?: number
+  heatingInitialInterval?: number
   heatingInterval?: number
   kitchenBathRenovation?: number
+  kitchenBathInitialInterval?: number
   kitchenBathInterval?: number
 }
 
