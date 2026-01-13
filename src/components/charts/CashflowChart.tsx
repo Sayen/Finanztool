@@ -10,6 +10,7 @@ interface CashflowChartProps {
 
 export function CashflowChart({ data }: CashflowChartProps) {
   // Show first 12 months (year 1) broken down monthly
+  // Note: maxYears parameter accepted for interface consistency but not used (chart only shows first year)
   const yearData = data[0]
   
   if (!yearData) {

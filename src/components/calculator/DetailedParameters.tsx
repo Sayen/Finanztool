@@ -203,24 +203,26 @@ export function DetailedParameters() {
                   ▸ ROI-Analyse
                 </summary>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm pl-4">
-                  {[10, 20, 30].map(years => {
-                    const results = currentScenario.results
-                    if (!results) return null
-                    const yearData = results.yearlyData[years - 1]
-                    if (!yearData) return null
-                    const roi = ((yearData.netEquity - results.kpis.initialInvestment) / results.kpis.initialInvestment) * 100
-                    return (
-                      <div key={years}>
-                        <p className="text-muted-foreground text-xs">ROI nach {years} Jahren</p>
-                        <p className={`font-mono font-semibold ${roi > 0 ? 'text-green-600 dark:text-green-500' : 'text-red-600 dark:text-red-500'}`}>
-                          {roi.toFixed(1)}%
-                        </p>
-                        <p className="text-xs text-muted-foreground">
-                          {formatCurrency(yearData.netEquity - results.kpis.initialInvestment)}
-                        </p>
-                      </div>
-                    )
-                  })}
+                  {currentScenario.results && [10, 20, 30]
+                    .filter(years => currentScenario.results && years <= currentScenario.results.yearlyData.length)
+                    .map(years => {
+                      const results = currentScenario.results
+                      if (!results) return null
+                      const yearData = results.yearlyData[years - 1]
+                      if (!yearData) return null
+                      const roi = ((yearData.netEquity - results.kpis.initialInvestment) / results.kpis.initialInvestment) * 100
+                      return (
+                        <div key={years}>
+                          <p className="text-muted-foreground text-xs">ROI nach {years} Jahren</p>
+                          <p className={`font-mono font-semibold ${roi > 0 ? 'text-green-600 dark:text-green-500' : 'text-red-600 dark:text-red-500'}`}>
+                            {roi.toFixed(1)}%
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            {formatCurrency(yearData.netEquity - results.kpis.initialInvestment)}
+                          </p>
+                        </div>
+                      )
+                    })}
                 </div>
               </details>
             </CardContent>
