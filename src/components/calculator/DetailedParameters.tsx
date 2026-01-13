@@ -6,7 +6,23 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/
 import { useScenarioStore } from '../../stores/scenarioStore'
 import { formatCurrency } from '../../lib/utils'
 import { Info } from 'lucide-react'
-import type { CalculationParams } from '../../types'
+import type { CalculationParams, AdditionalParams } from '../../types'
+
+// Helper to safely access additional params with defaults
+const getAdditionalParam = <K extends keyof AdditionalParams>(
+  params: CalculationParams,
+  key: K,
+  defaultValue: AdditionalParams[K]
+): AdditionalParams[K] => {
+  if (params.additional) {
+    return params.additional[key] ?? defaultValue
+  }
+  // Backward compatibility: check old location
+  if (key in params) {
+    return (params as any)[key] ?? defaultValue
+  }
+  return defaultValue
+}
 
 export function DetailedParameters() {
   const currentScenario = useScenarioStore((state) => state.getCurrentScenario())
@@ -120,12 +136,13 @@ export function DetailedParameters() {
           </Card>
         )}
       <Tabs defaultValue="rent" className="w-full">
-        <TabsList className="grid w-full grid-cols-5">
+        <TabsList className="grid w-full grid-cols-6">
           <TabsTrigger value="rent">Miete</TabsTrigger>
           <TabsTrigger value="purchase">Kauf</TabsTrigger>
           <TabsTrigger value="mortgage">Hypothek</TabsTrigger>
           <TabsTrigger value="costs">Kosten</TabsTrigger>
           <TabsTrigger value="taxes">Steuern</TabsTrigger>
+          <TabsTrigger value="additional">Weitere</TabsTrigger>
         </TabsList>
         
         <TabsContent value="rent" className="space-y-4">
@@ -850,7 +867,7 @@ export function DetailedParameters() {
             <CardHeader>
               <CardTitle>Zyklischer Unterhalt</CardTitle>
               <CardDescription>
-                Geplante, grössere Renovationen. Kosten fallen erstmalig nach "Initialintervall" an, danach wiederholend gemäss "Folgeintervall".
+                Geplante, grössere Renovationen basierend auf dem Kaufpreis. Kosten fallen erstmalig nach "Initialintervall" an, danach wiederholend gemäss "Folgeintervall".
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
@@ -860,9 +877,57 @@ export function DetailedParameters() {
                 const initialInterval = `${key}InitialInterval` as keyof typeof params.runningCosts;
                 const interval = `${key}Interval` as keyof typeof params.runningCosts;
 
+                // Calculate standard values based on purchase price
+                const purchasePrice = params.purchase.purchasePrice;
+                let standardCost = 0;
+                let standardInitial = 0;
+                let standardInterval = 0;
+                let tooltipText = '';
+                
+                switch(key) {
+                  case 'dach':
+                    standardCost = Math.round(purchasePrice * 0.05);
+                    standardInitial = 25;
+                    standardInterval = 25;
+                    tooltipText = `Typisch ~5% des Kaufpreises (${formatCurrency(standardCost)}). Intervall: 25 Jahre.`;
+                    break;
+                  case 'fassade':
+                    standardCost = Math.round(purchasePrice * 0.04);
+                    standardInitial = 20;
+                    standardInterval = 20;
+                    tooltipText = `Typisch ~4% des Kaufpreises (${formatCurrency(standardCost)}). Intervall: 20 Jahre.`;
+                    break;
+                  case 'heizung':
+                    standardCost = Math.round(purchasePrice * 0.02);
+                    standardInitial = 18;
+                    standardInterval = 18;
+                    tooltipText = `Typisch ~2% des Kaufpreises (${formatCurrency(standardCost)}). Intervall: 18 Jahre.`;
+                    break;
+                  case 'kitchenBath':
+                    standardCost = Math.round(purchasePrice * 0.08);
+                    standardInitial = 15;
+                    standardInterval = 15;
+                    tooltipText = `Typisch ~8% des Kaufpreises (${formatCurrency(standardCost)}). Intervall: 15 Jahre.`;
+                    break;
+                }
+
                 return (
                   <div key={key} className="space-y-3 p-3 bg-muted/50 rounded-lg">
-                    <h5 className="font-semibold">{item}</h5>
+                    <div className="flex items-center gap-2">
+                      <h5 className="font-semibold">{item}</h5>
+                      <Tooltip>
+                        <TooltipTrigger type="button">
+                          <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                        </TooltipTrigger>
+                        <TooltipContent className="max-w-md">
+                          <p className="font-semibold mb-1">{item} Renovation</p>
+                          <p className="text-sm mb-2">{tooltipText}</p>
+                          <p className="text-sm text-muted-foreground">
+                            <strong>Einfluss:</strong> Grosse einmalige Kosten, die zyklisch auftreten und das Nettovermögen beeinflussen.
+                          </p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </div>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                       <div className="space-y-2">
                         <Label htmlFor={`${key}Cost`}>Kosten (CHF)</Label>
@@ -873,7 +938,9 @@ export function DetailedParameters() {
                           onChange={(e) => handleUpdate({
                             runningCosts: { ...params.runningCosts, [renovation]: Number(e.target.value) }
                           })}
+                          placeholder={standardCost.toString()}
                         />
+                        <p className="text-xs text-muted-foreground">Standard: {formatCurrency(standardCost)}</p>
                       </div>
                       <div className="space-y-2">
                         <Label htmlFor={`${key}InitialInterval`}>Initialintervall (Jahre)</Label>
@@ -884,7 +951,9 @@ export function DetailedParameters() {
                           onChange={(e) => handleUpdate({
                             runningCosts: { ...params.runningCosts, [initialInterval]: Number(e.target.value) }
                           })}
+                          placeholder={standardInitial.toString()}
                         />
+                        <p className="text-xs text-muted-foreground">Standard: {standardInitial} Jahre</p>
                       </div>
                       <div className="space-y-2">
                         <Label htmlFor={`${key}Interval`}>Folgeintervall (Jahre)</Label>
@@ -895,7 +964,9 @@ export function DetailedParameters() {
                           onChange={(e) => handleUpdate({
                             runningCosts: { ...params.runningCosts, [interval]: Number(e.target.value) }
                           })}
+                          placeholder={standardInterval.toString()}
                         />
+                        <p className="text-xs text-muted-foreground">Standard: {standardInterval} Jahre</p>
                       </div>
                     </div>
                   </div>
@@ -1041,6 +1112,105 @@ export function DetailedParameters() {
               </div>
             </CardContent>
           </Card>
+        </TabsContent>
+        
+        <TabsContent value="additional" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Haushaltseinkommen und Lebenshaltungskosten</CardTitle>
+              <CardDescription>Für realistische Vermögensberechnung</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <Label htmlFor="householdIncome">Haushaltseinkommen (jährlich)</Label>
+                    <Tooltip>
+                      <TooltipTrigger type="button">
+                        <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                      </TooltipTrigger>
+                      <TooltipContent className="max-w-md">
+                        <p className="font-semibold mb-1">Haushaltseinkommen</p>
+                        <p className="text-sm mb-2">Jährliches Bruttoeinkommen aller im Haushalt lebenden Personen. Wichtig für realistische Vermögensberechnung.</p>
+                        <p className="text-sm text-muted-foreground">
+                          <strong>Einfluss:</strong> Ermöglicht Vermögensaufbau auch im Mietszenario durch Sparen der Differenz zum Eigentum.
+                        </p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </div>
+                  <Input
+                    id="householdIncome"
+                    type="number"
+                    value={params.quickStart.householdIncome}
+                    onChange={(e) => handleUpdate({
+                      quickStart: { ...params.quickStart, householdIncome: Number(e.target.value) }
+                    })}
+                  />
+                  <p className="text-xs text-muted-foreground">{formatCurrency(params.quickStart.householdIncome)}/Jahr</p>
+                </div>
+                
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <Label htmlFor="livingExpenses">Lebenshaltungskosten (jährlich)</Label>
+                    <Tooltip>
+                      <TooltipTrigger type="button">
+                        <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                      </TooltipTrigger>
+                      <TooltipContent className="max-w-md">
+                        <p className="font-semibold mb-1">Jährliche Lebenshaltungskosten</p>
+                        <p className="text-sm mb-2">Ausgaben für Essen, Kleidung, Transport, Versicherungen, Freizeit etc. (ohne Wohnkosten).</p>
+                        <p className="text-sm text-muted-foreground">
+                          <strong>Einfluss:</strong> Reduziert das verfügbare Einkommen für Vermögensaufbau. Wichtig für realistische Nettovermögensberechnung.
+                        </p>
+                        <p className="text-xs mt-1 text-muted-foreground">
+                          💡 Richtwert: CHF 30'000-60'000/Jahr für durchschnittlichen Haushalt (ohne Wohnkosten)
+                        </p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </div>
+                  <Input
+                    id="livingExpenses"
+                    type="number"
+                    value={params.quickStart.annualLivingExpenses || 0}
+                    onChange={(e) => handleUpdate({
+                      quickStart: { ...params.quickStart, annualLivingExpenses: Number(e.target.value) }
+                    })}
+                  />
+                  <p className="text-xs text-muted-foreground">{formatCurrency(params.quickStart.annualLivingExpenses || 0)}/Jahr</p>
+                </div>
+                
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <Label htmlFor="initialTotalWealth">Gesamtvermögen zu Beginn</Label>
+                    <Tooltip>
+                      <TooltipTrigger type="button">
+                        <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                      </TooltipTrigger>
+                      <TooltipContent className="max-w-md">
+                        <p className="font-semibold mb-1">Gesamtvermögen zu Beginn</p>
+                        <p className="text-sm mb-2">Ihr totales Vermögen vor Kaufentscheid oder Mietbeginn. Im Kaufszenario wird das Eigenkapital abgezogen, der Rest kann investiert werden.</p>
+                        <p className="text-sm text-muted-foreground">
+                          <strong>Einfluss:</strong> Ermöglicht realistischere Vermögensvergleiche, da auch übriges Kapital verzinst wird.
+                        </p>
+                        <p className="text-xs mt-1 text-muted-foreground">
+                          💡 Standardwert: Entspricht dem Eigenkapital. Erhöhen Sie den Wert, wenn Sie zusätzliches Vermögen haben.
+                        </p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </div>
+                  <Input
+                    id="initialTotalWealth"
+                    type="number"
+                    value={params.quickStart.initialTotalWealth || params.purchase.equity}
+                    onChange={(e) => handleUpdate({
+                      quickStart: { ...params.quickStart, initialTotalWealth: Number(e.target.value) }
+                    })}
+                  />
+                  <p className="text-xs text-muted-foreground">{formatCurrency(params.quickStart.initialTotalWealth || params.purchase.equity)}</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
           
           <Card>
             <CardHeader>
@@ -1072,12 +1242,19 @@ export function DetailedParameters() {
                     id="propertyAppreciation"
                     type="number"
                     step="0.1"
-                    value={params.propertyAppreciationRate}
-                    onChange={(e) => handleUpdate({
-                      propertyAppreciationRate: Number(e.target.value)
-                    })}
+                    value={getAdditionalParam(params, 'propertyAppreciationRate', 2.0)}
+                    onChange={(e) => {
+                      const value = Number(e.target.value)
+                      if (params.additional) {
+                        handleUpdate({
+                          additional: { ...params.additional, propertyAppreciationRate: value }
+                        })
+                      } else {
+                        handleUpdate({ propertyAppreciationRate: value })
+                      }
+                    }}
                   />
-                  <p className="text-xs text-muted-foreground">{params.propertyAppreciationRate}% pro Jahr</p>
+                  <p className="text-xs text-muted-foreground">{getAdditionalParam(params, 'propertyAppreciationRate', 2.0)}% pro Jahr</p>
                 </div>
                 
                 <div className="space-y-2">
@@ -1103,12 +1280,19 @@ export function DetailedParameters() {
                     id="etfReturn"
                     type="number"
                     step="0.1"
-                    value={params.etfReturnRate}
-                    onChange={(e) => handleUpdate({
-                      etfReturnRate: Number(e.target.value)
-                    })}
+                    value={getAdditionalParam(params, 'etfReturnRate', 6.0)}
+                    onChange={(e) => {
+                      const value = Number(e.target.value)
+                      if (params.additional) {
+                        handleUpdate({
+                          additional: { ...params.additional, etfReturnRate: value }
+                        })
+                      } else {
+                        handleUpdate({ etfReturnRate: value })
+                      }
+                    }}
                   />
-                  <p className="text-xs text-muted-foreground">{params.etfReturnRate}% pro Jahr</p>
+                  <p className="text-xs text-muted-foreground">{getAdditionalParam(params, 'etfReturnRate', 6.0)}% pro Jahr</p>
                 </div>
                 
                 <div className="space-y-2">
@@ -1120,9 +1304,9 @@ export function DetailedParameters() {
                       </TooltipTrigger>
                       <TooltipContent className="max-w-md">
                         <p className="font-semibold mb-1">Inflation</p>
-                        <p className="text-sm mb-2">Allgemeine Teuerungsrate. Wird bei Mietsteigerung berücksichtigt und sollte zukünftig auch auf Nebenkosten und Unterhalt angewendet werden.</p>
+                        <p className="text-sm mb-2">Allgemeine Teuerungsrate. Wird auf Nebenkosten, Unterhalt und Lebenshaltungskosten angewendet.</p>
                         <p className="text-sm text-muted-foreground">
-                          <strong>Einfluss:</strong> Aktuell nur auf Miete angewendet (über "Jährliche Mietsteigerung"). Sollte idealerweise auch Nebenkosten/Unterhalt beeinflussen.
+                          <strong>Einfluss:</strong> Erhöht alle laufenden Kosten über die Zeit und reduziert die Kaufkraft.
                         </p>
                         <p className="text-xs mt-1 text-muted-foreground">
                           💡 Richtwert: 1.0-1.5% p.a. (langfristiger CH-Durchschnitt, 2021-2023 temporär 2-3%, langfristig stabil ~1%)
@@ -1134,12 +1318,121 @@ export function DetailedParameters() {
                     id="inflation"
                     type="number"
                     step="0.1"
-                    value={params.inflationRate}
-                    onChange={(e) => handleUpdate({
-                      inflationRate: Number(e.target.value)
-                    })}
+                    value={getAdditionalParam(params, 'inflationRate', 1.5)}
+                    onChange={(e) => {
+                      const value = Number(e.target.value)
+                      if (params.additional) {
+                        handleUpdate({
+                          additional: { ...params.additional, inflationRate: value }
+                        })
+                      } else {
+                        handleUpdate({ inflationRate: value })
+                      }
+                    }}
                   />
-                  <p className="text-xs text-muted-foreground">{params.inflationRate}% pro Jahr</p>
+                  <p className="text-xs text-muted-foreground">{getAdditionalParam(params, 'inflationRate', 1.5)}% pro Jahr</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardHeader>
+              <CardTitle>Kapitalanlage-Optionen</CardTitle>
+              <CardDescription>Konfiguration ob Barvermögen investiert wird</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <Label htmlFor="investCashInRent" className="flex items-center gap-2">
+                      <input
+                        id="investCashInRent"
+                        type="checkbox"
+                        checked={getAdditionalParam(params, 'investCashInRent', true)}
+                        onChange={(e) => {
+                          if (params.additional) {
+                            handleUpdate({
+                              additional: { ...params.additional, investCashInRent: e.target.checked }
+                            })
+                          } else {
+                            handleUpdate({
+                              additional: {
+                                propertyAppreciationRate: params.propertyAppreciationRate || 2.0,
+                                etfReturnRate: params.etfReturnRate || 6.0,
+                                inflationRate: params.inflationRate || 1.5,
+                                investCashInRent: e.target.checked,
+                                investCashInOwnership: false,
+                              }
+                            })
+                          }
+                        }}
+                        className="h-4 w-4"
+                      />
+                      Barvermögen in Mietszenario investieren
+                    </Label>
+                    <Tooltip>
+                      <TooltipTrigger type="button">
+                        <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                      </TooltipTrigger>
+                      <TooltipContent className="max-w-md">
+                        <p className="font-semibold mb-1">Barvermögen investieren (Mietszenario)</p>
+                        <p className="text-sm mb-2">Wenn aktiviert, wird übriges Kapital (Gesamtvermögen minus Eigenkapital) in ETFs investiert und verzinst.</p>
+                        <p className="text-sm text-muted-foreground">
+                          <strong>Einfluss:</strong> Ermöglicht Vermögensaufbau auch beim Mieten durch Kapitalanlage.
+                        </p>
+                        <p className="text-xs mt-1 text-muted-foreground">
+                          💡 Empfohlen: Aktiviert für realistischen Vergleich
+                        </p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </div>
+                </div>
+                
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <Label htmlFor="investCashInOwnership" className="flex items-center gap-2">
+                      <input
+                        id="investCashInOwnership"
+                        type="checkbox"
+                        checked={getAdditionalParam(params, 'investCashInOwnership', false)}
+                        onChange={(e) => {
+                          if (params.additional) {
+                            handleUpdate({
+                              additional: { ...params.additional, investCashInOwnership: e.target.checked }
+                            })
+                          } else {
+                            handleUpdate({
+                              additional: {
+                                propertyAppreciationRate: params.propertyAppreciationRate || 2.0,
+                                etfReturnRate: params.etfReturnRate || 6.0,
+                                inflationRate: params.inflationRate || 1.5,
+                                investCashInRent: true,
+                                investCashInOwnership: e.target.checked,
+                              }
+                            })
+                          }
+                        }}
+                        className="h-4 w-4"
+                      />
+                      Barvermögen in Eigentumsszenario investieren
+                    </Label>
+                    <Tooltip>
+                      <TooltipTrigger type="button">
+                        <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                      </TooltipTrigger>
+                      <TooltipContent className="max-w-md">
+                        <p className="font-semibold mb-1">Barvermögen investieren (Eigentumsszenario)</p>
+                        <p className="text-sm mb-2">Wenn aktiviert, wird übriges Kapital nach Kauf (Gesamtvermögen minus Anfangsinvestition) in ETFs investiert.</p>
+                        <p className="text-sm text-muted-foreground">
+                          <strong>Einfluss:</strong> Zusätzlicher Vermögensaufbau neben der Immobilie.
+                        </p>
+                        <p className="text-xs mt-1 text-muted-foreground">
+                          💡 Standard: Deaktiviert (Kapital ist in Immobilie gebunden)
+                        </p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </div>
                 </div>
               </div>
             </CardContent>

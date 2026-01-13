@@ -17,12 +17,15 @@ interface QuickStartProps {
 export function QuickStart({ setActiveTab }: QuickStartProps) {
   const createScenario = useScenarioStore((state) => state.createScenario)
   const [scenarioName, setScenarioName] = useState('Neues Szenario')
+  const [showAdvanced, setShowAdvanced] = useState(false)
   const [params, setParams] = useState<QuickStartParams>({
     purchasePrice: 1000000,
     propertyType: 'apartment',
     equity: 200000,
     householdIncome: 150000,
     location: 'good',
+    annualLivingExpenses: 0,
+    initialTotalWealth: undefined,
   })
   
   const [showResults, setShowResults] = useState(false)
@@ -210,6 +213,64 @@ export function QuickStart({ setActiveTab }: QuickStartProps) {
                 <option value="peripheral">Randlage</option>
               </select>
             </div>
+          </div>
+          
+          {/* Optional advanced fields */}
+          <div className="space-y-4">
+            <Button 
+              type="button"
+              variant="outline" 
+              onClick={() => setShowAdvanced(!showAdvanced)}
+              className="w-full"
+            >
+              {showAdvanced ? '▼' : '▶'} Erweiterte Optionen (optional)
+            </Button>
+            
+            {showAdvanced && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 border rounded-lg">
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <Label htmlFor="livingExpenses">Jährliche Lebenshaltungskosten</Label>
+                    <Tooltip>
+                      <TooltipTrigger type="button">
+                        <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p className="max-w-xs">Ausgaben für Essen, Kleidung, Transport etc. (ohne Wohnkosten). Für realistische Vermögensberechnung.</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </div>
+                  <Input
+                    id="livingExpenses"
+                    type="number"
+                    value={params.annualLivingExpenses || 0}
+                    onChange={(e) => setParams({ ...params, annualLivingExpenses: Number(e.target.value) })}
+                  />
+                  <p className="text-xs text-muted-foreground">{formatCurrency(params.annualLivingExpenses || 0)}</p>
+                </div>
+                
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <Label htmlFor="initialWealth">Gesamtvermögen zu Beginn</Label>
+                    <Tooltip>
+                      <TooltipTrigger type="button">
+                        <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p className="max-w-xs">Ihr totales Vermögen. Standard: entspricht Eigenkapital. Erhöhen wenn Sie zusätzliches Kapital haben.</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </div>
+                  <Input
+                    id="initialWealth"
+                    type="number"
+                    value={params.initialTotalWealth || params.equity}
+                    onChange={(e) => setParams({ ...params, initialTotalWealth: Number(e.target.value) })}
+                  />
+                  <p className="text-xs text-muted-foreground">{formatCurrency(params.initialTotalWealth || params.equity)}</p>
+                </div>
+              </div>
+            )}
           </div>
           
           <div className="bg-muted p-4 rounded-lg space-y-2">
