@@ -56,7 +56,7 @@ function App() {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-2xl font-bold text-primary">Miete vs. Eigentum</h1>
-              <p className="text-sm text-muted-foreground">Vergleichstool für Kanton Zürich</p>
+              <p className="text-sm text-muted-foreground">Vergleichstool für die Schweiz</p>
             </div>
             <div className="flex flex-wrap items-center gap-2">
               <Button 
@@ -245,7 +245,7 @@ function App() {
       {/* Footer */}
       <footer className="border-t mt-12 py-6 bg-card">
         <div className="container mx-auto px-4 text-center text-sm text-muted-foreground">
-          <p>Miete vs. Eigentum Vergleichstool © 2026 | Kanton Zürich</p>
+          <p>Miete vs. Eigentum Vergleichstool © 2026 | Schweiz</p>
         </div>
       </footer>
     </div>

@@ -74,7 +74,7 @@ export function QuickStart({ setActiveTab }: QuickStartProps) {
                 type="text"
                 value={scenarioName}
                 onChange={(e) => setScenarioName(e.target.value)}
-                placeholder="z.B. Wohnung Zürich City"
+                placeholder="z.B. Wohnung in der Schweiz"
               />
             </div>
             
