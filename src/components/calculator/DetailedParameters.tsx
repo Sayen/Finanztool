@@ -49,7 +49,7 @@ export function DetailedParameters() {
               <CardDescription>Kosten und Nebenkosten für das Mietszenario</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <div className="flex items-center gap-2">
                     <Label htmlFor="netRent">Netto-Miete (monatlich)</Label>
@@ -74,7 +74,24 @@ export function DetailedParameters() {
                 </div>
                 
                 <div className="space-y-2">
-                  <Label htmlFor="rentUtilities">Nebenkosten (monatlich)</Label>
+                  <div className="flex items-center gap-2">
+                    <Label htmlFor="rentUtilities">Nebenkosten (monatlich)</Label>
+                    <Tooltip>
+                      <TooltipTrigger type="button">
+                        <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                      </TooltipTrigger>
+                      <TooltipContent className="max-w-md">
+                        <p className="font-semibold mb-1">Nebenkosten bei Miete</p>
+                        <p className="text-sm mb-2">Umfasst Heizkosten, Warmwasser, Hauswartung, Abfallentsorgung und Allgemeinstrom.</p>
+                        <p className="text-sm text-muted-foreground">
+                          <strong>Einfluss:</strong> Direkte monatliche Zusatzkosten zur Kaltmiete, erhöhen die Gesamtmietkosten.
+                        </p>
+                        <p className="text-xs mt-1 text-muted-foreground">
+                          💡 Richtwert: CHF 150-300/Monat je nach Wohnungsgrösse und Energieeffizienz
+                        </p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </div>
                   <Input
                     id="rentUtilities"
                     type="number"
@@ -87,7 +104,24 @@ export function DetailedParameters() {
                 </div>
                 
                 <div className="space-y-2">
-                  <Label htmlFor="rentInsurance">Hausratversicherung (jährlich)</Label>
+                  <div className="flex items-center gap-2">
+                    <Label htmlFor="rentInsurance">Hausratversicherung (jährlich)</Label>
+                    <Tooltip>
+                      <TooltipTrigger type="button">
+                        <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                      </TooltipTrigger>
+                      <TooltipContent className="max-w-md">
+                        <p className="font-semibold mb-1">Hausratversicherung</p>
+                        <p className="text-sm mb-2">Versichert Ihren persönlichen Besitz (Möbel, Elektronik, Kleider) gegen Schäden durch Feuer, Wasser, Einbruch, etc.</p>
+                        <p className="text-sm text-muted-foreground">
+                          <strong>Einfluss:</strong> Kleine jährliche Fixkosten, unabhängig von Miete oder Eigentum notwendig.
+                        </p>
+                        <p className="text-xs mt-1 text-muted-foreground">
+                          💡 Richtwert: CHF 300-600/Jahr für durchschnittlichen Haushalt
+                        </p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </div>
                   <Input
                     id="rentInsurance"
                     type="number"
@@ -141,7 +175,7 @@ export function DetailedParameters() {
               <CardDescription>Details zum Immobilienkauf</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="purchasePrice">Kaufpreis</Label>
                   <Input
@@ -169,7 +203,24 @@ export function DetailedParameters() {
                 </div>
                 
                 <div className="space-y-2">
-                  <Label htmlFor="notaryFees">Notargebühren (%)</Label>
+                  <div className="flex items-center gap-2">
+                    <Label htmlFor="notaryFees">Notargebühren (%)</Label>
+                    <Tooltip>
+                      <TooltipTrigger type="button">
+                        <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                      </TooltipTrigger>
+                      <TooltipContent className="max-w-md">
+                        <p className="font-semibold mb-1">Notargebühren</p>
+                        <p className="text-sm mb-2">Kosten für die notarielle Beurkundung des Kaufvertrags und die rechtliche Abwicklung.</p>
+                        <p className="text-sm text-muted-foreground">
+                          <strong>Einfluss:</strong> Erhöht die Anfangsinvestition beim Kauf. Einmalige Kosten, die sofort beim Kauf anfallen.
+                        </p>
+                        <p className="text-xs mt-1 text-muted-foreground">
+                          💡 Richtwert: 0.4-0.7% des Kaufpreises (Kanton Zürich)
+                        </p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </div>
                   <Input
                     id="notaryFees"
                     type="number"
@@ -185,7 +236,24 @@ export function DetailedParameters() {
                 </div>
                 
                 <div className="space-y-2">
-                  <Label htmlFor="landRegistry">Grundbuchgebühren (%)</Label>
+                  <div className="flex items-center gap-2">
+                    <Label htmlFor="landRegistry">Grundbuchgebühren (%)</Label>
+                    <Tooltip>
+                      <TooltipTrigger type="button">
+                        <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                      </TooltipTrigger>
+                      <TooltipContent className="max-w-md">
+                        <p className="font-semibold mb-1">Grundbuchgebühren</p>
+                        <p className="text-sm mb-2">Gebühren für die Eintragung des Eigentümerwechsels und der Hypothek im Grundbuch.</p>
+                        <p className="text-sm text-muted-foreground">
+                          <strong>Einfluss:</strong> Erhöht die Anfangsinvestition. Gesetzlich vorgeschrieben, Höhe variiert nach Kanton.
+                        </p>
+                        <p className="text-xs mt-1 text-muted-foreground">
+                          💡 Richtwert: 0.2-0.4% des Kaufpreises (Kanton Zürich)
+                        </p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </div>
                   <Input
                     id="landRegistry"
                     type="number"
@@ -201,7 +269,24 @@ export function DetailedParameters() {
                 </div>
                 
                 <div className="space-y-2">
-                  <Label htmlFor="brokerFees">Maklergebühren (%)</Label>
+                  <div className="flex items-center gap-2">
+                    <Label htmlFor="brokerFees">Maklergebühren (%)</Label>
+                    <Tooltip>
+                      <TooltipTrigger type="button">
+                        <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                      </TooltipTrigger>
+                      <TooltipContent className="max-w-md">
+                        <p className="font-semibold mb-1">Maklergebühren</p>
+                        <p className="text-sm mb-2">Provision für den Immobilienmakler. In der Schweiz oft vom Verkäufer getragen, aber nicht immer.</p>
+                        <p className="text-sm text-muted-foreground">
+                          <strong>Einfluss:</strong> Kann die Anfangsinvestition erheblich erhöhen. Optional - auf 0% setzen wenn nicht anwendbar.
+                        </p>
+                        <p className="text-xs mt-1 text-muted-foreground">
+                          💡 Richtwert: 0-3% des Kaufpreises, je nach Vereinbarung
+                        </p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </div>
                   <Input
                     id="brokerFees"
                     type="number"
@@ -239,7 +324,7 @@ export function DetailedParameters() {
             <CardContent className="space-y-6">
               <div className="space-y-4">
                 <h4 className="font-semibold">1. Hypothek</h4>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="firstMortgage">Betrag</Label>
                     <Input
@@ -278,7 +363,24 @@ export function DetailedParameters() {
                   </div>
                   
                   <div className="space-y-2">
-                    <Label htmlFor="firstMortgageTerm">Zinsfestschreibung (Jahre) - Info</Label>
+                    <div className="flex items-center gap-2">
+                      <Label htmlFor="firstMortgageTerm">Zinsfestschreibung (Jahre)</Label>
+                      <Tooltip>
+                        <TooltipTrigger type="button">
+                          <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                        </TooltipTrigger>
+                        <TooltipContent className="max-w-md">
+                          <p className="font-semibold mb-1">Zinsfestschreibung (Informativ)</p>
+                          <p className="text-sm mb-2">Zeitraum, für den der Hypothekarzins vertraglich fixiert ist.</p>
+                          <p className="text-sm text-muted-foreground">
+                            <strong>Hinweis:</strong> Dieser Wert wird NICHT in Berechnungen verwendet, dient nur als Notiz für Ihre Planung.
+                          </p>
+                          <p className="text-xs mt-1 text-muted-foreground">
+                            💡 Typisch: 5, 10 oder 15 Jahre
+                          </p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </div>
                     <Input
                       id="firstMortgageTerm"
                       type="number"
@@ -287,14 +389,14 @@ export function DetailedParameters() {
                         mortgage: { ...params.mortgage, firstMortgageTerm: Number(e.target.value) }
                       })}
                     />
-                    <p className="text-xs text-muted-foreground">Nur informativ, nicht in Berechnungen verwendet</p>
+                    <p className="text-xs text-muted-foreground italic">Nur zur Information, nicht in Berechnungen</p>
                   </div>
                 </div>
               </div>
               
               <div className="space-y-4">
                 <h4 className="font-semibold">2. Hypothek</h4>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="secondMortgage">Betrag</Label>
                     <Input
@@ -323,7 +425,24 @@ export function DetailedParameters() {
                   </div>
                   
                   <div className="space-y-2">
-                    <Label htmlFor="secondMortgageTerm">Zinsfestschreibung (Jahre) - Info</Label>
+                    <div className="flex items-center gap-2">
+                      <Label htmlFor="secondMortgageTerm">Zinsfestschreibung (Jahre)</Label>
+                      <Tooltip>
+                        <TooltipTrigger type="button">
+                          <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                        </TooltipTrigger>
+                        <TooltipContent className="max-w-md">
+                          <p className="font-semibold mb-1">Zinsfestschreibung (Informativ)</p>
+                          <p className="text-sm mb-2">Zeitraum, für den der Hypothekarzins vertraglich fixiert ist.</p>
+                          <p className="text-sm text-muted-foreground">
+                            <strong>Hinweis:</strong> Dieser Wert wird NICHT in Berechnungen verwendet, dient nur als Notiz für Ihre Planung.
+                          </p>
+                          <p className="text-xs mt-1 text-muted-foreground">
+                            💡 Typisch: 5, 10 oder 15 Jahre
+                          </p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </div>
                     <Input
                       id="secondMortgageTerm"
                       type="number"
@@ -332,7 +451,7 @@ export function DetailedParameters() {
                         mortgage: { ...params.mortgage, secondMortgageTerm: Number(e.target.value) }
                       })}
                     />
-                    <p className="text-xs text-muted-foreground">Nur informativ, nicht in Berechnungen verwendet</p>
+                    <p className="text-xs text-muted-foreground italic">Nur zur Information, nicht in Berechnungen</p>
                   </div>
                   
                   <div className="space-y-2">
@@ -379,9 +498,26 @@ export function DetailedParameters() {
               <CardDescription>Nebenkosten, Versicherungen und Unterhalt</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="ownershipUtilities">Nebenkosten (monatlich)</Label>
+                  <div className="flex items-center gap-2">
+                    <Label htmlFor="ownershipUtilities">Nebenkosten (monatlich)</Label>
+                    <Tooltip>
+                      <TooltipTrigger type="button">
+                        <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                      </TooltipTrigger>
+                      <TooltipContent className="max-w-md">
+                        <p className="font-semibold mb-1">Nebenkosten bei Eigentum</p>
+                        <p className="text-sm mb-2">Umfasst Heizkosten, Warmwasser, Strom, Wasser, Abwasser und ggf. Hauswartung (bei Stockwerkeigentum).</p>
+                        <p className="text-sm text-muted-foreground">
+                          <strong>Einfluss:</strong> Laufende monatliche Kosten. Bei Eigentum oft leicht höher als bei Miete durch direkten Verbrauch.
+                        </p>
+                        <p className="text-xs mt-1 text-muted-foreground">
+                          💡 Richtwert: CHF 200-400/Monat je nach Grösse, Energieeffizienz und Verbrauch
+                        </p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </div>
                   <Input
                     id="ownershipUtilities"
                     type="number"
@@ -394,7 +530,24 @@ export function DetailedParameters() {
                 </div>
                 
                 <div className="space-y-2">
-                  <Label htmlFor="ownershipInsurance">Gebäudeversicherung (jährlich)</Label>
+                  <div className="flex items-center gap-2">
+                    <Label htmlFor="ownershipInsurance">Gebäudeversicherung (jährlich)</Label>
+                    <Tooltip>
+                      <TooltipTrigger type="button">
+                        <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                      </TooltipTrigger>
+                      <TooltipContent className="max-w-md">
+                        <p className="font-semibold mb-1">Gebäudeversicherung</p>
+                        <p className="text-sm mb-2">Versichert das Gebäude selbst (nicht den Hausrat) gegen Feuer, Elementarschäden, etc. In Zürich obligatorisch über kantonale Gebäudeversicherung.</p>
+                        <p className="text-sm text-muted-foreground">
+                          <strong>Einfluss:</strong> Pflichtversicherung für Eigentümer, höhere Kosten als Hausratversicherung bei Miete.
+                        </p>
+                        <p className="text-xs mt-1 text-muted-foreground">
+                          💡 Richtwert: CHF 800-1500/Jahr, abhängig von Gebäudewert und -alter
+                        </p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </div>
                   <Input
                     id="ownershipInsurance"
                     type="number"
@@ -413,8 +566,15 @@ export function DetailedParameters() {
                       <TooltipTrigger type="button">
                         <Info className="h-4 w-4 text-muted-foreground cursor-help" />
                       </TooltipTrigger>
-                      <TooltipContent>
-                        <p className="max-w-xs">Laufende Instandhaltung: Richtwert 1% des Kaufpreises pro Jahr</p>
+                      <TooltipContent className="max-w-md">
+                        <p className="font-semibold mb-1">Unterhaltskosten</p>
+                        <p className="text-sm mb-2">Jährliche Kosten für Reparaturen, Renovationen und Werterhaltung (Dach, Fassade, Heizung, Küche/Bad über Zeit).</p>
+                        <p className="text-sm text-muted-foreground">
+                          <strong>Einfluss:</strong> Wesentlicher laufender Kostenfaktor bei Eigentum. 1% des Kaufpreises ist Faustregel, ältere Objekte mehr.
+                        </p>
+                        <p className="text-xs mt-1 text-muted-foreground">
+                          💡 Richtwert: 1.0-1.5% p.a. (Neubauten 0.8%, Altbauten 1.2-2.0%)
+                        </p>
                       </TooltipContent>
                     </Tooltip>
                   </div>
@@ -453,9 +613,26 @@ export function DetailedParameters() {
               <CardDescription>Grenzsteuersatz und steuerliche Effekte</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="marginalTaxRate">Grenzsteuersatz (%)</Label>
+                  <div className="flex items-center gap-2">
+                    <Label htmlFor="marginalTaxRate">Grenzsteuersatz (%)</Label>
+                    <Tooltip>
+                      <TooltipTrigger type="button">
+                        <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                      </TooltipTrigger>
+                      <TooltipContent className="max-w-md">
+                        <p className="font-semibold mb-1">Grenzsteuersatz</p>
+                        <p className="text-sm mb-2">Der Steuersatz auf Ihr zusätzliches Einkommen (Bund + Kanton + Gemeinde). Bestimmt die Steuerersparnis durch Zinsabzug und die Steuerlast durch Eigenmietwert.</p>
+                        <p className="text-sm text-muted-foreground">
+                          <strong>Einfluss:</strong> Je höher der Grenzsteuersatz, desto grösser die Steuerersparnis durch Hypothekarzinsen, aber auch höhere Eigenmietwert-Besteuerung.
+                        </p>
+                        <p className="text-xs mt-1 text-muted-foreground">
+                          💡 Richtwert: 20-35% für mittlere Einkommen in Zürich (Stadt/Kanton)
+                        </p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </div>
                   <Input
                     id="marginalTaxRate"
                     type="number"
@@ -475,8 +652,15 @@ export function DetailedParameters() {
                       <TooltipTrigger type="button">
                         <Info className="h-4 w-4 text-muted-foreground cursor-help" />
                       </TooltipTrigger>
-                      <TooltipContent>
-                        <p className="max-w-xs">Fiktives Einkommen aus selbstgenutztem Wohneigentum (steuerbar, ca. 3.5% des Immobilienwerts)</p>
+                      <TooltipContent className="max-w-md">
+                        <p className="font-semibold mb-1">Eigenmietwert (Schweizer Spezialität)</p>
+                        <p className="text-sm mb-2">Fiktives Einkommen aus selbstgenutztem Wohneigentum, das als Einkommen versteuert werden muss. Schweizweite Besonderheit, die Wohneigentum steuerlich belastet.</p>
+                        <p className="text-sm text-muted-foreground">
+                          <strong>Einfluss:</strong> Erhöht die Steuerlast bei Eigentum. Typischerweise ca. 60-70% der Marktmiete. Wird mit Grenzsteuersatz multipliziert.
+                        </p>
+                        <p className="text-xs mt-1 text-muted-foreground">
+                          💡 Richtwert: 3.0-4.0% des Verkehrswerts (je nach Kanton)
+                        </p>
                       </TooltipContent>
                     </Tooltip>
                   </div>
@@ -493,33 +677,67 @@ export function DetailedParameters() {
                 </div>
                 
                 <div className="space-y-2">
-                  <Label htmlFor="interestDeduction" className="flex items-center gap-2">
-                    <input
-                      id="interestDeduction"
-                      type="checkbox"
-                      checked={params.tax.interestDeduction}
-                      onChange={(e) => handleUpdate({
-                        tax: { ...params.tax, interestDeduction: e.target.checked }
-                      })}
-                      className="h-4 w-4"
-                    />
-                    Zinsabzug berücksichtigen
-                  </Label>
+                  <div className="flex items-center gap-2">
+                    <Label htmlFor="interestDeduction" className="flex items-center gap-2">
+                      <input
+                        id="interestDeduction"
+                        type="checkbox"
+                        checked={params.tax.interestDeduction}
+                        onChange={(e) => handleUpdate({
+                          tax: { ...params.tax, interestDeduction: e.target.checked }
+                        })}
+                        className="h-4 w-4"
+                      />
+                      Zinsabzug berücksichtigen
+                    </Label>
+                    <Tooltip>
+                      <TooltipTrigger type="button">
+                        <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                      </TooltipTrigger>
+                      <TooltipContent className="max-w-md">
+                        <p className="font-semibold mb-1">Zinsabzug (Schuldzinsabzug)</p>
+                        <p className="text-sm mb-2">Hypothekarzinsen können vom steuerbaren Einkommen abgezogen werden - bedeutende Steuerersparnis für Eigentümer.</p>
+                        <p className="text-sm text-muted-foreground">
+                          <strong>Einfluss:</strong> Reduziert die effektiven Kosten des Eigentums durch Steuerersparnis. Höhe = Hypothekarzinsen × Grenzsteuersatz.
+                        </p>
+                        <p className="text-xs mt-1 text-muted-foreground">
+                          💡 In der Schweiz bei Wohneigentum üblich und sollte berücksichtigt werden
+                        </p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </div>
                 </div>
                 
                 <div className="space-y-2">
-                  <Label htmlFor="rentalValueTaxation" className="flex items-center gap-2">
-                    <input
-                      id="rentalValueTaxation"
-                      type="checkbox"
-                      checked={params.tax.rentalValueTaxation}
-                      onChange={(e) => handleUpdate({
-                        tax: { ...params.tax, rentalValueTaxation: e.target.checked }
-                      })}
-                      className="h-4 w-4"
-                    />
-                    Eigenmietwert besteuern
-                  </Label>
+                  <div className="flex items-center gap-2">
+                    <Label htmlFor="rentalValueTaxation" className="flex items-center gap-2">
+                      <input
+                        id="rentalValueTaxation"
+                        type="checkbox"
+                        checked={params.tax.rentalValueTaxation}
+                        onChange={(e) => handleUpdate({
+                          tax: { ...params.tax, rentalValueTaxation: e.target.checked }
+                        })}
+                        className="h-4 w-4"
+                      />
+                      Eigenmietwert besteuern
+                    </Label>
+                    <Tooltip>
+                      <TooltipTrigger type="button">
+                        <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                      </TooltipTrigger>
+                      <TooltipContent className="max-w-md">
+                        <p className="font-semibold mb-1">Eigenmietwert-Besteuerung</p>
+                        <p className="text-sm mb-2">Gesetzlich vorgeschrieben in der Schweiz: Der kalkulatorische Mietwert der selbst bewohnten Immobilie muss als Einkommen versteuert werden.</p>
+                        <p className="text-sm text-muted-foreground">
+                          <strong>Einfluss:</strong> Erhöht die Steuerlast bei Eigentum. Wird teilweise durch Zinsabzug kompensiert.
+                        </p>
+                        <p className="text-xs mt-1 text-muted-foreground">
+                          💡 Sollte aktiviert sein für realistische Schweizer Verhältnisse
+                        </p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </div>
                 </div>
               </div>
             </CardContent>
@@ -531,7 +749,7 @@ export function DetailedParameters() {
               <CardDescription>Wertsteigerung, Rendite und Inflation</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="grid grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="space-y-2">
                   <div className="flex items-center gap-2">
                     <Label htmlFor="propertyAppreciation">Wertsteigerung Immobilie (% p.a.)</Label>
@@ -539,8 +757,15 @@ export function DetailedParameters() {
                       <TooltipTrigger type="button">
                         <Info className="h-4 w-4 text-muted-foreground cursor-help" />
                       </TooltipTrigger>
-                      <TooltipContent>
-                        <p className="max-w-xs">Erwartete jährliche Wertsteigerung der Immobilie (historisch 1-3% in der Schweiz)</p>
+                      <TooltipContent className="max-w-md">
+                        <p className="font-semibold mb-1">Wertsteigerung der Immobilie</p>
+                        <p className="text-sm mb-2">Erwartete jährliche Wertsteigerung der Immobilie über die Zeit. Beeinflusst den Vermögensaufbau und das Eigenkapital.</p>
+                        <p className="text-sm text-muted-foreground">
+                          <strong>Einfluss:</strong> Erhöht das Nettovermögen bei Eigentum. Historisch zwischen Inflation und leicht darüber in der Schweiz.
+                        </p>
+                        <p className="text-xs mt-1 text-muted-foreground">
+                          💡 Richtwert: 1-3% p.a. (historischer Durchschnitt Schweiz: ca. 2%)
+                        </p>
                       </TooltipContent>
                     </Tooltip>
                   </div>
@@ -563,8 +788,15 @@ export function DetailedParameters() {
                       <TooltipTrigger type="button">
                         <Info className="h-4 w-4 text-muted-foreground cursor-help" />
                       </TooltipTrigger>
-                      <TooltipContent>
-                        <p className="max-w-xs">Alternativrendite bei Anlage des Eigenkapitals in ETFs (Opportunitätskosten)</p>
+                      <TooltipContent className="max-w-md">
+                        <p className="font-semibold mb-1">ETF-Rendite (Opportunitätskosten)</p>
+                        <p className="text-sm mb-2">Erwartete Rendite bei Anlage des Eigenkapitals in ETFs statt in die Immobilie. Zeigt alternative Verwendung des Kapitals.</p>
+                        <p className="text-sm text-muted-foreground">
+                          <strong>Einfluss:</strong> Berechnet das "entgangene" Vermögen, wenn Eigenkapital in Aktien-ETFs investiert würde. Wichtig für Vermögensvergleich.
+                        </p>
+                        <p className="text-xs mt-1 text-muted-foreground">
+                          💡 Richtwert: 5-7% p.a. (historischer Durchschnitt globaler Aktienmarkt)
+                        </p>
                       </TooltipContent>
                     </Tooltip>
                   </div>
@@ -581,7 +813,24 @@ export function DetailedParameters() {
                 </div>
                 
                 <div className="space-y-2">
-                  <Label htmlFor="inflation">Inflation (% p.a.)</Label>
+                  <div className="flex items-center gap-2">
+                    <Label htmlFor="inflation">Inflation (% p.a.)</Label>
+                    <Tooltip>
+                      <TooltipTrigger type="button">
+                        <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                      </TooltipTrigger>
+                      <TooltipContent className="max-w-md">
+                        <p className="font-semibold mb-1">Inflation</p>
+                        <p className="text-sm mb-2">Allgemeine Teuerungsrate. Wird bei Mietsteigerung berücksichtigt und sollte zukünftig auch auf Nebenkosten und Unterhalt angewendet werden.</p>
+                        <p className="text-sm text-muted-foreground">
+                          <strong>Einfluss:</strong> Aktuell nur auf Miete angewendet (über "Jährliche Mietsteigerung"). Sollte idealerweise auch Nebenkosten/Unterhalt beeinflussen.
+                        </p>
+                        <p className="text-xs mt-1 text-muted-foreground">
+                          💡 Richtwert: 1.0-2.0% p.a. (langfristiger Durchschnitt Schweiz)
+                        </p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </div>
                   <Input
                     id="inflation"
                     type="number"
