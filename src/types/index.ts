@@ -8,6 +8,8 @@ export interface QuickStartParams {
   equity: number
   householdIncome: number
   location: LocationQuality
+  annualLivingExpenses?: number // Annual living expenses for realistic wealth calculation
+  initialTotalWealth?: number // Total wealth before purchase/rent start
 }
 
 export interface RentParams {
@@ -65,6 +67,14 @@ export interface TaxParams {
   rentalValueRate: number // as percentage of property value
 }
 
+export interface AdditionalParams {
+  propertyAppreciationRate: number // annual % increase
+  etfReturnRate: number // annual % return for opportunity cost
+  inflationRate: number
+  investCashInRent: boolean // Whether cash assets are invested in rent scenario
+  investCashInOwnership: boolean // Whether cash assets are invested in ownership scenario
+}
+
 export interface CalculationParams {
   quickStart: QuickStartParams
   rent: RentParams
@@ -72,9 +82,11 @@ export interface CalculationParams {
   mortgage: MortgageParams
   runningCosts: RunningCostsParams
   tax: TaxParams
-  propertyAppreciationRate: number // annual % increase
-  etfReturnRate: number // annual % return for opportunity cost
-  inflationRate: number
+  additional: AdditionalParams
+  // Legacy fields for backward compatibility
+  propertyAppreciationRate?: number
+  etfReturnRate?: number
+  inflationRate?: number
 }
 
 export interface YearlyCalculation {
@@ -104,6 +116,10 @@ export interface YearlyCalculation {
   opportunityCostETF: number
   netWealthRent: number
   netWealthOwnership: number
+  // Income and expenses
+  annualIncome: number
+  annualLivingExpenses: number
+  netAnnualSavings: number // Income - living expenses - housing costs
 }
 
 export interface CalculationResults {

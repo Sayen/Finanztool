@@ -10,6 +10,15 @@ const AFFORDABILITY_MAX_RATIO = 33.33 // 33% rule
 export function calculateScenario(params: CalculationParams): CalculationResults {
   const yearlyData: YearlyCalculation[] = []
   
+  // Handle backward compatibility for old params structure
+  const additional = params.additional || {
+    propertyAppreciationRate: params.propertyAppreciationRate || 2.0,
+    etfReturnRate: params.etfReturnRate || 6.0,
+    inflationRate: params.inflationRate || 1.5,
+    investCashInRent: true,
+    investCashInOwnership: false,
+  }
+  
   // Calculate initial values
   const totalMortgage = params.mortgage.firstMortgage + params.mortgage.secondMortgage
   const closingCosts = params.purchase.purchasePrice * (
@@ -20,6 +29,11 @@ export function calculateScenario(params: CalculationParams): CalculationResults
     : 0
   const propertyValuationCost = params.purchase.propertyValuationFee || 0
   const initialInvestment = params.purchase.equity + closingCosts + mortgageProcessingCost + propertyValuationCost
+  
+  // Initial wealth calculations
+  const initialTotalWealth = params.quickStart.initialTotalWealth || params.purchase.equity
+  const annualLivingExpenses = params.quickStart.annualLivingExpenses || 0
+  const annualIncome = params.quickStart.householdIncome
   
   // Affordability check
   const affordabilityCheck = calculateAffordability(params)
@@ -32,11 +46,15 @@ export function calculateScenario(params: CalculationParams): CalculationResults
   let currentRent = params.rent.netRent
   let breakEvenYear: number | null = null
   
+  // Wealth tracking with income
+  let rentWealthAccumulated = initialTotalWealth - params.purchase.equity // Remaining cash after not buying
+  let ownershipWealthAccumulated = initialTotalWealth - initialInvestment // Remaining cash after buying
+  
   for (let year = 1; year <= CALCULATION_YEARS; year++) {
     // Calculate inflation factor for this year
     // Note: year - 1 because year 1 is the base year (inflationFactor = 1.0, no inflation)
     // Year 2 has inflationFactor = 1 + rate, Year 3 = (1 + rate)^2, etc.
-    const inflationFactor = Math.pow(1 + params.inflationRate / 100, year - 1)
+    const inflationFactor = Math.pow(1 + additional.inflationRate / 100, year - 1)
     
     // Rent calculations
     const rentCost = currentRent * 12
@@ -86,13 +104,33 @@ export function calculateScenario(params: CalculationParams): CalculationResults
     const netTaxEffect = taxSavingsInterestDeduction - rentalValueTax
     
     // Update property value
-    propertyValue = propertyValue * (1 + params.propertyAppreciationRate / 100)
+    propertyValue = propertyValue * (1 + additional.propertyAppreciationRate / 100)
+    
+    // Income and expenses for realistic wealth calculation
+    const livingExpenses = annualLivingExpenses * inflationFactor
+    
+    // Net savings from income after living expenses and housing costs
+    const netSavingsRent = annualIncome - livingExpenses - rentTotalAnnual
+    const netSavingsOwnership = annualIncome - livingExpenses - ownershipTotalAnnual + netTaxEffect
+    
+    // Accumulate wealth over time
+    // For rent scenario: start with remaining cash, add net savings, invest if enabled
+    if (additional.investCashInRent && rentWealthAccumulated > 0) {
+      rentWealthAccumulated = rentWealthAccumulated * (1 + additional.etfReturnRate / 100)
+    }
+    rentWealthAccumulated += netSavingsRent
+    
+    // For ownership scenario: start with remaining cash, add net savings, invest if enabled
+    if (additional.investCashInOwnership && ownershipWealthAccumulated > 0) {
+      ownershipWealthAccumulated = ownershipWealthAccumulated * (1 + additional.etfReturnRate / 100)
+    }
+    ownershipWealthAccumulated += netSavingsOwnership
     
     // Wealth calculations
     const netEquity = propertyValue - mortgageBalance
-    const opportunityCostETF = params.purchase.equity * Math.pow(1 + params.etfReturnRate / 100, year)
-    const netWealthRent = opportunityCostETF - cumulativeRentCost
-    const netWealthOwnership = netEquity - cumulativeOwnershipCost
+    const opportunityCostETF = params.purchase.equity * Math.pow(1 + additional.etfReturnRate / 100, year)
+    const netWealthRent = rentWealthAccumulated
+    const netWealthOwnership = netEquity + ownershipWealthAccumulated
     
     // Check for break-even
     if (breakEvenYear === null && cumulativeOwnershipCost < cumulativeRentCost) {
@@ -122,6 +160,9 @@ export function calculateScenario(params: CalculationParams): CalculationResults
       opportunityCostETF,
       netWealthRent,
       netWealthOwnership,
+      annualIncome,
+      annualLivingExpenses: livingExpenses,
+      netAnnualSavings: year === 1 ? netSavingsRent : (netSavingsRent + netSavingsOwnership) / 2, // Average for display
     })
   }
   
@@ -224,6 +265,13 @@ export function deriveFromQuickStart(quickStart: import('../types').QuickStartPa
   const firstMortgageRatio = Math.min(0.65, mortgageNeed / quickStart.purchasePrice)
   const secondMortgageRatio = Math.min(0.15, (mortgageNeed - quickStart.purchasePrice * firstMortgageRatio) / quickStart.purchasePrice)
   
+  // Calculate standard maintenance values based on purchase price
+  const purchasePrice = quickStart.purchasePrice
+  const roofCost = Math.round(purchasePrice * 0.05) // 5% of purchase price
+  const facadeCost = Math.round(purchasePrice * 0.04) // 4% of purchase price
+  const heatingCost = Math.round(purchasePrice * 0.02) // 2% of purchase price
+  const kitchenBathCost = Math.round(purchasePrice * 0.08) // 8% of purchase price
+  
   return {
     quickStart,
     rent: {
@@ -256,16 +304,16 @@ export function deriveFromQuickStart(quickStart: import('../types').QuickStartPa
       parkingCost: 0,
       condominiumFees: 0,
       renovationReserve: 0,
-      roofRenovation: 0,
+      roofRenovation: roofCost,
       roofInitialInterval: 25,
       roofInterval: 25,
-      facadeRenovation: 0,
+      facadeRenovation: facadeCost,
       facadeInitialInterval: 20,
       facadeInterval: 20,
-      heatingRenovation: 0,
+      heatingRenovation: heatingCost,
       heatingInitialInterval: 18,
       heatingInterval: 18,
-      kitchenBathRenovation: 0,
+      kitchenBathRenovation: kitchenBathCost,
       kitchenBathInitialInterval: 15,
       kitchenBathInterval: 15,
     },
@@ -275,9 +323,13 @@ export function deriveFromQuickStart(quickStart: import('../types').QuickStartPa
       rentalValueTaxation: true,
       rentalValueRate: 3.5, // 3.5% of property value
     },
-    propertyAppreciationRate: 2.0, // 2% annually
-    etfReturnRate: 6.0, // 6% annually for opportunity cost
-    inflationRate: 1.5, // 1.5% annually
+    additional: {
+      propertyAppreciationRate: 2.0, // 2% annually
+      etfReturnRate: 6.0, // 6% annually for opportunity cost
+      inflationRate: 1.5, // 1.5% annually
+      investCashInRent: true, // Invest remaining cash in rent scenario
+      investCashInOwnership: false, // Don't invest in ownership (cash is in property)
+    },
   }
 }
 
