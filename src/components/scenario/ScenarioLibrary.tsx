@@ -54,21 +54,21 @@ export function ScenarioLibrary() {
   
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-bold">Szenarien-Bibliothek</h2>
+          <h2 className="text-2xl font-bold text-foreground">Szenarien-Bibliothek</h2>
           <p className="text-muted-foreground">Verwalten Sie alle Ihre Berechnungen</p>
         </div>
-        <div className="flex gap-2">
-          <Button variant="outline" onClick={handleImport}>
+        <div className="flex flex-wrap gap-2">
+          <Button variant="outline" onClick={handleImport} aria-label="Szenarien importieren">
             <Upload className="h-4 w-4 mr-2" />
             Importieren
           </Button>
-          <Button variant="outline" onClick={handleExport}>
+          <Button variant="outline" onClick={handleExport} aria-label="Szenarien exportieren">
             <Download className="h-4 w-4 mr-2" />
             Exportieren
           </Button>
-          <Button onClick={() => createScenario('Neues Szenario')}>
+          <Button onClick={() => createScenario('Neues Szenario')} aria-label="Neues Szenario erstellen">
             <Plus className="h-4 w-4 mr-2" />
             Neues Szenario
           </Button>
@@ -108,6 +108,7 @@ export function ScenarioLibrary() {
                       toggleFavorite(scenario.id)
                     }}
                     className="text-muted-foreground hover:text-highlight"
+                    aria-label={scenario.isFavorite ? `${scenario.name} aus Favoriten entfernen` : `${scenario.name} zu Favoriten hinzufügen`}
                   >
                     <Star
                       className={`h-5 w-5 ${
@@ -160,6 +161,7 @@ export function ScenarioLibrary() {
                     size="sm"
                     className="flex-1"
                     onClick={() => duplicateScenario(scenario.id)}
+                    aria-label={`${scenario.name} duplizieren`}
                   >
                     <Copy className="h-3 w-3 mr-1" />
                     Duplizieren
@@ -172,6 +174,7 @@ export function ScenarioLibrary() {
                         deleteScenario(scenario.id)
                       }
                     }}
+                    aria-label={`${scenario.name} löschen`}
                   >
                     <Trash2 className="h-3 w-3" />
                   </Button>

@@ -52,27 +52,33 @@ function App() {
               <h1 className="text-2xl font-bold text-primary">Miete vs. Eigentum</h1>
               <p className="text-sm text-muted-foreground">Vergleichstool für Kanton Zürich</p>
             </div>
-            <div className="flex items-center gap-2">
-              <Button variant="ghost" size="sm" onClick={toggleTheme}>
+            <div className="flex flex-wrap items-center gap-2">
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={toggleTheme}
+                className="dark:ring-1 dark:ring-border"
+                aria-label={theme === 'light' ? 'Zu Dark Mode wechseln' : 'Zu Light Mode wechseln'}
+              >
                 {theme === 'light' ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
               </Button>
               {currentScenario && (
                 <>
-                  <Button variant="outline" size="sm" onClick={handleShare}>
+                  <Button variant="outline" size="sm" onClick={handleShare} aria-label="Szenario teilen">
                     <Share2 className="h-4 w-4 mr-2" />
                     Teilen
                   </Button>
-                  <Button variant="outline" size="sm" onClick={handleExportExcel}>
+                  <Button variant="outline" size="sm" onClick={handleExportExcel} aria-label="Als CSV exportieren">
                     <Download className="h-4 w-4 mr-2" />
                     CSV
                   </Button>
-                  <Button variant="outline" size="sm" onClick={handleExportPDF}>
+                  <Button variant="outline" size="sm" onClick={handleExportPDF} aria-label="Als PDF exportieren">
                     <Download className="h-4 w-4 mr-2" />
                     PDF
                   </Button>
                 </>
               )}
-              <Button variant="outline" size="sm" onClick={() => setActiveTab('scenarios')}>
+              <Button variant="outline" size="sm" onClick={() => setActiveTab('scenarios')} aria-label="Szenarien anzeigen">
                 <FileText className="h-4 w-4 mr-2" />
                 Szenarien: {scenarios.length}
               </Button>
@@ -90,47 +96,51 @@ function App() {
       {/* Navigation */}
       <nav className="border-b bg-card">
         <div className="container mx-auto px-4">
-          <div className="flex gap-1">
+          <div className="flex gap-1 overflow-x-auto">
             <button
               onClick={() => setActiveTab('quickstart')}
-              className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
+              className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
                 activeTab === 'quickstart'
                   ? 'border-primary text-primary'
                   : 'border-transparent text-muted-foreground hover:text-foreground'
               }`}
+              aria-label="Schnellstart Tab"
             >
               <Home className="h-4 w-4 inline mr-2" />
               Schnellstart
             </button>
             <button
               onClick={() => setActiveTab('detailed')}
-              className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
+              className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
                 activeTab === 'detailed'
                   ? 'border-primary text-primary'
                   : 'border-transparent text-muted-foreground hover:text-foreground'
               }`}
+              aria-label="Detailliert Tab"
             >
               <Settings className="h-4 w-4 inline mr-2" />
               Detailliert
             </button>
             <button
               onClick={() => setActiveTab('charts')}
-              className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
+              className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
                 activeTab === 'charts'
                   ? 'border-primary text-primary'
                   : 'border-transparent text-muted-foreground hover:text-foreground'
               }`}
+              aria-label="Visualisierungen Tab"
             >
               <BarChart3 className="h-4 w-4 inline mr-2" />
               Visualisierungen
             </button>
             <button
               onClick={() => setActiveTab('scenarios')}
-              className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
+              className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
                 activeTab === 'scenarios'
                   ? 'border-primary text-primary'
                   : 'border-transparent text-muted-foreground hover:text-foreground'
               }`}
+              aria-label="Szenarien Tab"
             >
               <FileText className="h-4 w-4 inline mr-2" />
               Szenarien
