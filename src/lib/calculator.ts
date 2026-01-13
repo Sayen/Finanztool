@@ -221,31 +221,40 @@ function calculateAffordability(params: CalculationParams) {
 
 /**
  * Calculate maintenance costs (simple or detailed cyclical model)
+ * IMPORTANT: Either simple OR detailed model is used, never both together
  */
 function calculateMaintenanceCost(params: CalculationParams, year: number): number {
-  // Simple model: percentage of purchase price annually
-  let maintenanceCost = params.purchase.purchasePrice * params.runningCosts.maintenanceSimple / 100
+  // Get maintenance mode (default to 'simple' for backward compatibility)
+  const mode = params.runningCosts.maintenanceMode || 'simple'
+  
+  let maintenanceCost = 0
 
-  const {
-    roofRenovation, roofInitialInterval, roofInterval,
-    facadeRenovation, facadeInitialInterval, facadeInterval,
-    heatingRenovation, heatingInitialInterval, heatingInterval,
-    kitchenBathRenovation, kitchenBathInitialInterval, kitchenBathInterval,
-  } = params.runningCosts;
+  if (mode === 'simple') {
+    // Simple model: percentage of purchase price annually
+    maintenanceCost = params.purchase.purchasePrice * params.runningCosts.maintenanceSimple / 100
+  } else if (mode === 'detailed') {
+    // Detailed cyclical model: specific renovation costs at intervals
+    const {
+      roofRenovation, roofInitialInterval, roofInterval,
+      facadeRenovation, facadeInitialInterval, facadeInterval,
+      heatingRenovation, heatingInitialInterval, heatingInterval,
+      kitchenBathRenovation, kitchenBathInitialInterval, kitchenBathInterval,
+    } = params.runningCosts;
 
-  // Helper for cyclical cost calculation
-  const checkAndAddCost = (cost?: number, initial?: number, interval?: number) => {
-    if (cost && initial && interval && year >= initial) {
-      if ((year - initial) % interval === 0) {
-        maintenanceCost += cost;
+    // Helper for cyclical cost calculation
+    const checkAndAddCost = (cost?: number, initial?: number, interval?: number) => {
+      if (cost && initial && interval && year >= initial) {
+        if ((year - initial) % interval === 0) {
+          maintenanceCost += cost;
+        }
       }
-    }
-  };
+    };
 
-  checkAndAddCost(roofRenovation, roofInitialInterval, roofInterval);
-  checkAndAddCost(facadeRenovation, facadeInitialInterval, facadeInterval);
-  checkAndAddCost(heatingRenovation, heatingInitialInterval, heatingInterval);
-  checkAndAddCost(kitchenBathRenovation, kitchenBathInitialInterval, kitchenBathInterval);
+    checkAndAddCost(roofRenovation, roofInitialInterval, roofInterval);
+    checkAndAddCost(facadeRenovation, facadeInitialInterval, facadeInterval);
+    checkAndAddCost(heatingRenovation, heatingInitialInterval, heatingInterval);
+    checkAndAddCost(kitchenBathRenovation, kitchenBathInitialInterval, kitchenBathInterval);
+  }
   
   return maintenanceCost
 }
@@ -300,6 +309,7 @@ export function deriveFromQuickStart(quickStart: import('../types').QuickStartPa
     runningCosts: {
       utilities: comparisonRent * 0.15, // Same as rent estimate
       insurance: 1200, // Annual estimate for ownership
+      maintenanceMode: 'simple', // Default to simple model
       maintenanceSimple: 1.0, // 1% of purchase price annually
       parkingCost: 0,
       condominiumFees: 0,

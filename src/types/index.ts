@@ -41,6 +41,7 @@ export interface MortgageParams {
 export interface RunningCostsParams {
   utilities: number
   insurance: number
+  maintenanceMode?: 'simple' | 'detailed' // Mode for maintenance calculation (default: 'simple')
   maintenanceSimple: number // as percentage of purchase price
   parkingCost?: number // monthly parking costs
   condominiumFees?: number // monthly condominium management fees

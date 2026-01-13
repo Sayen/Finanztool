@@ -676,6 +676,61 @@ export function DetailedParameters() {
               <CardDescription>Nebenkosten, Versicherungen und Unterhalt</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
+              {/* Maintenance Mode Toggle */}
+              <div className="space-y-3 p-4 border rounded-lg bg-muted/30">
+                <div className="flex items-center gap-2">
+                  <Label>Unterhaltsmodell</Label>
+                  <Tooltip>
+                    <TooltipTrigger type="button">
+                      <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                    </TooltipTrigger>
+                    <TooltipContent className="max-w-md">
+                      <p className="font-semibold mb-1">⚠️ Wichtig: Entweder/Oder</p>
+                      <p className="text-sm mb-2">Wählen Sie ENTWEDER das einfache Modell ODER das detaillierte zyklische Modell.</p>
+                      <p className="text-sm mb-2">
+                        <strong>Einfach:</strong> Pauschaler Prozentsatz vom Kaufpreis pro Jahr (z.B. 1%).
+                      </p>
+                      <p className="text-sm">
+                        <strong>Detailliert:</strong> Spezifische Renovationen zu definierten Zeitpunkten (Dach, Fassade, etc.).
+                      </p>
+                    </TooltipContent>
+                  </Tooltip>
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => handleUpdate({
+                      runningCosts: { ...params.runningCosts, maintenanceMode: 'simple' }
+                    })}
+                    className={`flex-1 px-4 py-2 rounded-md font-medium transition-colors ${
+                      (params.runningCosts.maintenanceMode || 'simple') === 'simple'
+                        ? 'bg-primary text-primary-foreground'
+                        : 'bg-muted text-muted-foreground hover:bg-muted/80'
+                    }`}
+                  >
+                    Einfaches Modell
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleUpdate({
+                      runningCosts: { ...params.runningCosts, maintenanceMode: 'detailed' }
+                    })}
+                    className={`flex-1 px-4 py-2 rounded-md font-medium transition-colors ${
+                      params.runningCosts.maintenanceMode === 'detailed'
+                        ? 'bg-primary text-primary-foreground'
+                        : 'bg-muted text-muted-foreground hover:bg-muted/80'
+                    }`}
+                  >
+                    Detailliertes Modell
+                  </button>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  {(params.runningCosts.maintenanceMode || 'simple') === 'simple' 
+                    ? '✓ Nutzt pauschalen Prozentsatz für jährlichen Unterhalt'
+                    : '✓ Nutzt spezifische Renovationskosten nach Intervallen'}
+                </p>
+              </div>
+              
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <div className="flex items-center gap-2">
@@ -737,38 +792,41 @@ export function DetailedParameters() {
                   <p className="text-xs text-muted-foreground">{formatCurrency(params.runningCosts.insurance)}/Jahr</p>
                 </div>
                 
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2">
-                    <Label htmlFor="maintenanceSimple">Unterhalt (% vom Kaufpreis p.a.)</Label>
-                    <Tooltip>
-                      <TooltipTrigger type="button">
-                        <Info className="h-4 w-4 text-muted-foreground cursor-help" />
-                      </TooltipTrigger>
-                      <TooltipContent className="max-w-md">
-                        <p className="font-semibold mb-1">Unterhaltskosten</p>
-                        <p className="text-sm mb-2">Jährliche Kosten für Reparaturen, Renovationen und Werterhaltung (Dach, Fassade, Heizung, Küche/Bad über Zeit).</p>
-                        <p className="text-sm text-muted-foreground">
-                          <strong>Einfluss:</strong> Wesentlicher laufender Kostenfaktor bei Eigentum. 1% des Kaufpreises ist Faustregel, ältere Objekte mehr.
-                        </p>
-                        <p className="text-xs mt-1 text-muted-foreground">
-                          💡 Richtwert: 1.0-1.5% p.a. • Neubau (0-10 Jahre): 0.5-0.8% • Standard (10-30 Jahre): 1.0-1.5% • Altbau (30+ Jahre): 1.5-2.5%
-                        </p>
-                      </TooltipContent>
-                    </Tooltip>
+                {/* Only show simple maintenance when in simple mode */}
+                {(params.runningCosts.maintenanceMode || 'simple') === 'simple' && (
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2">
+                      <Label htmlFor="maintenanceSimple">Unterhalt (% vom Kaufpreis p.a.)</Label>
+                      <Tooltip>
+                        <TooltipTrigger type="button">
+                          <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                        </TooltipTrigger>
+                        <TooltipContent className="max-w-md">
+                          <p className="font-semibold mb-1">Unterhaltskosten (Einfaches Modell)</p>
+                          <p className="text-sm mb-2">Jährliche Kosten für Reparaturen, Renovationen und Werterhaltung als pauschaler Prozentsatz.</p>
+                          <p className="text-sm text-muted-foreground">
+                            <strong>Einfluss:</strong> Wesentlicher laufender Kostenfaktor bei Eigentum. 1% des Kaufpreises ist Faustregel, ältere Objekte mehr.
+                          </p>
+                          <p className="text-xs mt-1 text-muted-foreground">
+                            💡 Richtwert: 1.0-1.5% p.a. • Neubau (0-10 Jahre): 0.5-0.8% • Standard (10-30 Jahre): 1.0-1.5% • Altbau (30+ Jahre): 1.5-2.5%
+                          </p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </div>
+                    <Input
+                      id="maintenanceSimple"
+                      type="number"
+                      step="0.1"
+                      value={params.runningCosts.maintenanceSimple}
+                      onChange={(e) => handleUpdate({
+                        runningCosts: { ...params.runningCosts, maintenanceSimple: Number(e.target.value) }
+                      })}
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      {formatCurrency(params.purchase.purchasePrice * params.runningCosts.maintenanceSimple / 100)}/Jahr
+                    </p>
                   </div>
-                  <Input
-                    id="maintenanceSimple"
-                    type="number"
-                    step="0.1"
-                    value={params.runningCosts.maintenanceSimple}
-                    onChange={(e) => handleUpdate({
-                      runningCosts: { ...params.runningCosts, maintenanceSimple: Number(e.target.value) }
-                    })}
-                  />
-                  <p className="text-xs text-muted-foreground">
-                    {formatCurrency(params.purchase.purchasePrice * params.runningCosts.maintenanceSimple / 100)}/Jahr
-                  </p>
-                </div>
+                )}
                 
                 <div className="space-y-2">
                   <div className="flex items-center gap-2">
@@ -863,13 +921,15 @@ export function DetailedParameters() {
               
             </CardContent>
           </Card>
-          <Card>
-            <CardHeader>
-              <CardTitle>Zyklischer Unterhalt</CardTitle>
-              <CardDescription>
-                Geplante, grössere Renovationen basierend auf dem Kaufpreis. Kosten fallen erstmalig nach "Initialintervall" an, danach wiederholend gemäss "Folgeintervall".
-              </CardDescription>
-            </CardHeader>
+          {/* Only show detailed cyclical maintenance when in detailed mode */}
+          {params.runningCosts.maintenanceMode === 'detailed' && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Zyklischer Unterhalt (Detailliertes Modell)</CardTitle>
+                <CardDescription>
+                  Geplante, grössere Renovationen basierend auf dem Kaufpreis. Kosten fallen erstmalig nach "Initialintervall" an, danach wiederholend gemäss "Folgeintervall".
+                </CardDescription>
+              </CardHeader>
             <CardContent className="space-y-6">
               {['Dach', 'Fassade', 'Heizung', 'Küche/Bad'].map((item) => {
                 const key = item === 'Küche/Bad' ? 'kitchenBath' : item.toLowerCase();
@@ -974,6 +1034,7 @@ export function DetailedParameters() {
               })}
             </CardContent>
           </Card>
+          )}
         </TabsContent>
         
         <TabsContent value="taxes" className="space-y-4">
