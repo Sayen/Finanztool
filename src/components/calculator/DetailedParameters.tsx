@@ -300,15 +300,86 @@ export function DetailedParameters() {
                     {formatCurrency(params.purchase.purchasePrice * params.purchase.brokerFees / 100)}
                   </p>
                 </div>
+                
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <Label htmlFor="mortgageProcessingFee">Hypothekar-Bearbeitungsgebühr (%)</Label>
+                    <Tooltip>
+                      <TooltipTrigger type="button">
+                        <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                      </TooltipTrigger>
+                      <TooltipContent className="max-w-md">
+                        <p className="font-semibold mb-1">Hypothekar-Bearbeitungsgebühr</p>
+                        <p className="text-sm mb-2">Einmalige Gebühr der Bank für die Prüfung und Abwicklung des Hypothekarantrags.</p>
+                        <p className="text-sm text-muted-foreground">
+                          <strong>Einfluss:</strong> Erhöht die Anfangsinvestition. Wird auf Basis der Hypothekarsumme berechnet.
+                        </p>
+                        <p className="text-xs mt-1 text-muted-foreground">
+                          💡 Richtwert: 0.5-1.0% der Hypothekarsumme
+                        </p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </div>
+                  <Input
+                    id="mortgageProcessingFee"
+                    type="number"
+                    step="0.1"
+                    value={params.purchase.mortgageProcessingFee || 0}
+                    onChange={(e) => handleUpdate({
+                      purchase: { ...params.purchase, mortgageProcessingFee: Number(e.target.value) }
+                    })}
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    {formatCurrency((params.mortgage.firstMortgage + params.mortgage.secondMortgage) * (params.purchase.mortgageProcessingFee || 0) / 100)}
+                  </p>
+                </div>
+                
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <Label htmlFor="propertyValuationFee">Schätzungsgebühr (CHF)</Label>
+                    <Tooltip>
+                      <TooltipTrigger type="button">
+                        <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                      </TooltipTrigger>
+                      <TooltipContent className="max-w-md">
+                        <p className="font-semibold mb-1">Schätzungsgebühr</p>
+                        <p className="text-sm mb-2">Kosten für die professionelle Bewertung der Immobilie durch einen Experten. Von der Bank vorgeschrieben.</p>
+                        <p className="text-sm text-muted-foreground">
+                          <strong>Einfluss:</strong> Erhöht die Anfangsinvestition. Einmalige Fixkosten unabhängig vom Kaufpreis.
+                        </p>
+                        <p className="text-xs mt-1 text-muted-foreground">
+                          💡 Richtwert: CHF 500-2000 je nach Objektgrösse und Komplexität
+                        </p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </div>
+                  <Input
+                    id="propertyValuationFee"
+                    type="number"
+                    value={params.purchase.propertyValuationFee || 0}
+                    onChange={(e) => handleUpdate({
+                      purchase: { ...params.purchase, propertyValuationFee: Number(e.target.value) }
+                    })}
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    {formatCurrency(params.purchase.propertyValuationFee || 0)}
+                  </p>
+                </div>
               </div>
               
               <div className="bg-muted p-4 rounded-lg">
-                <h4 className="font-semibold mb-2">Nebenkosten beim Kauf</h4>
+                <h4 className="font-semibold mb-2">Gesamte Anfangsinvestition</h4>
                 <p className="text-2xl font-mono">
                   {formatCurrency(
+                    params.purchase.equity +
                     params.purchase.purchasePrice * 
-                    (params.purchase.notaryFees + params.purchase.landRegistryFees + params.purchase.brokerFees) / 100
+                    (params.purchase.notaryFees + params.purchase.landRegistryFees + params.purchase.brokerFees) / 100 +
+                    (params.mortgage.firstMortgage + params.mortgage.secondMortgage) * (params.purchase.mortgageProcessingFee || 0) / 100 +
+                    (params.purchase.propertyValuationFee || 0)
                   )}
+                </p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Eigenkapital + Kaufnebenkosten + Hypothekargebühren
                 </p>
               </div>
             </CardContent>
@@ -591,15 +662,112 @@ export function DetailedParameters() {
                     {formatCurrency(params.purchase.purchasePrice * params.runningCosts.maintenanceSimple / 100)}/Jahr
                   </p>
                 </div>
+                
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <Label htmlFor="parkingCost">Parkplatzkosten (monatlich)</Label>
+                    <Tooltip>
+                      <TooltipTrigger type="button">
+                        <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                      </TooltipTrigger>
+                      <TooltipContent className="max-w-md">
+                        <p className="font-semibold mb-1">Parkplatzkosten</p>
+                        <p className="text-sm mb-2">Monatliche Kosten für Garage oder Aussenparkplatz, falls nicht im Kaufpreis enthalten.</p>
+                        <p className="text-sm text-muted-foreground">
+                          <strong>Einfluss:</strong> Zusätzliche laufende Kosten bei Eigentum, falls Parkplatz separat gemietet.
+                        </p>
+                        <p className="text-xs mt-1 text-muted-foreground">
+                          💡 Richtwert: CHF 0-200/Monat (0 wenn im Kaufpreis enthalten, CHF 100-200 bei separater Miete)
+                        </p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </div>
+                  <Input
+                    id="parkingCost"
+                    type="number"
+                    value={params.runningCosts.parkingCost || 0}
+                    onChange={(e) => handleUpdate({
+                      runningCosts: { ...params.runningCosts, parkingCost: Number(e.target.value) }
+                    })}
+                  />
+                  <p className="text-xs text-muted-foreground">{formatCurrency(params.runningCosts.parkingCost || 0)}/Monat</p>
+                </div>
+                
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <Label htmlFor="condominiumFees">Verwaltungskosten Stockwerkeigentum (monatlich)</Label>
+                    <Tooltip>
+                      <TooltipTrigger type="button">
+                        <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                      </TooltipTrigger>
+                      <TooltipContent className="max-w-md">
+                        <p className="font-semibold mb-1">Verwaltungskosten (Stockwerkeigentum)</p>
+                        <p className="text-sm mb-2">Bei Eigentumswohnungen: Kosten für Hausverwaltung, Gemeinschaftsflächen, Liftunterhalt, Rückstellungen der Eigentümergemeinschaft.</p>
+                        <p className="text-sm text-muted-foreground">
+                          <strong>Einfluss:</strong> Nur bei Stockwerkeigentum relevant. Wird von der Eigentümergemeinschaft festgelegt.
+                        </p>
+                        <p className="text-xs mt-1 text-muted-foreground">
+                          💡 Richtwert: CHF 0-400/Monat (0 bei Einfamilienhaus, CHF 200-400 bei Stockwerkeigentum)
+                        </p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </div>
+                  <Input
+                    id="condominiumFees"
+                    type="number"
+                    value={params.runningCosts.condominiumFees || 0}
+                    onChange={(e) => handleUpdate({
+                      runningCosts: { ...params.runningCosts, condominiumFees: Number(e.target.value) }
+                    })}
+                  />
+                  <p className="text-xs text-muted-foreground">{formatCurrency(params.runningCosts.condominiumFees || 0)}/Monat</p>
+                </div>
+                
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <Label htmlFor="renovationReserve">Renovationsrücklagen (jährlich)</Label>
+                    <Tooltip>
+                      <TooltipTrigger type="button">
+                        <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                      </TooltipTrigger>
+                      <TooltipContent className="max-w-md">
+                        <p className="font-semibold mb-1">Renovationsrücklagen</p>
+                        <p className="text-sm mb-2">Zusätzliche jährliche Rückstellungen für grössere Renovationen (zusätzlich zum normalen Unterhalt).</p>
+                        <p className="text-sm text-muted-foreground">
+                          <strong>Einfluss:</strong> Erhöht laufende Kosten, baut aber Reserven für grosse Sanierungen auf. Optional - kann auf 0 gesetzt werden wenn im Unterhalt enthalten.
+                        </p>
+                        <p className="text-xs mt-1 text-muted-foreground">
+                          💡 Richtwert: CHF 0-5000/Jahr (bei älteren Objekten höher)
+                        </p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </div>
+                  <Input
+                    id="renovationReserve"
+                    type="number"
+                    value={params.runningCosts.renovationReserve || 0}
+                    onChange={(e) => handleUpdate({
+                      runningCosts: { ...params.runningCosts, renovationReserve: Number(e.target.value) }
+                    })}
+                  />
+                  <p className="text-xs text-muted-foreground">{formatCurrency(params.runningCosts.renovationReserve || 0)}/Jahr</p>
+                </div>
               </div>
               
               <div className="bg-muted p-4 rounded-lg">
                 <h4 className="font-semibold mb-2">Geschätzte jährliche Kosten</h4>
                 <p className="text-2xl font-mono">
                   {formatCurrency(
-                    params.runningCosts.utilities * 12 + params.runningCosts.insurance +
-                    params.purchase.purchasePrice * params.runningCosts.maintenanceSimple / 100
+                    params.runningCosts.utilities * 12 + 
+                    params.runningCosts.insurance +
+                    params.purchase.purchasePrice * params.runningCosts.maintenanceSimple / 100 +
+                    (params.runningCosts.parkingCost || 0) * 12 +
+                    (params.runningCosts.condominiumFees || 0) * 12 +
+                    (params.runningCosts.renovationReserve || 0)
                   )}/Jahr
+                </p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Nebenkosten + Versicherung + Unterhalt + Zusatzkosten
                 </p>
               </div>
             </CardContent>

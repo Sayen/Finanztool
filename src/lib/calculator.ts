@@ -15,7 +15,11 @@ export function calculateScenario(params: CalculationParams): CalculationResults
   const closingCosts = params.purchase.purchasePrice * (
     (params.purchase.notaryFees + params.purchase.landRegistryFees + params.purchase.brokerFees) / 100
   )
-  const initialInvestment = params.purchase.equity + closingCosts
+  const mortgageProcessingCost = params.purchase.mortgageProcessingFee 
+    ? (totalMortgage * params.purchase.mortgageProcessingFee / 100) 
+    : 0
+  const propertyValuationCost = params.purchase.propertyValuationFee || 0
+  const initialInvestment = params.purchase.equity + closingCosts + mortgageProcessingCost + propertyValuationCost
   
   // Affordability check
   const affordabilityCheck = calculateAffordability(params)
@@ -29,10 +33,13 @@ export function calculateScenario(params: CalculationParams): CalculationResults
   let breakEvenYear: number | null = null
   
   for (let year = 1; year <= CALCULATION_YEARS; year++) {
+    // Calculate inflation factor for this year
+    const inflationFactor = Math.pow(1 + params.inflationRate / 100, year - 1)
+    
     // Rent calculations
     const rentCost = currentRent * 12
-    const rentUtilities = params.rent.utilities * 12
-    const rentInsurance = params.rent.insurance
+    const rentUtilities = params.rent.utilities * 12 * inflationFactor
+    const rentInsurance = params.rent.insurance * inflationFactor
     const rentTotalAnnual = rentCost + rentUtilities + rentInsurance
     cumulativeRentCost += rentTotalAnnual
     
@@ -52,12 +59,17 @@ export function calculateScenario(params: CalculationParams): CalculationResults
     
     mortgageBalance = Math.max(0, mortgageBalance - annualAmortization)
     
-    const ownershipUtilities = params.runningCosts.utilities * 12
-    const ownershipInsurance = params.runningCosts.insurance
-    const maintenanceCost = calculateMaintenanceCost(params, year)
+    // Apply inflation to running costs
+    const ownershipUtilities = params.runningCosts.utilities * 12 * inflationFactor
+    const ownershipInsurance = params.runningCosts.insurance * inflationFactor
+    const maintenanceCost = calculateMaintenanceCost(params, year) * inflationFactor
+    const parkingCost = (params.runningCosts.parkingCost || 0) * 12 * inflationFactor
+    const condominiumFees = (params.runningCosts.condominiumFees || 0) * 12 * inflationFactor
+    const renovationReserve = (params.runningCosts.renovationReserve || 0) * inflationFactor
     
     const ownershipTotalAnnual = mortgageInterest + annualAmortization + 
-                                  ownershipUtilities + ownershipInsurance + maintenanceCost
+                                  ownershipUtilities + ownershipInsurance + maintenanceCost +
+                                  parkingCost + condominiumFees + renovationReserve
     cumulativeOwnershipCost += ownershipTotalAnnual
     
     // Tax effects
@@ -147,7 +159,10 @@ function calculateAffordability(params: CalculationParams) {
   const calculatedInterest = totalMortgage * AFFORDABILITY_CALC_RATE / 100
   const annualAmortization = params.mortgage.secondMortgage / params.mortgage.amortizationYears
   const annualCosts = calculatedInterest + annualAmortization + 
-                      (params.runningCosts.utilities + params.runningCosts.insurance) * 12 +
+                      (params.runningCosts.utilities + (params.runningCosts.parkingCost || 0) + 
+                       (params.runningCosts.condominiumFees || 0)) * 12 +
+                      params.runningCosts.insurance +
+                      (params.runningCosts.renovationReserve || 0) +
                       (params.purchase.purchasePrice * params.runningCosts.maintenanceSimple / 100)
   
   const requiredMonthlyIncome = (annualCosts / 12) / (AFFORDABILITY_MAX_RATIO / 100)
@@ -226,6 +241,8 @@ export function deriveFromQuickStart(quickStart: import('../types').QuickStartPa
       notaryFees: 0.5,
       landRegistryFees: 0.3,
       brokerFees: 1.0,
+      mortgageProcessingFee: 0.5, // Default 0.5%
+      propertyValuationFee: 1000, // Default CHF 1000
     },
     mortgage: {
       firstMortgage: quickStart.purchasePrice * firstMortgageRatio,
@@ -240,6 +257,9 @@ export function deriveFromQuickStart(quickStart: import('../types').QuickStartPa
       utilities: comparisonRent * 0.15, // Same as rent estimate
       insurance: 1200, // Annual estimate for ownership
       maintenanceSimple: 1.0, // 1% of purchase price annually
+      parkingCost: 0, // Optional, default 0
+      condominiumFees: 0, // Optional, default 0
+      renovationReserve: 0, // Optional, default 0
     },
     tax: {
       marginalTaxRate: 25, // Estimated for middle income in Zurich
