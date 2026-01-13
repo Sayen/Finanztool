@@ -1419,6 +1419,16 @@ export function DetailedParameters() {
                     }}
                   />
                   <p className="text-xs text-muted-foreground">{getAdditionalParam(params, 'propertyAppreciationRate', 2.0)}% pro Jahr</p>
+                  {getAdditionalParam(params, 'propertyAppreciationRate', 2.0) > 5 && (
+                    <p className="text-xs text-orange-600 dark:text-orange-500 font-medium">
+                      ⚠️ Wertsteigerung über 5% p.a. ist unrealistisch für Schweizer Immobilien
+                    </p>
+                  )}
+                  {getAdditionalParam(params, 'propertyAppreciationRate', 2.0) < 0 && (
+                    <p className="text-xs text-orange-600 dark:text-orange-500 font-medium">
+                      ⚠️ Negative Wertsteigerung bedeutet permanenten Wertverlust
+                    </p>
+                  )}
                 </div>
                 
                 <div className="space-y-2">
@@ -1460,6 +1470,16 @@ export function DetailedParameters() {
                     }}
                   />
                   <p className="text-xs text-muted-foreground">{getAdditionalParam(params, 'etfReturnRate', 6.0)}% pro Jahr</p>
+                  {getAdditionalParam(params, 'etfReturnRate', 6.0) > 10 && (
+                    <p className="text-xs text-orange-600 dark:text-orange-500 font-medium">
+                      ⚠️ ETF-Rendite über 10% p.a. ist langfristig unrealistisch
+                    </p>
+                  )}
+                  {getAdditionalParam(params, 'etfReturnRate', 6.0) < 0 && (
+                    <p className="text-xs text-orange-600 dark:text-orange-500 font-medium">
+                      ⚠️ Negative ETF-Rendite bedeutet permanenten Verlust
+                    </p>
+                  )}
                 </div>
                 
                 <div className="space-y-2">
@@ -1501,6 +1521,16 @@ export function DetailedParameters() {
                     }}
                   />
                   <p className="text-xs text-muted-foreground">{getAdditionalParam(params, 'inflationRate', 1.5)}% pro Jahr</p>
+                  {getAdditionalParam(params, 'inflationRate', 1.5) > 5 && (
+                    <p className="text-xs text-orange-600 dark:text-orange-500 font-medium">
+                      ⚠️ Inflation über 5% p.a. ist für die Schweiz sehr ungewöhnlich
+                    </p>
+                  )}
+                  {getAdditionalParam(params, 'inflationRate', 1.5) < 0 && (
+                    <p className="text-xs text-orange-600 dark:text-orange-500 font-medium">
+                      ⚠️ Negative Inflation (Deflation) ist für Langfristplanung problematisch
+                    </p>
+                  )}
                 </div>
               </div>
             </CardContent>
