@@ -82,56 +82,147 @@ export function DetailedParameters() {
           <Card className="bg-primary/5 border-primary/20">
             <CardContent className="py-4">
               <h4 className="font-semibold mb-3">📊 Live Berechnungsvorschau</h4>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+              
+              {/* Core Metrics */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm mb-4">
                 <div>
-                  <p className="text-muted-foreground">Monatl. Miete</p>
+                  <p className="text-muted-foreground text-xs">Monatl. Miete</p>
                   <p className="font-mono font-semibold text-lg text-green-600 dark:text-green-500">
                     {formatCurrency(currentScenario.results.kpis.monthlyRent)}
                   </p>
                 </div>
                 <div>
-                  <p className="text-muted-foreground">Monatl. Eigentum (Jahr 1)</p>
+                  <p className="text-muted-foreground text-xs">Monatl. Eigentum (Jahr 1)</p>
                   <p className="font-mono font-semibold text-lg text-orange-600 dark:text-orange-500">
                     {formatCurrency(currentScenario.results.kpis.monthlyOwnership)}
                   </p>
                 </div>
                 <div>
-                  <p className="text-muted-foreground">Tragbarkeit</p>
+                  <p className="text-muted-foreground text-xs">Tragbarkeit</p>
                   <p className={`font-mono font-semibold text-lg ${currentScenario.results.affordabilityCheck.isAffordable ? 'text-green-600 dark:text-green-500' : 'text-red-600 dark:text-red-500'}`}>
                     {currentScenario.results.affordabilityCheck.utilizationPercent.toFixed(1)}%
                   </p>
                 </div>
                 <div>
-                  <p className="text-muted-foreground">Break-Even</p>
-                  <p className="font-mono font-semibold text-lg">
-                    {currentScenario.results.breakEvenYear ? `in ${currentScenario.results.breakEvenYear} Jahren` : 'N/A'}
-                  </p>
-                </div>
-                 <div>
-                  <p className="text-muted-foreground">Anfangsinvestition</p>
+                  <p className="text-muted-foreground text-xs">Anfangsinvestition</p>
                   <p className="font-mono font-semibold text-lg">
                     {formatCurrency(currentScenario.results.kpis.initialInvestment)}
                   </p>
                 </div>
-                <div>
-                  <p className="text-muted-foreground">Gesamthypothek</p>
-                  <p className="font-mono font-semibold text-lg">
-                    {formatCurrency(currentScenario.results.kpis.totalMortgage)}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-muted-foreground">Netto-Steuereffekt (J1)</p>
-                  <p className={`font-mono font-semibold text-lg ${currentScenario.results.yearlyData[0].netTaxEffect > 0 ? 'text-green-600 dark:text-green-500' : 'text-red-600 dark:text-red-500'}`}>
-                    {formatCurrency(currentScenario.results.yearlyData[0].netTaxEffect)}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-muted-foreground">Vermögen nach 10 J.</p>
-                  <p className="font-mono font-semibold text-lg">
-                    {formatCurrency(currentScenario.results.kpis.equityAfter10Years)}
-                  </p>
-                </div>
               </div>
+              
+              {/* Expandable Sections */}
+              <details className="border-t pt-3">
+                <summary className="cursor-pointer font-medium text-sm mb-3 hover:text-primary">
+                  ▸ Break-Even Details
+                </summary>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm pl-4">
+                  <div>
+                    <p className="text-muted-foreground text-xs">Break-Even Jahr</p>
+                    <p className="font-mono font-semibold">
+                      {currentScenario.results.breakEvenYear ? `Jahr ${currentScenario.results.breakEvenYear}` : 'Nicht erreicht'}
+                    </p>
+                  </div>
+                  {currentScenario.results.breakEvenYear && (
+                    <>
+                      <div>
+                        <p className="text-muted-foreground text-xs">Kum. Kosten Miete (BE)</p>
+                        <p className="font-mono font-semibold text-green-600 dark:text-green-500">
+                          {formatCurrency(currentScenario.results.yearlyData[currentScenario.results.breakEvenYear - 1]?.rentCumulativeCost || 0)}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-muted-foreground text-xs">Kum. Kosten Eigentum (BE)</p>
+                        <p className="font-mono font-semibold text-orange-600 dark:text-orange-500">
+                          {formatCurrency(currentScenario.results.yearlyData[currentScenario.results.breakEvenYear - 1]?.ownershipCumulativeCost || 0)}
+                        </p>
+                      </div>
+                    </>
+                  )}
+                </div>
+              </details>
+              
+              <details className="border-t pt-3 mt-2">
+                <summary className="cursor-pointer font-medium text-sm mb-3 hover:text-primary">
+                  ▸ Investitions-Metriken
+                </summary>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm pl-4">
+                  <div>
+                    <p className="text-muted-foreground text-xs">Eigenkapital nach 10 J.</p>
+                    <p className="font-mono font-semibold">
+                      {formatCurrency(currentScenario.results.kpis.equityAfter10Years)}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-muted-foreground text-xs">Eigenkapital nach 20 J.</p>
+                    <p className="font-mono font-semibold">
+                      {formatCurrency(currentScenario.results.kpis.equityAfter20Years)}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-muted-foreground text-xs">Immobilienwert nach 10 J.</p>
+                    <p className="font-mono font-semibold">
+                      {formatCurrency(currentScenario.results.yearlyData[9]?.propertyValue || 0)}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-muted-foreground text-xs">Immobilienwert nach 20 J.</p>
+                    <p className="font-mono font-semibold">
+                      {formatCurrency(currentScenario.results.yearlyData[19]?.propertyValue || 0)}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-muted-foreground text-xs">Hypothekensaldo nach 10 J.</p>
+                    <p className="font-mono font-semibold">
+                      {formatCurrency(currentScenario.results.yearlyData[9]?.mortgageBalance || 0)}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-muted-foreground text-xs">Hypothekensaldo nach 20 J.</p>
+                    <p className="font-mono font-semibold">
+                      {formatCurrency(currentScenario.results.yearlyData[19]?.mortgageBalance || 0)}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-muted-foreground text-xs">Gesamthypothek</p>
+                    <p className="font-mono font-semibold">
+                      {formatCurrency(currentScenario.results.kpis.totalMortgage)}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-muted-foreground text-xs">Netto-Steuereffekt (J1)</p>
+                    <p className={`font-mono font-semibold ${currentScenario.results.yearlyData[0].netTaxEffect > 0 ? 'text-green-600 dark:text-green-500' : 'text-red-600 dark:text-red-500'}`}>
+                      {formatCurrency(currentScenario.results.yearlyData[0].netTaxEffect)}
+                    </p>
+                  </div>
+                </div>
+              </details>
+              
+              <details className="border-t pt-3 mt-2">
+                <summary className="cursor-pointer font-medium text-sm mb-3 hover:text-primary">
+                  ▸ ROI-Analyse
+                </summary>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm pl-4">
+                  {[10, 20, 30].map(years => {
+                    const results = currentScenario.results
+                    if (!results) return null
+                    const yearData = results.yearlyData[years - 1]
+                    if (!yearData) return null
+                    const roi = ((yearData.netEquity - results.kpis.initialInvestment) / results.kpis.initialInvestment) * 100
+                    return (
+                      <div key={years}>
+                        <p className="text-muted-foreground text-xs">ROI nach {years} Jahren</p>
+                        <p className={`font-mono font-semibold ${roi > 0 ? 'text-green-600 dark:text-green-500' : 'text-red-600 dark:text-red-500'}`}>
+                          {roi.toFixed(1)}%
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          {formatCurrency(yearData.netEquity - results.kpis.initialInvestment)}
+                        </p>
+                      </div>
+                    )
+                  })}
+                </div>
+              </details>
             </CardContent>
           </Card>
         )}
