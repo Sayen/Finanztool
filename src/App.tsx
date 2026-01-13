@@ -170,7 +170,7 @@ function App() {
       <main className="container mx-auto px-4 py-8">
         {activeTab === 'quickstart' && (
           <div className="space-y-6">
-            <QuickStart />
+            <QuickStart setActiveTab={setActiveTab} />
             
             {currentScenario?.results && (
               <div className="space-y-6">
@@ -190,17 +190,6 @@ function App() {
         {activeTab === 'detailed' && (
           <div className="space-y-6">
             <DetailedParameters />
-            
-            {currentScenario?.results && (
-              <ResultsOverview
-                monthlyRent={currentScenario.results.kpis.monthlyRent}
-                monthlyOwnership={currentScenario.results.kpis.monthlyOwnership}
-                isAffordable={currentScenario.results.affordabilityCheck.isAffordable}
-                utilizationPercent={currentScenario.results.affordabilityCheck.utilizationPercent}
-                breakEvenYear={currentScenario.results.breakEvenYear}
-                equityAfter10Years={currentScenario.results.kpis.equityAfter10Years}
-              />
-            )}
           </div>
         )}
 

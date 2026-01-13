@@ -10,7 +10,11 @@ import { formatCurrency } from '../../lib/utils'
 import { Info } from 'lucide-react'
 import type { QuickStartParams, PropertyType, LocationQuality } from '../../types'
 
-export function QuickStart() {
+interface QuickStartProps {
+  setActiveTab: (tab: 'quickstart' | 'detailed' | 'charts' | 'scenarios') => void
+}
+
+export function QuickStart({ setActiveTab }: QuickStartProps) {
   const createScenario = useScenarioStore((state) => state.createScenario)
   const [scenarioName, setScenarioName] = useState('Neues Szenario')
   const [params, setParams] = useState<QuickStartParams>({
@@ -36,6 +40,7 @@ export function QuickStart() {
     const derived = deriveFromQuickStart(params)
     createScenario(scenarioName, derived)
     setShowResults(true)
+    setActiveTab('detailed')
   }
   
   const mortgageNeed = params.purchasePrice - params.equity
