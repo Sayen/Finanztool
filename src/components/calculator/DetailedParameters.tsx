@@ -173,7 +173,7 @@ export function DetailedParameters() {
                           <strong>Einfluss:</strong> Direkte monatliche Zusatzkosten zur Kaltmiete, erhöhen die Gesamtmietkosten.
                         </p>
                         <p className="text-xs mt-1 text-muted-foreground">
-                          💡 Richtwert: CHF 150-300/Monat je nach Wohnungsgrösse und Energieeffizienz
+                          💡 Richtwert: CHF 150-300/Monat • 2 Zimmer: CHF 150-200 • 3-4 Zimmer: CHF 200-250 • 5+ Zimmer: CHF 250-300
                         </p>
                       </TooltipContent>
                     </Tooltip>
@@ -226,8 +226,15 @@ export function DetailedParameters() {
                       <TooltipTrigger type="button">
                         <Info className="h-4 w-4 text-muted-foreground cursor-help" />
                       </TooltipTrigger>
-                      <TooltipContent>
-                        <p className="max-w-xs">Erwartete jährliche Erhöhung der Miete (Durchschnitt Schweiz ca. 1-2%)</p>
+                      <TooltipContent className="max-w-md">
+                        <p className="font-semibold mb-1">Jährliche Mietsteigerung</p>
+                        <p className="text-sm mb-2">Erwartete jährliche Erhöhung der Miete über die Zeit.</p>
+                        <p className="text-sm text-muted-foreground">
+                          <strong>Einfluss:</strong> Erhöht die kumulierten Mietkosten über die Jahre. In der Schweiz an Referenzzinssatz gekoppelt.
+                        </p>
+                        <p className="text-xs mt-1 text-muted-foreground">
+                          💡 Richtwert: 1.0-2.0% p.a. (historisch CH ~1-1.5%, bei Wohnungswechsel oft höher ~2%)
+                        </p>
                       </TooltipContent>
                     </Tooltip>
                   </div>
@@ -393,7 +400,7 @@ export function DetailedParameters() {
                           <strong>Einfluss:</strong> Kann die Anfangsinvestition erheblich erhöhen. Optional - auf 0% setzen wenn nicht anwendbar.
                         </p>
                         <p className="text-xs mt-1 text-muted-foreground">
-                          💡 Richtwert: 0-3% des Kaufpreises, je nach Vereinbarung
+                          💡 Richtwert: 0-3% des Kaufpreises. ⚠️ In der Schweiz üblicherweise vom Verkäufer bezahlt, nicht vom Käufer.
                         </p>
                       </TooltipContent>
                     </Tooltip>
@@ -426,7 +433,7 @@ export function DetailedParameters() {
                           <strong>Einfluss:</strong> Erhöht die Anfangsinvestition. Wird auf Basis der Hypothekarsumme berechnet.
                         </p>
                         <p className="text-xs mt-1 text-muted-foreground">
-                          💡 Richtwert: 0.5-1.0% der Hypothekarsumme
+                          💡 Richtwert: 0.5-1.0% der Hypothekarsumme (einmalig, bei kleineren Banken oft verhandelbar)
                         </p>
                       </TooltipContent>
                     </Tooltip>
@@ -530,7 +537,7 @@ export function DetailedParameters() {
                           <Info className="h-4 w-4 text-muted-foreground cursor-help" />
                         </TooltipTrigger>
                         <TooltipContent>
-                          <p className="max-w-xs">Aktueller Zinssatz für die Hypothek (Stand 2024-2026: ca. 1.5-2.5%)</p>
+                          <p className="max-w-xs">Aktueller Zinssatz für die Hypothek (Stand 2026: ca. 2.0-3.0%)</p>
                         </TooltipContent>
                       </Tooltip>
                     </div>
@@ -596,7 +603,7 @@ export function DetailedParameters() {
                             <strong>Einfluss:</strong> Direkte Auswirkung auf monatliche Zinskosten.
                           </p>
                           <p className="text-xs mt-1 text-muted-foreground">
-                            💡 Richtwert: 1.5-2.5% p.a. (ähnlich wie 1. Hypothek)
+                            💡 Richtwert: 2.0-3.0% p.a. (10-jährige Festhypothek, Stand 2026)
                           </p>
                         </TooltipContent>
                       </Tooltip>
@@ -620,8 +627,12 @@ export function DetailedParameters() {
                         <TooltipTrigger type="button">
                           <Info className="h-4 w-4 text-muted-foreground cursor-help" />
                         </TooltipTrigger>
-                        <TooltipContent>
-                          <p className="max-w-xs">Zeitraum zur Rückzahlung der 2. Hypothek auf 65% Belehnung (gesetzlich innerhalb 15 Jahren oder bis Pensionierung)</p>
+                        <TooltipContent className="max-w-md">
+                          <p className="font-semibold mb-1">Amortisationszeitraum</p>
+                          <p className="text-sm mb-2">Zeitraum zur Rückzahlung der 2. Hypothek auf 65% Belehnung (gesetzlich innerhalb 15 Jahren oder bis Pensionierung)</p>
+                          <p className="text-xs mt-1 text-muted-foreground">
+                            💡 Richtwert: Max. 15 Jahre (gesetzlich vorgeschrieben), empfohlen ~6.7% p.a. Amortisation
+                          </p>
                         </TooltipContent>
                       </Tooltip>
                     </div>
@@ -663,7 +674,7 @@ export function DetailedParameters() {
                           <strong>Einfluss:</strong> Laufende monatliche Kosten. Bei Eigentum oft leicht höher als bei Miete durch direkten Verbrauch.
                         </p>
                         <p className="text-xs mt-1 text-muted-foreground">
-                          💡 Richtwert: CHF 200-400/Monat je nach Grösse, Energieeffizienz und Verbrauch
+                          💡 Richtwert: CHF 200-400/Monat • Wohnung: CHF 150-250 • Stockwerkeigentum: CHF 200-300 • Einfamilienhaus: CHF 250-400
                         </p>
                       </TooltipContent>
                     </Tooltip>
@@ -723,7 +734,7 @@ export function DetailedParameters() {
                           <strong>Einfluss:</strong> Wesentlicher laufender Kostenfaktor bei Eigentum. 1% des Kaufpreises ist Faustregel, ältere Objekte mehr.
                         </p>
                         <p className="text-xs mt-1 text-muted-foreground">
-                          💡 Richtwert: 1.0-1.5% p.a. (Neubauten 0.8%, Altbauten 1.2-2.0%)
+                          💡 Richtwert: 1.0-1.5% p.a. • Neubau (0-10 Jahre): 0.5-0.8% • Standard (10-30 Jahre): 1.0-1.5% • Altbau (30+ Jahre): 1.5-2.5%
                         </p>
                       </TooltipContent>
                     </Tooltip>
@@ -756,7 +767,7 @@ export function DetailedParameters() {
                           <strong>Einfluss:</strong> Zusätzliche laufende Kosten bei Eigentum, falls Parkplatz separat gemietet.
                         </p>
                         <p className="text-xs mt-1 text-muted-foreground">
-                          💡 Richtwert: CHF 0-200/Monat (0 wenn im Kaufpreis enthalten, CHF 100-200 bei separater Miete)
+                          💡 Richtwert: CHF 0-200/Monat • Zürich Innenstadt: CHF 150-300 • Agglomeration: CHF 80-150 • Ländlich: CHF 50-100
                         </p>
                       </TooltipContent>
                     </Tooltip>
@@ -816,7 +827,7 @@ export function DetailedParameters() {
                           <strong>Einfluss:</strong> Erhöht laufende Kosten, baut aber Reserven für grosse Sanierungen auf. Optional - kann auf 0 gesetzt werden wenn im Unterhalt enthalten.
                         </p>
                         <p className="text-xs mt-1 text-muted-foreground">
-                          💡 Richtwert: CHF 0-5000/Jahr (bei älteren Objekten höher)
+                          💡 Richtwert: CHF 0-5000/Jahr • Neubau: CHF 0-1000 • 10-30 Jahre: CHF 2000-4000 • Altbau: CHF 4000-8000
                         </p>
                       </TooltipContent>
                     </Tooltip>
@@ -1052,7 +1063,7 @@ export function DetailedParameters() {
                           <strong>Einfluss:</strong> Erhöht das Nettovermögen bei Eigentum. Historisch zwischen Inflation und leicht darüber in der Schweiz.
                         </p>
                         <p className="text-xs mt-1 text-muted-foreground">
-                          💡 Richtwert: 1-3% p.a. (historischer Durchschnitt Schweiz: ca. 2%)
+                          💡 Richtwert: 1.0-2.5% p.a. (historisch langfristig ~2%, konservativ 1-1.5%, Toplagen Zürich 2-2.5%)
                         </p>
                       </TooltipContent>
                     </Tooltip>
@@ -1083,7 +1094,7 @@ export function DetailedParameters() {
                           <strong>Einfluss:</strong> Berechnet das "entgangene" Vermögen, wenn Eigenkapital in Aktien-ETFs investiert würde. Wichtig für Vermögensvergleich.
                         </p>
                         <p className="text-xs mt-1 text-muted-foreground">
-                          💡 Richtwert: 5-7% p.a. (historischer Durchschnitt globaler Aktienmarkt)
+                          💡 Richtwert: 5-7% p.a. (MSCI World historisch ~7%, nach Steuern &amp; Gebühren ~5-6%. ⚠️ Mit Volatilität verbunden)
                         </p>
                       </TooltipContent>
                     </Tooltip>
@@ -1114,7 +1125,7 @@ export function DetailedParameters() {
                           <strong>Einfluss:</strong> Aktuell nur auf Miete angewendet (über "Jährliche Mietsteigerung"). Sollte idealerweise auch Nebenkosten/Unterhalt beeinflussen.
                         </p>
                         <p className="text-xs mt-1 text-muted-foreground">
-                          💡 Richtwert: 1.0-2.0% p.a. (langfristiger Durchschnitt Schweiz)
+                          💡 Richtwert: 1.0-1.5% p.a. (langfristiger CH-Durchschnitt, 2021-2023 temporär 2-3%, langfristig stabil ~1%)
                         </p>
                       </TooltipContent>
                     </Tooltip>
