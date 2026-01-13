@@ -34,6 +34,8 @@ export function calculateScenario(params: CalculationParams): CalculationResults
   
   for (let year = 1; year <= CALCULATION_YEARS; year++) {
     // Calculate inflation factor for this year
+    // Note: year - 1 because year 1 is the base year (inflationFactor = 1.0, no inflation)
+    // Year 2 has inflationFactor = 1 + rate, Year 3 = (1 + rate)^2, etc.
     const inflationFactor = Math.pow(1 + params.inflationRate / 100, year - 1)
     
     // Rent calculations

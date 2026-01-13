@@ -49,6 +49,10 @@ export function ScenarioLibrary() {
     }
     input.click()
   }
+  const handleResetFilters = () => {
+    setSearchQuery('')
+    setFilter('all')
+  }
   
   // Filter scenarios based on search and filters
   let filteredScenarios = scenarios.filter(scenario => {
@@ -176,7 +180,7 @@ export function ScenarioLibrary() {
             <p className="text-muted-foreground mb-4">
               Keine Szenarien gefunden, die Ihren Filterkriterien entsprechen
             </p>
-            <Button variant="outline" onClick={() => { setSearchQuery(''); setFilter('all'); }}>
+            <Button variant="outline" onClick={handleResetFilters}>
               Filter zurücksetzen
             </Button>
           </CardContent>

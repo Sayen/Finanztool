@@ -16,6 +16,11 @@ export function BreakEvenChart({ data, breakEvenYear, maxYears = 30 }: BreakEven
     'Kumulierte Kosten Eigentum': item.ownershipCumulativeCost,
   }))
   
+  // Milestone years for comparison cards
+  const YEAR_10 = 9  // Array index for year 10
+  const YEAR_20 = 19 // Array index for year 20
+  const YEAR_30 = 29 // Array index for year 30
+  
   return (
     <Card>
       <CardHeader>
@@ -103,11 +108,11 @@ export function BreakEvenChart({ data, breakEvenYear, maxYears = 30 }: BreakEven
             <p className="text-xs text-muted-foreground">Differenz:</p>
             <p className="font-mono text-sm">
               {formatCurrency(
-                Math.abs(chartData[9]['Kumulierte Kosten Eigentum'] - chartData[9]['Kumulierte Kosten Miete'])
+                Math.abs(chartData[YEAR_10]['Kumulierte Kosten Eigentum'] - chartData[YEAR_10]['Kumulierte Kosten Miete'])
               )}
             </p>
             <p className="text-xs mt-1">
-              {chartData[9]['Kumulierte Kosten Eigentum'] < chartData[9]['Kumulierte Kosten Miete'] 
+              {chartData[YEAR_10]['Kumulierte Kosten Eigentum'] < chartData[YEAR_10]['Kumulierte Kosten Miete'] 
                 ? '✓ Eigentum günstiger' 
                 : '✗ Miete günstiger'}
             </p>
@@ -118,11 +123,11 @@ export function BreakEvenChart({ data, breakEvenYear, maxYears = 30 }: BreakEven
             <p className="text-xs text-muted-foreground">Differenz:</p>
             <p className="font-mono text-sm">
               {formatCurrency(
-                Math.abs(chartData[19]['Kumulierte Kosten Eigentum'] - chartData[19]['Kumulierte Kosten Miete'])
+                Math.abs(chartData[YEAR_20]['Kumulierte Kosten Eigentum'] - chartData[YEAR_20]['Kumulierte Kosten Miete'])
               )}
             </p>
             <p className="text-xs mt-1">
-              {chartData[19]['Kumulierte Kosten Eigentum'] < chartData[19]['Kumulierte Kosten Miete'] 
+              {chartData[YEAR_20]['Kumulierte Kosten Eigentum'] < chartData[YEAR_20]['Kumulierte Kosten Miete'] 
                 ? '✓ Eigentum günstiger' 
                 : '✗ Miete günstiger'}
             </p>
@@ -133,11 +138,11 @@ export function BreakEvenChart({ data, breakEvenYear, maxYears = 30 }: BreakEven
             <p className="text-xs text-muted-foreground">Differenz:</p>
             <p className="font-mono text-sm">
               {formatCurrency(
-                Math.abs(chartData[29]['Kumulierte Kosten Eigentum'] - chartData[29]['Kumulierte Kosten Miete'])
+                Math.abs(chartData[YEAR_30]['Kumulierte Kosten Eigentum'] - chartData[YEAR_30]['Kumulierte Kosten Miete'])
               )}
             </p>
             <p className="text-xs mt-1">
-              {chartData[29]['Kumulierte Kosten Eigentum'] < chartData[29]['Kumulierte Kosten Miete'] 
+              {chartData[YEAR_30]['Kumulierte Kosten Eigentum'] < chartData[YEAR_30]['Kumulierte Kosten Miete'] 
                 ? '✓ Eigentum günstiger' 
                 : '✗ Miete günstiger'}
             </p>
