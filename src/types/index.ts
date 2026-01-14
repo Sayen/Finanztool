@@ -1,13 +1,7 @@
-export type PropertyType = 'apartment' | 'house' | 'condo'
-
-export type LocationQuality = 'prime' | 'good' | 'average' | 'peripheral'
-
 export interface QuickStartParams {
   purchasePrice: number
-  propertyType: PropertyType
   equity: number
   householdIncome: number
-  location: LocationQuality
   annualLivingExpenses?: number // Annual living expenses for realistic wealth calculation
   initialTotalWealth?: number // Total wealth before purchase/rent start
 }
@@ -20,7 +14,6 @@ export interface RentParams {
 }
 
 export interface PurchaseParams {
-  propertyType: PropertyType
   purchasePrice: number
   equity: number
   notaryFees: number // as percentage

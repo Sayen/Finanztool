@@ -272,8 +272,8 @@ export function deriveFromQuickStart(quickStart: import('../types').QuickStartPa
   const mortgageNeed = quickStart.purchasePrice - quickStart.equity
   
   // Derive comparison rent based on location and property type
-  const baseRentPerSqm = getBaseRent(quickStart.location, quickStart.propertyType)
-  const estimatedSize = getEstimatedSize(quickStart.propertyType, quickStart.purchasePrice)
+  const baseRentPerSqm = getBaseRent()
+  const estimatedSize = getEstimatedSize(quickStart.purchasePrice)
   const comparisonRent = baseRentPerSqm * estimatedSize
   
   // Standard mortgage structure: 65% first, 15% second
@@ -296,7 +296,6 @@ export function deriveFromQuickStart(quickStart: import('../types').QuickStartPa
       annualIncrease: 1.0, // 1% per year
     },
     purchase: {
-      propertyType: quickStart.propertyType,
       purchasePrice: quickStart.purchasePrice,
       equity: quickStart.equity,
       notaryFees: 0.5,
@@ -352,20 +351,18 @@ export function deriveFromQuickStart(quickStart: import('../types').QuickStartPa
 /**
  * Get base rent per square meter based on location quality
  */
-function getBaseRent(location: import('../types').LocationQuality, propertyType: import('../types').PropertyType): number {
+function getBaseRent(): number {
   const baseRates = {
     apartment: { prime: 35, good: 28, average: 22, peripheral: 18 },
-    house: { prime: 40, good: 32, average: 25, peripheral: 20 },
-    condo: { prime: 38, good: 30, average: 24, peripheral: 19 },
   }
-  return baseRates[propertyType][location]
+  return baseRates['apartment']['good']
 }
 
 /**
  * Estimate property size based on type and price
  */
-function getEstimatedSize(propertyType: import('../types').PropertyType, price: number): number {
+function getEstimatedSize(price: number): number {
   // Price per sqm estimates for Canton Zurich
-  const pricePerSqm = propertyType === 'house' ? 8000 : 10000
+  const pricePerSqm = 10000
   return Math.round(price / pricePerSqm)
 }

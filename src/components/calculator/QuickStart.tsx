@@ -105,30 +105,6 @@ export function QuickStart({ setActiveTab }: QuickStartProps) {
             </div>
             
             <div className="space-y-2">
-              <div className="flex items-center gap-2">
-                <Label htmlFor="propertyType">Immobilientyp</Label>
-                <Tooltip>
-                  <TooltipTrigger type="button">
-                    <Info className="h-4 w-4 text-muted-foreground cursor-help" />
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p className="max-w-xs">Wohnung = Mietwohnung zum Vergleich | Stockwerkeigentum = Eigentumswohnung | Haus = Einfamilienhaus</p>
-                  </TooltipContent>
-                </Tooltip>
-              </div>
-              <select
-                id="propertyType"
-                value={params.propertyType}
-                onChange={(e) => setParams({ ...params, propertyType: e.target.value as PropertyType })}
-                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm dark:text-foreground"
-              >
-                <option value="apartment">Wohnung</option>
-                <option value="condo">Stockwerkeigentum</option>
-                <option value="house">Haus</option>
-              </select>
-            </div>
-            
-            <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Label htmlFor="equity">Eigenkapital</Label>
@@ -204,30 +180,6 @@ export function QuickStart({ setActiveTab }: QuickStartProps) {
               <p className="text-xs text-muted-foreground">{formatCurrency(params.householdIncome)}</p>
             </div>
             
-            <div className="space-y-2">
-              <div className="flex items-center gap-2">
-                <Label htmlFor="location">Wohnlage</Label>
-                <Tooltip>
-                  <TooltipTrigger type="button">
-                    <Info className="h-4 w-4 text-muted-foreground cursor-help" />
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p className="max-w-xs">Toplage = Stadtzentrum | Gute Lage = Nähe Zentrum | Durchschnittlich = Aussenquartiere | Randlage = Periphere Gemeinden</p>
-                  </TooltipContent>
-                </Tooltip>
-              </div>
-              <select
-                id="location"
-                value={params.location}
-                onChange={(e) => setParams({ ...params, location: e.target.value as LocationQuality })}
-                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm dark:text-foreground"
-              >
-                <option value="prime">Toplage</option>
-                <option value="good">Gute Lage</option>
-                <option value="average">Durchschnittliche Lage</option>
-                <option value="peripheral">Randlage</option>
-              </select>
-            </div>
           </div>
           
           {/* Optional advanced fields */}
