@@ -272,7 +272,7 @@ export function deriveFromQuickStart(quickStart: import('../types').QuickStartPa
   const mortgageNeed = quickStart.purchasePrice - quickStart.equity
   
   // Derive comparison rent based on location and property type
-  const baseRentPerSqm = getBaseRent(quickStart.location)
+  const baseRentPerSqm = getBaseRent()
   const estimatedSize = getEstimatedSize(quickStart.purchasePrice)
   const comparisonRent = baseRentPerSqm * estimatedSize
   
@@ -351,11 +351,11 @@ export function deriveFromQuickStart(quickStart: import('../types').QuickStartPa
 /**
  * Get base rent per square meter based on location quality
  */
-function getBaseRent(location: import('../types').LocationQuality): number {
+function getBaseRent(): number {
   const baseRates = {
     apartment: { prime: 35, good: 28, average: 22, peripheral: 18 },
   }
-  return baseRates['apartment'][location]
+  return baseRates['apartment']['good']
 }
 
 /**

@@ -1,10 +1,7 @@
-export type LocationQuality = 'prime' | 'good' | 'average' | 'peripheral'
-
 export interface QuickStartParams {
   purchasePrice: number
   equity: number
   householdIncome: number
-  location: LocationQuality
   annualLivingExpenses?: number // Annual living expenses for realistic wealth calculation
   initialTotalWealth?: number // Total wealth before purchase/rent start
 }
