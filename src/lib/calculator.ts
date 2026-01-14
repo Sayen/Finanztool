@@ -328,9 +328,9 @@ export function deriveFromQuickStart(quickStart: import('../types').QuickStartPa
       kitchenBathInterval: 15,
     },
     tax: {
-      marginalTaxRate: 25, // Estimated for middle income in Zurich
-      interestDeduction: true,
-      rentalValueTaxation: true,
+      marginalTaxRate: 0, // Deaktiviert standardmäßig
+      interestDeduction: false, // Deaktiviert standardmäßig
+      rentalValueTaxation: false, // Deaktiviert standardmäßig
       rentalValueRate: 3.5, // 3.5% of property value
     },
     additional: {

@@ -37,8 +37,8 @@ export function CashflowChart({ data }: CashflowChartProps) {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <ResponsiveContainer width="100%" height={400}>
-          <BarChart data={monthlyData}>
+        <ResponsiveContainer width="100%" height={450}>
+          <BarChart data={monthlyData} margin={{ top: 5, right: 30, left: 20, bottom: 60 }}>
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis dataKey="month" />
             <YAxis 
@@ -48,7 +48,11 @@ export function CashflowChart({ data }: CashflowChartProps) {
             <Tooltip 
               formatter={(value) => formatCurrency(value as number)}
             />
-            <Legend />
+            <Legend 
+              verticalAlign="bottom"
+              height={40}
+              wrapperStyle={{ paddingTop: '10px' }}
+            />
             <Bar dataKey="Miete" stackId="rent" fill="#47C881" />
             <Bar dataKey="Nebenkosten (Miete)" stackId="rent" fill="#60D394" />
             <Bar dataKey="Hypothekarzins" stackId="ownership" fill="#E8731B" />

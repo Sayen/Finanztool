@@ -33,8 +33,8 @@ export function TaxChart({ data, displayYears, maxYears = 30 }: TaxChartProps) {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <ResponsiveContainer width="100%" height={400}>
-          <BarChart data={chartData}>
+        <ResponsiveContainer width="100%" height={450}>
+          <BarChart data={chartData} margin={{ top: 5, right: 30, left: 20, bottom: 60 }}>
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis dataKey="year" />
             <YAxis 
@@ -45,7 +45,11 @@ export function TaxChart({ data, displayYears, maxYears = 30 }: TaxChartProps) {
               formatter={(value: number | undefined) => value !== undefined ? formatCurrency(Math.abs(value)) : ''}
               labelFormatter={(label) => label}
             />
-            <Legend />
+            <Legend 
+              verticalAlign="bottom"
+              height={40}
+              wrapperStyle={{ paddingTop: '10px' }}
+            />
             <Bar dataKey="Zinsabzug (Ersparnis)" fill="#22c55e" />
             <Bar dataKey="Eigenmietwert (Steuerlast)" fill="#ef4444" />
           </BarChart>

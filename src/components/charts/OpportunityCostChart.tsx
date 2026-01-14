@@ -27,8 +27,8 @@ export function OpportunityCostChart({ data, maxYears = 30 }: OpportunityCostCha
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <ResponsiveContainer width="100%" height={400}>
-          <LineChart data={chartData}>
+        <ResponsiveContainer width="100%" height={450}>
+          <LineChart data={chartData} margin={{ top: 5, right: 30, left: 20, bottom: 60 }}>
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis 
               dataKey="year" 
@@ -42,7 +42,11 @@ export function OpportunityCostChart({ data, maxYears = 30 }: OpportunityCostCha
               formatter={(value) => formatCurrency(value as number)}
               labelFormatter={(label) => `Jahr ${label}`}
             />
-            <Legend />
+            <Legend 
+              verticalAlign="bottom"
+              height={40}
+              wrapperStyle={{ paddingTop: '10px' }}
+            />
             <Line 
               type="monotone" 
               dataKey="Eigenkapital in Immobilie" 

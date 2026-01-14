@@ -21,8 +21,8 @@ export function CostComparisonChart({ data, maxYears = 30 }: CostComparisonChart
         <CardTitle>Kumulierte Kosten über Zeit</CardTitle>
       </CardHeader>
       <CardContent>
-        <ResponsiveContainer width="100%" height={400}>
-          <LineChart data={chartData}>
+        <ResponsiveContainer width="100%" height={450}>
+          <LineChart data={chartData} margin={{ top: 5, right: 30, left: 20, bottom: 60 }}>
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis 
               dataKey="year" 
@@ -36,7 +36,11 @@ export function CostComparisonChart({ data, maxYears = 30 }: CostComparisonChart
               formatter={(value) => formatCurrency(value as number)}
               labelFormatter={(label) => `Jahr ${label}`}
             />
-            <Legend />
+            <Legend 
+              verticalAlign="bottom"
+              height={40}
+              wrapperStyle={{ paddingTop: '10px' }}
+            />
             <Line 
               type="monotone" 
               dataKey="Miete" 
@@ -76,8 +80,8 @@ export function WealthChart({ data, maxYears = 30 }: WealthChartProps) {
         <CardTitle>Nettovermögen Entwicklung</CardTitle>
       </CardHeader>
       <CardContent>
-        <ResponsiveContainer width="100%" height={400}>
-          <LineChart data={chartData}>
+        <ResponsiveContainer width="100%" height={450}>
+          <LineChart data={chartData} margin={{ top: 5, right: 30, left: 20, bottom: 60 }}>
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis 
               dataKey="year" 
@@ -91,7 +95,11 @@ export function WealthChart({ data, maxYears = 30 }: WealthChartProps) {
               formatter={(value) => formatCurrency(value as number)}
               labelFormatter={(label) => `Jahr ${label}`}
             />
-            <Legend />
+            <Legend 
+              verticalAlign="bottom"
+              height={40}
+              wrapperStyle={{ paddingTop: '10px' }}
+            />
             <Line 
               type="monotone" 
               dataKey="Nettovermögen Miete" 
@@ -143,8 +151,8 @@ export function AnnualCostBreakdown({ data, displayYears, maxYears = 30 }: Annua
         <CardTitle>Jährliche Kostenaufteilung</CardTitle>
       </CardHeader>
       <CardContent>
-        <ResponsiveContainer width="100%" height={400}>
-          <BarChart data={chartData}>
+        <ResponsiveContainer width="100%" height={450}>
+          <BarChart data={chartData} margin={{ top: 5, right: 30, left: 20, bottom: 60 }}>
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis dataKey="year" />
             <YAxis 
@@ -154,7 +162,11 @@ export function AnnualCostBreakdown({ data, displayYears, maxYears = 30 }: Annua
             <Tooltip 
               formatter={(value) => formatCurrency(value as number)}
             />
-            <Legend />
+            <Legend 
+              verticalAlign="bottom"
+              height={40}
+              wrapperStyle={{ paddingTop: '10px' }}
+            />
             <Bar dataKey="Miete" stackId="rent" fill="#47C881" />
             <Bar dataKey="Nebenkosten (Miete)" stackId="rent" fill="#60D394" />
             <Bar dataKey="Hypothekarzins" stackId="ownership" fill="#E8731B" />
