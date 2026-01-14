@@ -43,6 +43,45 @@ export function DetailedParameters() {
   const params = currentScenario.params
   
   const handleUpdate = (updates: Partial<CalculationParams>) => {
+    // AUTO-DEPENDENCY: Kaufpreis oder Eigenkapital geändert
+    if (updates.purchase?.purchasePrice !== undefined || updates.purchase?.equity !== undefined) {
+      const newPurchasePrice = updates.purchase?.purchasePrice ?? params.purchase.purchasePrice
+      const newEquity = updates.purchase?.equity ?? params.purchase.equity
+      
+      // Berechne Hypothekenbedarf
+      const mortgageNeed = newPurchasePrice - newEquity
+      
+      // Auto-update Hypotheken nach 65/15-Regel
+      const first = Math.min(mortgageNeed, newPurchasePrice * 0.65)
+      const second = Math.max(0, mortgageNeed - first)
+      
+      updates.mortgage = {
+        ...params.mortgage,
+        ...updates.mortgage,
+        firstMortgage: first,
+        secondMortgage: second,
+      }
+    }
+    
+    // AUTO-DEPENDENCY: Hypothek geändert → Eigenkapital anpassen
+    if (updates.mortgage?.firstMortgage !== undefined || updates.mortgage?.secondMortgage !== undefined) {
+      // Only auto-adjust equity if purchase price/equity didn't trigger this (avoid double adjustment)
+      if (updates.purchase?.purchasePrice === undefined && updates.purchase?.equity === undefined) {
+        const first = updates.mortgage?.firstMortgage ?? params.mortgage.firstMortgage
+        const second = updates.mortgage?.secondMortgage ?? params.mortgage.secondMortgage
+        const purchasePrice = updates.purchase?.purchasePrice ?? params.purchase.purchasePrice
+        
+        const totalMortgage = first + second
+        const newEquity = purchasePrice - totalMortgage
+        
+        updates.purchase = {
+          ...params.purchase,
+          ...updates.purchase,
+          equity: newEquity,
+        }
+      }
+    }
+    
     updateScenario(currentScenario.id, updates)
   }
   
@@ -609,6 +648,11 @@ export function DetailedParameters() {
               <CardDescription>1. und 2. Hypothek mit Zinsen und Amortisation</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
+              <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg text-sm">
+                <p className="text-blue-800 dark:text-blue-200">
+                  ℹ️ Hypotheken werden automatisch angepasst wenn Kaufpreis oder Eigenkapital geändert werden
+                </p>
+              </div>
               <div className="space-y-4">
                 <h4 className="font-semibold">1. Hypothek</h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -1146,6 +1190,11 @@ export function DetailedParameters() {
               <CardDescription>Grenzsteuersatz und steuerliche Effekte</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
+              <div className="bg-yellow-50 dark:bg-yellow-900/20 p-3 rounded-lg text-sm mb-4">
+                <p className="text-yellow-800 dark:text-yellow-200">
+                  ⚠️ Steuereffekte sind standardmäßig deaktiviert. Aktivieren Sie die Optionen unten für realistische Schweizer Verhältnisse.
+                </p>
+              </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <div className="flex items-center gap-2">
