@@ -8,7 +8,7 @@ import { useScenarioStore } from '../../stores/scenarioStore'
 import { deriveFromQuickStart } from '../../lib/calculator'
 import { formatCurrency } from '../../lib/utils'
 import { Info } from 'lucide-react'
-import type { QuickStartParams, PropertyType, LocationQuality } from '../../types'
+import type { QuickStartParams } from '../../types'
 
 interface QuickStartProps {
   setActiveTab: (tab: 'quickstart' | 'detailed' | 'charts' | 'scenarios') => void
@@ -20,10 +20,8 @@ export function QuickStart({ setActiveTab }: QuickStartProps) {
   const [showAdvanced, setShowAdvanced] = useState(false)
   const [params, setParams] = useState<QuickStartParams>({
     purchasePrice: 1000000,
-    propertyType: 'apartment',
     equity: 200000,
     householdIncome: 150000,
-    location: 'good',
     annualLivingExpenses: 0,
     initialTotalWealth: undefined,
   })
