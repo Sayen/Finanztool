@@ -82,56 +82,149 @@ export function DetailedParameters() {
           <Card className="bg-primary/5 border-primary/20">
             <CardContent className="py-4">
               <h4 className="font-semibold mb-3">📊 Live Berechnungsvorschau</h4>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+              
+              {/* Core Metrics */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm mb-4">
                 <div>
-                  <p className="text-muted-foreground">Monatl. Miete</p>
+                  <p className="text-muted-foreground text-xs">Monatl. Miete</p>
                   <p className="font-mono font-semibold text-lg text-green-600 dark:text-green-500">
                     {formatCurrency(currentScenario.results.kpis.monthlyRent)}
                   </p>
                 </div>
                 <div>
-                  <p className="text-muted-foreground">Monatl. Eigentum (Jahr 1)</p>
+                  <p className="text-muted-foreground text-xs">Monatl. Eigentum (Jahr 1)</p>
                   <p className="font-mono font-semibold text-lg text-orange-600 dark:text-orange-500">
                     {formatCurrency(currentScenario.results.kpis.monthlyOwnership)}
                   </p>
                 </div>
                 <div>
-                  <p className="text-muted-foreground">Tragbarkeit</p>
+                  <p className="text-muted-foreground text-xs">Tragbarkeit</p>
                   <p className={`font-mono font-semibold text-lg ${currentScenario.results.affordabilityCheck.isAffordable ? 'text-green-600 dark:text-green-500' : 'text-red-600 dark:text-red-500'}`}>
                     {currentScenario.results.affordabilityCheck.utilizationPercent.toFixed(1)}%
                   </p>
                 </div>
                 <div>
-                  <p className="text-muted-foreground">Break-Even</p>
-                  <p className="font-mono font-semibold text-lg">
-                    {currentScenario.results.breakEvenYear ? `in ${currentScenario.results.breakEvenYear} Jahren` : 'N/A'}
-                  </p>
-                </div>
-                 <div>
-                  <p className="text-muted-foreground">Anfangsinvestition</p>
+                  <p className="text-muted-foreground text-xs">Anfangsinvestition</p>
                   <p className="font-mono font-semibold text-lg">
                     {formatCurrency(currentScenario.results.kpis.initialInvestment)}
                   </p>
                 </div>
-                <div>
-                  <p className="text-muted-foreground">Gesamthypothek</p>
-                  <p className="font-mono font-semibold text-lg">
-                    {formatCurrency(currentScenario.results.kpis.totalMortgage)}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-muted-foreground">Netto-Steuereffekt (J1)</p>
-                  <p className={`font-mono font-semibold text-lg ${currentScenario.results.yearlyData[0].netTaxEffect > 0 ? 'text-green-600 dark:text-green-500' : 'text-red-600 dark:text-red-500'}`}>
-                    {formatCurrency(currentScenario.results.yearlyData[0].netTaxEffect)}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-muted-foreground">Vermögen nach 10 J.</p>
-                  <p className="font-mono font-semibold text-lg">
-                    {formatCurrency(currentScenario.results.kpis.equityAfter10Years)}
-                  </p>
-                </div>
               </div>
+              
+              {/* Expandable Sections */}
+              <details className="border-t pt-3">
+                <summary className="cursor-pointer font-medium text-sm mb-3 hover:text-primary">
+                  ▸ Break-Even Details
+                </summary>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm pl-4">
+                  <div>
+                    <p className="text-muted-foreground text-xs">Break-Even Jahr</p>
+                    <p className="font-mono font-semibold">
+                      {currentScenario.results.breakEvenYear ? `Jahr ${currentScenario.results.breakEvenYear}` : 'Nicht erreicht'}
+                    </p>
+                  </div>
+                  {currentScenario.results.breakEvenYear && (
+                    <>
+                      <div>
+                        <p className="text-muted-foreground text-xs">Kum. Kosten Miete (BE)</p>
+                        <p className="font-mono font-semibold text-green-600 dark:text-green-500">
+                          {formatCurrency(currentScenario.results.yearlyData[currentScenario.results.breakEvenYear - 1]?.rentCumulativeCost || 0)}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-muted-foreground text-xs">Kum. Kosten Eigentum (BE)</p>
+                        <p className="font-mono font-semibold text-orange-600 dark:text-orange-500">
+                          {formatCurrency(currentScenario.results.yearlyData[currentScenario.results.breakEvenYear - 1]?.ownershipCumulativeCost || 0)}
+                        </p>
+                      </div>
+                    </>
+                  )}
+                </div>
+              </details>
+              
+              <details className="border-t pt-3 mt-2">
+                <summary className="cursor-pointer font-medium text-sm mb-3 hover:text-primary">
+                  ▸ Investitions-Metriken
+                </summary>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm pl-4">
+                  <div>
+                    <p className="text-muted-foreground text-xs">Eigenkapital nach 10 J.</p>
+                    <p className="font-mono font-semibold">
+                      {formatCurrency(currentScenario.results.kpis.equityAfter10Years)}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-muted-foreground text-xs">Eigenkapital nach 20 J.</p>
+                    <p className="font-mono font-semibold">
+                      {formatCurrency(currentScenario.results.kpis.equityAfter20Years)}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-muted-foreground text-xs">Immobilienwert nach 10 J.</p>
+                    <p className="font-mono font-semibold">
+                      {formatCurrency(currentScenario.results.yearlyData[9]?.propertyValue || 0)}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-muted-foreground text-xs">Immobilienwert nach 20 J.</p>
+                    <p className="font-mono font-semibold">
+                      {formatCurrency(currentScenario.results.yearlyData[19]?.propertyValue || 0)}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-muted-foreground text-xs">Hypothekensaldo nach 10 J.</p>
+                    <p className="font-mono font-semibold">
+                      {formatCurrency(currentScenario.results.yearlyData[9]?.mortgageBalance || 0)}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-muted-foreground text-xs">Hypothekensaldo nach 20 J.</p>
+                    <p className="font-mono font-semibold">
+                      {formatCurrency(currentScenario.results.yearlyData[19]?.mortgageBalance || 0)}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-muted-foreground text-xs">Gesamthypothek</p>
+                    <p className="font-mono font-semibold">
+                      {formatCurrency(currentScenario.results.kpis.totalMortgage)}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-muted-foreground text-xs">Netto-Steuereffekt (J1)</p>
+                    <p className={`font-mono font-semibold ${currentScenario.results.yearlyData[0].netTaxEffect > 0 ? 'text-green-600 dark:text-green-500' : 'text-red-600 dark:text-red-500'}`}>
+                      {formatCurrency(currentScenario.results.yearlyData[0].netTaxEffect)}
+                    </p>
+                  </div>
+                </div>
+              </details>
+              
+              <details className="border-t pt-3 mt-2">
+                <summary className="cursor-pointer font-medium text-sm mb-3 hover:text-primary">
+                  ▸ ROI-Analyse
+                </summary>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm pl-4">
+                  {currentScenario.results && [10, 20, 30]
+                    .filter(years => currentScenario.results && years <= currentScenario.results.yearlyData.length)
+                    .map(years => {
+                      const results = currentScenario.results
+                      if (!results) return null
+                      const yearData = results.yearlyData[years - 1]
+                      if (!yearData) return null
+                      const roi = ((yearData.netEquity - results.kpis.initialInvestment) / results.kpis.initialInvestment) * 100
+                      return (
+                        <div key={years}>
+                          <p className="text-muted-foreground text-xs">ROI nach {years} Jahren</p>
+                          <p className={`font-mono font-semibold ${roi > 0 ? 'text-green-600 dark:text-green-500' : 'text-red-600 dark:text-red-500'}`}>
+                            {roi.toFixed(1)}%
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            {formatCurrency(yearData.netEquity - results.kpis.initialInvestment)}
+                          </p>
+                        </div>
+                      )
+                    })}
+                </div>
+              </details>
             </CardContent>
           </Card>
         )}
@@ -191,6 +284,9 @@ export function DetailedParameters() {
                         </p>
                         <p className="text-xs mt-1 text-muted-foreground">
                           💡 Richtwert: CHF 150-300/Monat • 2 Zimmer: CHF 150-200 • 3-4 Zimmer: CHF 200-250 • 5+ Zimmer: CHF 250-300
+                        </p>
+                        <p className="text-xs mt-1 text-muted-foreground">
+                          Standard: Berechnet als ca. 15% der Nettomiete
                         </p>
                       </TooltipContent>
                     </Tooltip>
@@ -676,6 +772,61 @@ export function DetailedParameters() {
               <CardDescription>Nebenkosten, Versicherungen und Unterhalt</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
+              {/* Maintenance Mode Toggle */}
+              <div className="space-y-3 p-4 border rounded-lg bg-muted/30">
+                <div className="flex items-center gap-2">
+                  <Label>Unterhaltsmodell</Label>
+                  <Tooltip>
+                    <TooltipTrigger type="button">
+                      <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                    </TooltipTrigger>
+                    <TooltipContent className="max-w-md">
+                      <p className="font-semibold mb-1">⚠️ Wichtig: Entweder/Oder</p>
+                      <p className="text-sm mb-2">Wählen Sie ENTWEDER das einfache Modell ODER das detaillierte zyklische Modell.</p>
+                      <p className="text-sm mb-2">
+                        <strong>Einfach:</strong> Pauschaler Prozentsatz vom Kaufpreis pro Jahr (z.B. 1%).
+                      </p>
+                      <p className="text-sm">
+                        <strong>Detailliert:</strong> Spezifische Renovationen zu definierten Zeitpunkten (Dach, Fassade, etc.).
+                      </p>
+                    </TooltipContent>
+                  </Tooltip>
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => handleUpdate({
+                      runningCosts: { ...params.runningCosts, maintenanceMode: 'simple' }
+                    })}
+                    className={`flex-1 px-4 py-2 rounded-md font-medium transition-colors ${
+                      (params.runningCosts.maintenanceMode || 'simple') === 'simple'
+                        ? 'bg-primary text-primary-foreground'
+                        : 'bg-muted text-muted-foreground hover:bg-muted/80'
+                    }`}
+                  >
+                    Einfaches Modell
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleUpdate({
+                      runningCosts: { ...params.runningCosts, maintenanceMode: 'detailed' }
+                    })}
+                    className={`flex-1 px-4 py-2 rounded-md font-medium transition-colors ${
+                      params.runningCosts.maintenanceMode === 'detailed'
+                        ? 'bg-primary text-primary-foreground'
+                        : 'bg-muted text-muted-foreground hover:bg-muted/80'
+                    }`}
+                  >
+                    Detailliertes Modell
+                  </button>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  {(params.runningCosts.maintenanceMode || 'simple') === 'simple' 
+                    ? '✓ Nutzt pauschalen Prozentsatz für jährlichen Unterhalt'
+                    : '✓ Nutzt spezifische Renovationskosten nach Intervallen'}
+                </p>
+              </div>
+              
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <div className="flex items-center gap-2">
@@ -692,6 +843,9 @@ export function DetailedParameters() {
                         </p>
                         <p className="text-xs mt-1 text-muted-foreground">
                           💡 Richtwert: CHF 200-400/Monat • Wohnung: CHF 150-250 • Stockwerkeigentum: CHF 200-300 • Einfamilienhaus: CHF 250-400
+                        </p>
+                        <p className="text-xs mt-1 text-muted-foreground">
+                          Standard: Berechnet als ca. 15% der Vergleichsmiete
                         </p>
                       </TooltipContent>
                     </Tooltip>
@@ -737,38 +891,44 @@ export function DetailedParameters() {
                   <p className="text-xs text-muted-foreground">{formatCurrency(params.runningCosts.insurance)}/Jahr</p>
                 </div>
                 
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2">
-                    <Label htmlFor="maintenanceSimple">Unterhalt (% vom Kaufpreis p.a.)</Label>
-                    <Tooltip>
-                      <TooltipTrigger type="button">
-                        <Info className="h-4 w-4 text-muted-foreground cursor-help" />
-                      </TooltipTrigger>
-                      <TooltipContent className="max-w-md">
-                        <p className="font-semibold mb-1">Unterhaltskosten</p>
-                        <p className="text-sm mb-2">Jährliche Kosten für Reparaturen, Renovationen und Werterhaltung (Dach, Fassade, Heizung, Küche/Bad über Zeit).</p>
-                        <p className="text-sm text-muted-foreground">
-                          <strong>Einfluss:</strong> Wesentlicher laufender Kostenfaktor bei Eigentum. 1% des Kaufpreises ist Faustregel, ältere Objekte mehr.
-                        </p>
-                        <p className="text-xs mt-1 text-muted-foreground">
-                          💡 Richtwert: 1.0-1.5% p.a. • Neubau (0-10 Jahre): 0.5-0.8% • Standard (10-30 Jahre): 1.0-1.5% • Altbau (30+ Jahre): 1.5-2.5%
-                        </p>
-                      </TooltipContent>
-                    </Tooltip>
+                {/* Only show simple maintenance when in simple mode */}
+                {(params.runningCosts.maintenanceMode || 'simple') === 'simple' && (
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2">
+                      <Label htmlFor="maintenanceSimple">Unterhalt (% vom Kaufpreis p.a.)</Label>
+                      <Tooltip>
+                        <TooltipTrigger type="button">
+                          <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                        </TooltipTrigger>
+                        <TooltipContent className="max-w-md">
+                          <p className="font-semibold mb-1">Unterhaltskosten (Einfaches Modell)</p>
+                          <p className="text-sm mb-2">Jährliche Kosten für Reparaturen, Renovationen und Werterhaltung als pauschaler Prozentsatz.</p>
+                          <p className="text-sm text-muted-foreground">
+                            <strong>Einfluss:</strong> Wesentlicher laufender Kostenfaktor bei Eigentum. 1% des Kaufpreises ist Faustregel, ältere Objekte mehr.
+                          </p>
+                          <p className="text-xs mt-1 text-muted-foreground">
+                            💡 Richtwert: 1.0-1.5% p.a. • Neubau (0-10 Jahre): 0.5-0.8% • Standard (10-30 Jahre): 1.0-1.5% • Altbau (30+ Jahre): 1.5-2.5%
+                          </p>
+                          <p className="text-xs mt-1 font-semibold text-muted-foreground">
+                            Standard: 1.0% p.a.
+                          </p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </div>
+                    <Input
+                      id="maintenanceSimple"
+                      type="number"
+                      step="0.1"
+                      value={params.runningCosts.maintenanceSimple}
+                      onChange={(e) => handleUpdate({
+                        runningCosts: { ...params.runningCosts, maintenanceSimple: Number(e.target.value) }
+                      })}
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      {formatCurrency(params.purchase.purchasePrice * params.runningCosts.maintenanceSimple / 100)}/Jahr
+                    </p>
                   </div>
-                  <Input
-                    id="maintenanceSimple"
-                    type="number"
-                    step="0.1"
-                    value={params.runningCosts.maintenanceSimple}
-                    onChange={(e) => handleUpdate({
-                      runningCosts: { ...params.runningCosts, maintenanceSimple: Number(e.target.value) }
-                    })}
-                  />
-                  <p className="text-xs text-muted-foreground">
-                    {formatCurrency(params.purchase.purchasePrice * params.runningCosts.maintenanceSimple / 100)}/Jahr
-                  </p>
-                </div>
+                )}
                 
                 <div className="space-y-2">
                   <div className="flex items-center gap-2">
@@ -863,13 +1023,15 @@ export function DetailedParameters() {
               
             </CardContent>
           </Card>
-          <Card>
-            <CardHeader>
-              <CardTitle>Zyklischer Unterhalt</CardTitle>
-              <CardDescription>
-                Geplante, grössere Renovationen basierend auf dem Kaufpreis. Kosten fallen erstmalig nach "Initialintervall" an, danach wiederholend gemäss "Folgeintervall".
-              </CardDescription>
-            </CardHeader>
+          {/* Only show detailed cyclical maintenance when in detailed mode */}
+          {params.runningCosts.maintenanceMode === 'detailed' && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Zyklischer Unterhalt (Detailliertes Modell)</CardTitle>
+                <CardDescription>
+                  Geplante, grössere Renovationen basierend auf dem Kaufpreis. Kosten fallen erstmalig nach "Initialintervall" an, danach wiederholend gemäss "Folgeintervall".
+                </CardDescription>
+              </CardHeader>
             <CardContent className="space-y-6">
               {['Dach', 'Fassade', 'Heizung', 'Küche/Bad'].map((item) => {
                 const key = item === 'Küche/Bad' ? 'kitchenBath' : item.toLowerCase();
@@ -974,6 +1136,7 @@ export function DetailedParameters() {
               })}
             </CardContent>
           </Card>
+          )}
         </TabsContent>
         
         <TabsContent value="taxes" className="space-y-4">
@@ -1235,6 +1398,9 @@ export function DetailedParameters() {
                         <p className="text-xs mt-1 text-muted-foreground">
                           💡 Richtwert: 1.0-2.5% p.a. (historisch langfristig ~2%, konservativ 1-1.5%, Toplagen Zürich 2-2.5%)
                         </p>
+                        <p className="text-xs mt-1 font-semibold text-muted-foreground">
+                          Standard: 2.0% p.a.
+                        </p>
                       </TooltipContent>
                     </Tooltip>
                   </div>
@@ -1255,6 +1421,16 @@ export function DetailedParameters() {
                     }}
                   />
                   <p className="text-xs text-muted-foreground">{getAdditionalParam(params, 'propertyAppreciationRate', 2.0)}% pro Jahr</p>
+                  {getAdditionalParam(params, 'propertyAppreciationRate', 2.0) > 5 && (
+                    <p className="text-xs text-orange-600 dark:text-orange-500 font-medium">
+                      ⚠️ Wertsteigerung über 5% p.a. ist unrealistisch für Schweizer Immobilien
+                    </p>
+                  )}
+                  {getAdditionalParam(params, 'propertyAppreciationRate', 2.0) < 0 && (
+                    <p className="text-xs text-orange-600 dark:text-orange-500 font-medium">
+                      ⚠️ Negative Wertsteigerung bedeutet permanenten Wertverlust
+                    </p>
+                  )}
                 </div>
                 
                 <div className="space-y-2">
@@ -1272,6 +1448,9 @@ export function DetailedParameters() {
                         </p>
                         <p className="text-xs mt-1 text-muted-foreground">
                           💡 Richtwert: 5-7% p.a. (MSCI World historisch ~7%, nach Steuern &amp; Gebühren ~5-6%. ⚠️ Mit Volatilität verbunden)
+                        </p>
+                        <p className="text-xs mt-1 font-semibold text-muted-foreground">
+                          Standard: 6.0% p.a.
                         </p>
                       </TooltipContent>
                     </Tooltip>
@@ -1293,6 +1472,16 @@ export function DetailedParameters() {
                     }}
                   />
                   <p className="text-xs text-muted-foreground">{getAdditionalParam(params, 'etfReturnRate', 6.0)}% pro Jahr</p>
+                  {getAdditionalParam(params, 'etfReturnRate', 6.0) > 10 && (
+                    <p className="text-xs text-orange-600 dark:text-orange-500 font-medium">
+                      ⚠️ ETF-Rendite über 10% p.a. ist langfristig unrealistisch
+                    </p>
+                  )}
+                  {getAdditionalParam(params, 'etfReturnRate', 6.0) < 0 && (
+                    <p className="text-xs text-orange-600 dark:text-orange-500 font-medium">
+                      ⚠️ Negative ETF-Rendite bedeutet permanenten Verlust
+                    </p>
+                  )}
                 </div>
                 
                 <div className="space-y-2">
@@ -1310,6 +1499,9 @@ export function DetailedParameters() {
                         </p>
                         <p className="text-xs mt-1 text-muted-foreground">
                           💡 Richtwert: 1.0-1.5% p.a. (langfristiger CH-Durchschnitt, 2021-2023 temporär 2-3%, langfristig stabil ~1%)
+                        </p>
+                        <p className="text-xs mt-1 font-semibold text-muted-foreground">
+                          Standard: 1.5% p.a.
                         </p>
                       </TooltipContent>
                     </Tooltip>
@@ -1331,6 +1523,16 @@ export function DetailedParameters() {
                     }}
                   />
                   <p className="text-xs text-muted-foreground">{getAdditionalParam(params, 'inflationRate', 1.5)}% pro Jahr</p>
+                  {getAdditionalParam(params, 'inflationRate', 1.5) > 5 && (
+                    <p className="text-xs text-orange-600 dark:text-orange-500 font-medium">
+                      ⚠️ Inflation über 5% p.a. ist für die Schweiz sehr ungewöhnlich
+                    </p>
+                  )}
+                  {getAdditionalParam(params, 'inflationRate', 1.5) < 0 && (
+                    <p className="text-xs text-orange-600 dark:text-orange-500 font-medium">
+                      ⚠️ Negative Inflation (Deflation) ist für Langfristplanung problematisch
+                    </p>
+                  )}
                 </div>
               </div>
             </CardContent>
