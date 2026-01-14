@@ -115,50 +115,56 @@ export function WealthBreakEvenChart({ data, maxYears = 30 }: WealthBreakEvenCha
         </ResponsiveContainer>
         
         <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="bg-muted p-3 rounded-lg">
-            <h4 className="text-sm font-semibold mb-1">Nach 10 Jahren</h4>
-            <p className="text-xs text-muted-foreground">Vermögensdifferenz:</p>
-            <p className="font-mono text-sm">
-              {formatCurrency(
-                Math.abs(chartData[YEAR_10]['Nettovermögen Eigentum'] - chartData[YEAR_10]['Nettovermögen Miete'])
-              )}
-            </p>
-            <p className="text-xs mt-1">
-              {chartData[YEAR_10]['Nettovermögen Eigentum'] > chartData[YEAR_10]['Nettovermögen Miete'] 
-                ? '✓ Eigentum vermögensoptimal' 
-                : '✗ Miete vermögensoptimal'}
-            </p>
-          </div>
+          {chartData[YEAR_10] && (
+            <div className="bg-muted p-3 rounded-lg">
+              <h4 className="text-sm font-semibold mb-1">Nach 10 Jahren</h4>
+              <p className="text-xs text-muted-foreground">Vermögensdifferenz:</p>
+              <p className="font-mono text-sm">
+                {formatCurrency(
+                  Math.abs(chartData[YEAR_10]['Nettovermögen Eigentum'] - chartData[YEAR_10]['Nettovermögen Miete'])
+                )}
+              </p>
+              <p className="text-xs mt-1">
+                {chartData[YEAR_10]['Nettovermögen Eigentum'] > chartData[YEAR_10]['Nettovermögen Miete'] 
+                  ? '✓ Eigentum vermögensoptimal' 
+                  : '✗ Miete vermögensoptimal'}
+              </p>
+            </div>
+          )}
           
-          <div className="bg-muted p-3 rounded-lg">
-            <h4 className="text-sm font-semibold mb-1">Nach 20 Jahren</h4>
-            <p className="text-xs text-muted-foreground">Vermögensdifferenz:</p>
-            <p className="font-mono text-sm">
-              {formatCurrency(
-                Math.abs(chartData[YEAR_20]['Nettovermögen Eigentum'] - chartData[YEAR_20]['Nettovermögen Miete'])
-              )}
-            </p>
-            <p className="text-xs mt-1">
-              {chartData[YEAR_20]['Nettovermögen Eigentum'] > chartData[YEAR_20]['Nettovermögen Miete'] 
-                ? '✓ Eigentum vermögensoptimal' 
-                : '✗ Miete vermögensoptimal'}
-            </p>
-          </div>
+          {chartData[YEAR_20] && (
+            <div className="bg-muted p-3 rounded-lg">
+              <h4 className="text-sm font-semibold mb-1">Nach 20 Jahren</h4>
+              <p className="text-xs text-muted-foreground">Vermögensdifferenz:</p>
+              <p className="font-mono text-sm">
+                {formatCurrency(
+                  Math.abs(chartData[YEAR_20]['Nettovermögen Eigentum'] - chartData[YEAR_20]['Nettovermögen Miete'])
+                )}
+              </p>
+              <p className="text-xs mt-1">
+                {chartData[YEAR_20]['Nettovermögen Eigentum'] > chartData[YEAR_20]['Nettovermögen Miete'] 
+                  ? '✓ Eigentum vermögensoptimal' 
+                  : '✗ Miete vermögensoptimal'}
+              </p>
+            </div>
+          )}
           
-          <div className="bg-muted p-3 rounded-lg">
-            <h4 className="text-sm font-semibold mb-1">Nach 30 Jahren</h4>
-            <p className="text-xs text-muted-foreground">Vermögensdifferenz:</p>
-            <p className="font-mono text-sm">
-              {formatCurrency(
-                Math.abs(chartData[YEAR_30]['Nettovermögen Eigentum'] - chartData[YEAR_30]['Nettovermögen Miete'])
-              )}
-            </p>
-            <p className="text-xs mt-1">
-              {chartData[YEAR_30]['Nettovermögen Eigentum'] > chartData[YEAR_30]['Nettovermögen Miete'] 
-                ? '✓ Eigentum vermögensoptimal' 
-                : '✗ Miete vermögensoptimal'}
-            </p>
-          </div>
+          {chartData[YEAR_30] && (
+            <div className="bg-muted p-3 rounded-lg">
+              <h4 className="text-sm font-semibold mb-1">Nach 30 Jahren</h4>
+              <p className="text-xs text-muted-foreground">Vermögensdifferenz:</p>
+              <p className="font-mono text-sm">
+                {formatCurrency(
+                  Math.abs(chartData[YEAR_30]['Nettovermögen Eigentum'] - chartData[YEAR_30]['Nettovermögen Miete'])
+                )}
+              </p>
+              <p className="text-xs mt-1">
+                {chartData[YEAR_30]['Nettovermögen Eigentum'] > chartData[YEAR_30]['Nettovermögen Miete'] 
+                  ? '✓ Eigentum vermögensoptimal' 
+                  : '✗ Miete vermögensoptimal'}
+              </p>
+            </div>
+          )}
         </div>
       </CardContent>
     </Card>
