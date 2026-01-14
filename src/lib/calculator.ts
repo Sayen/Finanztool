@@ -45,6 +45,7 @@ export function calculateScenario(params: CalculationParams): CalculationResults
   let cumulativeOwnershipCost = initialInvestment // Start with initial investment
   let currentRent = params.rent.netRent
   let breakEvenYear: number | null = null
+  let netWealthBreakEvenYear: number | null = null
   
   // Wealth tracking with income
   let rentScenarioWealth = initialTotalWealth - params.purchase.equity // Remaining cash after not buying
@@ -136,6 +137,10 @@ export function calculateScenario(params: CalculationParams): CalculationResults
     if (breakEvenYear === null && cumulativeOwnershipCost < cumulativeRentCost) {
       breakEvenYear = year
     }
+
+    if (netWealthBreakEvenYear === null && netWealthOwnership > netWealthRent) {
+      netWealthBreakEvenYear = year
+    }
     
     yearlyData.push({
       year,
@@ -169,6 +174,7 @@ export function calculateScenario(params: CalculationParams): CalculationResults
   return {
     affordabilityCheck,
     breakEvenYear,
+    netWealthBreakEvenYear,
     totalCostRent: {
       year10: yearlyData[9]?.rentCumulativeCost || 0,
       year20: yearlyData[19]?.rentCumulativeCost || 0,
@@ -329,8 +335,8 @@ export function deriveFromQuickStart(quickStart: import('../types').QuickStartPa
     },
     tax: {
       marginalTaxRate: 25, // Estimated for middle income in Zurich
-      interestDeduction: true,
-      rentalValueTaxation: true,
+      interestDeduction: false,
+      rentalValueTaxation: false,
       rentalValueRate: 3.5, // 3.5% of property value
     },
     additional: {

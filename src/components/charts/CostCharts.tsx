@@ -30,7 +30,7 @@ export function CostComparisonChart({ data, maxYears = 30 }: CostComparisonChart
             />
             <YAxis 
               tickFormatter={(value) => formatCurrency(value as number, 0)}
-              label={{ value: 'Kosten (CHF)', angle: -90, position: 'insideLeft' }}
+              label={{ value: 'Kumulierte Kosten (CHF)', angle: -90, position: 'insideLeft', dy: 70 }}
             />
             <Tooltip 
               formatter={(value) => formatCurrency(value as number)}
@@ -85,7 +85,7 @@ export function WealthChart({ data, maxYears = 30 }: WealthChartProps) {
             />
             <YAxis 
               tickFormatter={(value) => formatCurrency(value as number, 0)}
-              label={{ value: 'Vermögen (CHF)', angle: -90, position: 'insideLeft' }}
+              label={{ value: 'Nettovermögen (CHF)', angle: -90, position: 'insideLeft', dy: 50 }}
             />
             <Tooltip 
               formatter={(value) => formatCurrency(value as number)}
@@ -149,7 +149,7 @@ export function AnnualCostBreakdown({ data, displayYears, maxYears = 30 }: Annua
             <XAxis dataKey="year" />
             <YAxis 
               tickFormatter={(value) => formatCurrency(value as number, 0)}
-              label={{ value: 'Kosten (CHF)', angle: -90, position: 'insideLeft' }}
+              label={{ value: 'Jährliche Kosten (CHF)', angle: -90, position: 'insideLeft', dx: -10 }}
             />
             <Tooltip 
               formatter={(value) => formatCurrency(value as number)}

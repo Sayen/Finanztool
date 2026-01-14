@@ -7,6 +7,7 @@ import { CashflowChart } from './components/charts/CashflowChart'
 import { AffordabilityChart } from './components/charts/AffordabilityChart'
 import { TaxChart } from './components/charts/TaxChart'
 import { BreakEvenChart } from './components/charts/BreakEvenChart'
+import { TotalAssetsBreakEvenChart } from './components/charts/TotalAssetsBreakEvenChart'
 import { OpportunityCostChart } from './components/charts/OpportunityCostChart'
 import { ScenarioLibrary } from './components/scenario/ScenarioLibrary'
 import { useScenarioStore } from './stores/scenarioStore'
@@ -249,6 +250,11 @@ function App() {
                 <BreakEvenChart 
                   data={currentScenario.results.yearlyData} 
                   breakEvenYear={currentScenario.results.breakEvenYear}
+                  maxYears={timeHorizon}
+                />
+                <TotalAssetsBreakEvenChart
+                  data={currentScenario.results.yearlyData}
+                  breakEvenYear={currentScenario.results.netWealthBreakEvenYear}
                   maxYears={timeHorizon}
                 />
               </TabsContent>

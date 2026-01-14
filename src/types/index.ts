@@ -131,6 +131,7 @@ export interface CalculationResults {
     utilizationPercent: number
   }
   breakEvenYear: number | null
+  netWealthBreakEvenYear: number | null
   totalCostRent: {
     year10: number
     year20: number

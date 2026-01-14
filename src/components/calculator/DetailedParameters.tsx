@@ -45,6 +45,59 @@ export function DetailedParameters() {
   const handleUpdate = (updates: Partial<CalculationParams>) => {
     updateScenario(currentScenario.id, updates)
   }
+
+  const handlePurchaseChange = (
+    updatedPurchaseParams: Partial<typeof params.purchase>
+  ) => {
+    const newPurchaseParams = { ...params.purchase, ...updatedPurchaseParams };
+    const { purchasePrice, equity } = newPurchaseParams;
+    const mortgageNeed = purchasePrice - equity;
+
+    if (mortgageNeed < 0) {
+      handleUpdate({ purchase: newPurchaseParams });
+      return;
+    }
+
+    const firstMortgageLimit = purchasePrice * 0.65;
+    const firstMortgage = Math.min(mortgageNeed, firstMortgageLimit);
+    const secondMortgage = Math.max(0, mortgageNeed - firstMortgage);
+
+    const newMortgageParams = {
+      ...params.mortgage,
+      firstMortgage: Math.round(firstMortgage),
+      secondMortgage: Math.round(secondMortgage),
+    };
+
+    handleUpdate({
+      purchase: newPurchaseParams,
+      mortgage: newMortgageParams,
+    });
+  };
+
+  const handleMortgageChange = (
+    updatedMortgageParams: Partial<typeof params.mortgage>
+  ) => {
+    const newMortgageParams = { ...params.mortgage, ...updatedMortgageParams };
+    const { firstMortgage, secondMortgage } = newMortgageParams;
+    const { purchasePrice } = params.purchase;
+    const totalMortgage = firstMortgage + secondMortgage;
+    const newEquity = purchasePrice - totalMortgage;
+
+    if (newEquity < 0) {
+      handleUpdate({ mortgage: newMortgageParams });
+      return;
+    }
+
+    const newPurchaseParams = {
+      ...params.purchase,
+      equity: Math.round(newEquity),
+    };
+
+    handleUpdate({
+      purchase: newPurchaseParams,
+      mortgage: newMortgageParams,
+    });
+  };
   
   // Validation checks
   const equityRatio = (params.purchase.equity / params.purchase.purchasePrice) * 100
@@ -396,9 +449,9 @@ export function DetailedParameters() {
                     id="purchasePrice"
                     type="number"
                     value={params.purchase.purchasePrice}
-                    onChange={(e) => handleUpdate({
-                      purchase: { ...params.purchase, purchasePrice: Number(e.target.value) }
-                    })}
+                    onChange={(e) =>
+                      handlePurchaseChange({ purchasePrice: Number(e.target.value) })
+                    }
                   />
                   <p className="text-xs text-muted-foreground">{formatCurrency(params.purchase.purchasePrice)}</p>
                 </div>
@@ -426,9 +479,9 @@ export function DetailedParameters() {
                     id="equity"
                     type="number"
                     value={params.purchase.equity}
-                    onChange={(e) => handleUpdate({
-                      purchase: { ...params.purchase, equity: Number(e.target.value) }
-                    })}
+                    onChange={(e) =>
+                      handlePurchaseChange({ equity: Number(e.target.value) })
+                    }
                   />
                   <p className="text-xs text-muted-foreground">{formatCurrency(params.purchase.equity)}</p>
                 </div>
@@ -635,9 +688,11 @@ export function DetailedParameters() {
                       id="firstMortgage"
                       type="number"
                       value={params.mortgage.firstMortgage}
-                      onChange={(e) => handleUpdate({
-                        mortgage: { ...params.mortgage, firstMortgage: Number(e.target.value) }
-                      })}
+                      onChange={(e) =>
+                        handleMortgageChange({
+                          firstMortgage: Number(e.target.value),
+                        })
+                      }
                     />
                     <p className="text-xs text-muted-foreground">{formatCurrency(params.mortgage.firstMortgage)}</p>
                   </div>
@@ -695,9 +750,11 @@ export function DetailedParameters() {
                       id="secondMortgage"
                       type="number"
                       value={params.mortgage.secondMortgage}
-                      onChange={(e) => handleUpdate({
-                        mortgage: { ...params.mortgage, secondMortgage: Number(e.target.value) }
-                      })}
+                      onChange={(e) =>
+                        handleMortgageChange({
+                          secondMortgage: Number(e.target.value),
+                        })
+                      }
                     />
                     <p className="text-xs text-muted-foreground">{formatCurrency(params.mortgage.secondMortgage)}</p>
                   </div>
