@@ -39,7 +39,7 @@ export function TaxChart({ data, displayYears, maxYears = 30 }: TaxChartProps) {
             <XAxis dataKey="year" />
             <YAxis 
               tickFormatter={(value) => formatCurrency(Math.abs(value) as number, 0)}
-              label={{ value: 'Steuereffekt (CHF)', angle: -90, position: 'insideLeft' }}
+              label={{ value: 'Steuerbetrag (CHF)', angle: -90, position: 'insideLeft', dx: -10 }}
             />
             <Tooltip 
               formatter={(value: number | undefined) => value !== undefined ? formatCurrency(Math.abs(value)) : ''}

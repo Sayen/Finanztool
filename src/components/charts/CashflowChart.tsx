@@ -43,7 +43,7 @@ export function CashflowChart({ data }: CashflowChartProps) {
             <XAxis dataKey="month" />
             <YAxis 
               tickFormatter={(value) => formatCurrency(value as number, 0)}
-              label={{ value: 'Kosten (CHF)', angle: -90, position: 'insideLeft' }}
+              label={{ value: 'Betrag (CHF)', angle: -90, position: 'insideLeft', dx: -10 }}
             />
             <Tooltip 
               formatter={(value) => formatCurrency(value as number)}

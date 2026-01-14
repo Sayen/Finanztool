@@ -85,9 +85,13 @@ export function QuickStart({ setActiveTab }: QuickStartProps) {
                   <TooltipTrigger type="button">
                     <Info className="h-4 w-4 text-muted-foreground cursor-help" />
                   </TooltipTrigger>
-                  <TooltipContent>
-                    <p className="max-w-xs">Der Kaufpreis der Immobilie ohne Kaufnebenkosten (Notar, Grundbuch, Makler)</p>
-                  </TooltipContent>
+                  <TooltipContent className="max-w-md">
+                        <p className="font-semibold mb-1">Kaufpreis</p>
+                        <p className="text-sm mb-2">Der reine Preis der Immobilie ohne Nebenkosten. Wichtigster Faktor für die Berechnung der Hypothek und des Eigenkapitalbedarfs.</p>
+                        <p className="text-sm text-muted-foreground">
+                          <strong>Einfluss:</strong> Bestimmt die Höhe der Hypothek, des benötigten Eigenkapitals und der Kaufnebenkosten.
+                        </p>
+                      </TooltipContent>
                 </Tooltip>
               </div>
               <Input
@@ -132,9 +136,16 @@ export function QuickStart({ setActiveTab }: QuickStartProps) {
                     <TooltipTrigger type="button">
                       <Info className="h-4 w-4 text-muted-foreground cursor-help" />
                     </TooltipTrigger>
-                    <TooltipContent>
-                      <p className="max-w-xs">Ihr verfügbares Kapital für den Kauf. Mindestens 20% des Kaufpreises erforderlich, 10% davon als 'hartes' Eigenkapital</p>
-                    </TooltipContent>
+                    <TooltipContent className="max-w-md">
+                        <p className="font-semibold mb-1">Eigenkapital</p>
+                        <p className="text-sm mb-2">Ihre eigenen finanziellen Mittel (Ersparnisse, 3a, Erbvorbezug). Mindestens 20% des Kaufpreises sind in der Schweiz erforderlich.</p>
+                        <p className="text-sm text-muted-foreground">
+                          <strong>Einfluss:</strong> Reduziert die benötigte Hypothek und damit die Zinskosten. Mehr Eigenkapital verbessert die Tragbarkeit.
+                        </p>
+                        <p className="text-xs mt-1 text-muted-foreground">
+                          💡 Richtwert: Mindestens 20% des Kaufpreises. 10% müssen "hartes" Eigenkapital sein (nicht aus Pensionskasse).
+                        </p>
+                      </TooltipContent>
                   </Tooltip>
                 </div>
                 <Tooltip>
@@ -174,9 +185,13 @@ export function QuickStart({ setActiveTab }: QuickStartProps) {
                   <TooltipTrigger type="button">
                     <Info className="h-4 w-4 text-muted-foreground cursor-help" />
                   </TooltipTrigger>
-                  <TooltipContent>
-                    <p className="max-w-xs">Jährliches Bruttoeinkommen aller im Haushalt lebenden Personen</p>
-                  </TooltipContent>
+                  <TooltipContent className="max-w-md">
+                        <p className="font-semibold mb-1">Haushaltseinkommen</p>
+                        <p className="text-sm mb-2">Jährliches Bruttoeinkommen aller im Haushalt lebenden Personen. Wichtig für realistische Vermögensberechnung.</p>
+                        <p className="text-sm text-muted-foreground">
+                          <strong>Einfluss:</strong> Ermöglicht Vermögensaufbau auch im Mietszenario durch Sparen der Differenz zum Eigentum.
+                        </p>
+                      </TooltipContent>
                 </Tooltip>
               </div>
               <Input
@@ -235,8 +250,15 @@ export function QuickStart({ setActiveTab }: QuickStartProps) {
                       <TooltipTrigger type="button">
                         <Info className="h-4 w-4 text-muted-foreground cursor-help" />
                       </TooltipTrigger>
-                      <TooltipContent>
-                        <p className="max-w-xs">Ausgaben für Essen, Kleidung, Transport etc. (ohne Wohnkosten). Für realistische Vermögensberechnung.</p>
+                      <TooltipContent className="max-w-md">
+                        <p className="font-semibold mb-1">Jährliche Lebenshaltungskosten</p>
+                        <p className="text-sm mb-2">Ausgaben für Essen, Kleidung, Transport, Versicherungen, Freizeit etc. (ohne Wohnkosten).</p>
+                        <p className="text-sm text-muted-foreground">
+                          <strong>Einfluss:</strong> Reduziert das verfügbare Einkommen für Vermögensaufbau. Wichtig für realistische Nettovermögensberechnung.
+                        </p>
+                        <p className="text-xs mt-1 text-muted-foreground">
+                          💡 Richtwert: CHF 30'000-60'000/Jahr für durchschnittlichen Haushalt (ohne Wohnkosten)
+                        </p>
                       </TooltipContent>
                     </Tooltip>
                   </div>
@@ -256,8 +278,15 @@ export function QuickStart({ setActiveTab }: QuickStartProps) {
                       <TooltipTrigger type="button">
                         <Info className="h-4 w-4 text-muted-foreground cursor-help" />
                       </TooltipTrigger>
-                      <TooltipContent>
-                        <p className="max-w-xs">Ihr totales Vermögen. Standard: entspricht Eigenkapital. Erhöhen wenn Sie zusätzliches Kapital haben.</p>
+                      <TooltipContent className="max-w-md">
+                        <p className="font-semibold mb-1">Gesamtvermögen zu Beginn</p>
+                        <p className="text-sm mb-2">Ihr totales Vermögen vor Kaufentscheid oder Mietbeginn. Im Kaufszenario wird das Eigenkapital abgezogen, der Rest kann investiert werden.</p>
+                        <p className="text-sm text-muted-foreground">
+                          <strong>Einfluss:</strong> Ermöglicht realistischere Vermögensvergleiche, da auch übriges Kapital verzinst wird.
+                        </p>
+                        <p className="text-xs mt-1 text-muted-foreground">
+                          💡 Standardwert: Entspricht dem Eigenkapital. Erhöhen Sie den Wert, wenn Sie zusätzliches Vermögen haben.
+                        </p>
                       </TooltipContent>
                     </Tooltip>
                   </div>
