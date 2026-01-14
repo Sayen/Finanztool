@@ -4,10 +4,10 @@ import { Button } from '../ui/Button'
 import { Input } from '../ui/Input'
 import { Label } from '../ui/Label'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/Tooltip'
+import { ParameterTooltip } from '../ui/ParameterTooltip'
 import { useScenarioStore } from '../../stores/scenarioStore'
 import { deriveFromQuickStart } from '../../lib/calculator'
 import { formatCurrency } from '../../lib/utils'
-import { Info } from 'lucide-react'
 import type { QuickStartParams, PropertyType, LocationQuality } from '../../types'
 
 interface QuickStartProps {
@@ -81,14 +81,7 @@ export function QuickStart({ setActiveTab }: QuickStartProps) {
             <div className="space-y-2">
               <div className="flex items-center gap-2">
                 <Label htmlFor="purchasePrice">Kaufpreis</Label>
-                <Tooltip>
-                  <TooltipTrigger type="button">
-                    <Info className="h-4 w-4 text-muted-foreground cursor-help" />
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p className="max-w-xs">Der Kaufpreis der Immobilie ohne Kaufnebenkosten (Notar, Grundbuch, Makler)</p>
-                  </TooltipContent>
-                </Tooltip>
+                <ParameterTooltip paramKey="purchasePrice" />
               </div>
               <Input
                 id="purchasePrice"
@@ -103,14 +96,7 @@ export function QuickStart({ setActiveTab }: QuickStartProps) {
             <div className="space-y-2">
               <div className="flex items-center gap-2">
                 <Label htmlFor="propertyType">Immobilientyp</Label>
-                <Tooltip>
-                  <TooltipTrigger type="button">
-                    <Info className="h-4 w-4 text-muted-foreground cursor-help" />
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p className="max-w-xs">Wohnung = Mietwohnung zum Vergleich | Stockwerkeigentum = Eigentumswohnung | Haus = Einfamilienhaus</p>
-                  </TooltipContent>
-                </Tooltip>
+                <ParameterTooltip paramKey="propertyType" />
               </div>
               <select
                 id="propertyType"
@@ -128,14 +114,7 @@ export function QuickStart({ setActiveTab }: QuickStartProps) {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Label htmlFor="equity">Eigenkapital</Label>
-                  <Tooltip>
-                    <TooltipTrigger type="button">
-                      <Info className="h-4 w-4 text-muted-foreground cursor-help" />
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p className="max-w-xs">Ihr verfügbares Kapital für den Kauf. Mindestens 20% des Kaufpreises erforderlich, 10% davon als 'hartes' Eigenkapital</p>
-                    </TooltipContent>
-                  </Tooltip>
+                  <ParameterTooltip paramKey="equity" />
                 </div>
                 <Tooltip>
                   <TooltipTrigger asChild>
@@ -170,14 +149,7 @@ export function QuickStart({ setActiveTab }: QuickStartProps) {
             <div className="space-y-2">
               <div className="flex items-center gap-2">
                 <Label htmlFor="householdIncome">Haushaltseinkommen (jährlich)</Label>
-                <Tooltip>
-                  <TooltipTrigger type="button">
-                    <Info className="h-4 w-4 text-muted-foreground cursor-help" />
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p className="max-w-xs">Jährliches Bruttoeinkommen aller im Haushalt lebenden Personen</p>
-                  </TooltipContent>
-                </Tooltip>
+                <ParameterTooltip paramKey="householdIncome" />
               </div>
               <Input
                 id="householdIncome"
@@ -192,14 +164,7 @@ export function QuickStart({ setActiveTab }: QuickStartProps) {
             <div className="space-y-2">
               <div className="flex items-center gap-2">
                 <Label htmlFor="location">Wohnlage</Label>
-                <Tooltip>
-                  <TooltipTrigger type="button">
-                    <Info className="h-4 w-4 text-muted-foreground cursor-help" />
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p className="max-w-xs">Toplage = Stadtzentrum | Gute Lage = Nähe Zentrum | Durchschnittlich = Aussenquartiere | Randlage = Periphere Gemeinden</p>
-                  </TooltipContent>
-                </Tooltip>
+                <ParameterTooltip paramKey="location" />
               </div>
               <select
                 id="location"
@@ -231,14 +196,7 @@ export function QuickStart({ setActiveTab }: QuickStartProps) {
                 <div className="space-y-2">
                   <div className="flex items-center gap-2">
                     <Label htmlFor="livingExpenses">Jährliche Lebenshaltungskosten</Label>
-                    <Tooltip>
-                      <TooltipTrigger type="button">
-                        <Info className="h-4 w-4 text-muted-foreground cursor-help" />
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p className="max-w-xs">Ausgaben für Essen, Kleidung, Transport etc. (ohne Wohnkosten). Für realistische Vermögensberechnung.</p>
-                      </TooltipContent>
-                    </Tooltip>
+                    <ParameterTooltip paramKey="annualLivingExpenses" />
                   </div>
                   <Input
                     id="livingExpenses"
@@ -252,14 +210,7 @@ export function QuickStart({ setActiveTab }: QuickStartProps) {
                 <div className="space-y-2">
                   <div className="flex items-center gap-2">
                     <Label htmlFor="initialWealth">Gesamtvermögen zu Beginn</Label>
-                    <Tooltip>
-                      <TooltipTrigger type="button">
-                        <Info className="h-4 w-4 text-muted-foreground cursor-help" />
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p className="max-w-xs">Ihr totales Vermögen. Standard: entspricht Eigenkapital. Erhöhen wenn Sie zusätzliches Kapital haben.</p>
-                      </TooltipContent>
-                    </Tooltip>
+                    <ParameterTooltip paramKey="initialTotalWealth" />
                   </div>
                   <Input
                     id="initialWealth"
