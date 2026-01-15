@@ -1,6 +1,8 @@
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, ReferenceLine } from 'recharts'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../ui/Card'
-import type { CalculationParams } from '../../types'
+import { calculateYear0Data } from '../../lib/year0Utils'
+import { CustomTooltip } from './CustomTooltip'
+import type { CalculationParams, YearlyCalculation } from '../../types'
 
 interface AffordabilityChartProps {
   params: CalculationParams
@@ -14,8 +16,23 @@ export function AffordabilityChart({ params, maxYears = 30 }: AffordabilityChart
   const monthlyIncome = params.quickStart.householdIncome / 12
   const totalMortgage = params.mortgage.firstMortgage + params.mortgage.secondMortgage
   
-  // Calculate affordability over time
-  const chartData = Array.from({ length: maxYears }, (_, i) => {
+  // Add year 0 data
+  const year0Data: YearlyCalculation = calculateYear0Data(params)
+  
+  // Calculate year 0 affordability
+  const calculatedInterestYear0 = totalMortgage * AFFORDABILITY_CALC_RATE / 100
+  const annualAmortizationYear0 = params.mortgage.secondMortgage / params.mortgage.amortizationYears
+  const annualCostsYear0 = calculatedInterestYear0 + annualAmortizationYear0 + 
+                          (params.runningCosts.utilities + (params.runningCosts.parkingCost || 0) + 
+                           (params.runningCosts.condominiumFees || 0)) * 12 +
+                          params.runningCosts.insurance +
+                          (params.runningCosts.renovationReserve || 0) +
+                          (params.purchase.purchasePrice * params.runningCosts.maintenanceSimple / 100)
+  const monthlyCostsYear0 = annualCostsYear0 / 12
+  const utilizationPercentYear0 = (monthlyCostsYear0 / monthlyIncome) * 100
+  
+  // Calculate affordability over time (years 1-maxYears)
+  const chartDataYears = Array.from({ length: maxYears }, (_, i) => {
     const year = i + 1
     
     // Calculate mortgage balance after amortization
@@ -48,6 +65,23 @@ export function AffordabilityChart({ params, maxYears = 30 }: AffordabilityChart
     }
   })
   
+  // Combine year 0 with other years
+  const fullData: YearlyCalculation[] = [year0Data, ...Array.from({ length: maxYears }, (_, i) => {
+    const year = i + 1
+    const yearsAmortized = Math.min(year, params.mortgage.amortizationYears)
+    const amortizedAmount = params.mortgage.secondMortgage * (yearsAmortized / params.mortgage.amortizationYears)
+    const remainingMortgage = totalMortgage - amortizedAmount
+    return { ...year0Data, year, mortgageBalance: remainingMortgage } as YearlyCalculation
+  })]
+  
+  const chartData = [
+    {
+      year: 0,
+      'Tragbarkeit (%)': utilizationPercentYear0,
+    },
+    ...chartDataYears
+  ]
+  
   return (
     <Card>
       <CardHeader>
@@ -69,8 +103,7 @@ export function AffordabilityChart({ params, maxYears = 30 }: AffordabilityChart
               domain={[0, 50]}
             />
             <Tooltip 
-              formatter={(value: number | undefined) => value !== undefined ? `${value.toFixed(1)}%` : ''}
-              labelFormatter={(label) => `Jahr ${label}`}
+              content={<CustomTooltip type="affordability" data={fullData} params={params} />}
             />
             <Legend />
             <ReferenceLine 
