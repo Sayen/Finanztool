@@ -1,15 +1,22 @@
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../ui/Card'
 import { formatCurrency } from '../../lib/utils'
-import type { YearlyCalculation } from '../../types'
+import { calculateYear0Data } from '../../lib/year0Utils'
+import { CustomTooltip } from './CustomTooltip'
+import type { YearlyCalculation, CalculationParams } from '../../types'
 
 interface OpportunityCostChartProps {
   data: YearlyCalculation[]
   maxYears?: number
+  params?: CalculationParams
 }
 
-export function OpportunityCostChart({ data, maxYears = 30 }: OpportunityCostChartProps) {
-  const chartData = data.slice(0, maxYears).map((item) => ({
+export function OpportunityCostChart({ data, maxYears = 30, params }: OpportunityCostChartProps) {
+  // Add year 0 if params are available
+  const year0 = params ? calculateYear0Data(params) : null
+  const fullData = year0 ? [year0, ...data] : data
+  
+  const chartData = fullData.slice(0, maxYears + 1).map((item) => ({
     year: item.year,
     'Eigenkapital in Immobilie': item.netEquity,
     'Alternatives ETF-Investment': item.opportunityCostETF,
@@ -39,8 +46,7 @@ export function OpportunityCostChart({ data, maxYears = 30 }: OpportunityCostCha
               label={{ value: 'Vermögenswert (CHF)', angle: -90, position: 'insideLeft', dy: 50 }}
             />
             <Tooltip 
-              formatter={(value) => formatCurrency(value as number)}
-              labelFormatter={(label) => `Jahr ${label}`}
+              content={<CustomTooltip type="opportunity" data={fullData} params={params} />}
             />
             <Legend />
             <Line 

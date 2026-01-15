@@ -1,25 +1,32 @@
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, ReferenceLine, ReferenceArea } from 'recharts'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../ui/Card'
 import { formatCurrency } from '../../lib/utils'
-import type { YearlyCalculation } from '../../types'
+import { calculateYear0Data } from '../../lib/year0Utils'
+import { CustomTooltip } from './CustomTooltip'
+import type { YearlyCalculation, CalculationParams } from '../../types'
 
 interface TotalAssetsBreakEvenChartProps {
   data: YearlyCalculation[]
   breakEvenYear: number | null
   maxYears?: number
+  params?: CalculationParams
 }
 
-export function TotalAssetsBreakEvenChart({ data, breakEvenYear, maxYears = 30 }: TotalAssetsBreakEvenChartProps) {
-  const chartData = data.slice(0, maxYears).map((item) => ({
+export function TotalAssetsBreakEvenChart({ data, breakEvenYear, maxYears = 30, params }: TotalAssetsBreakEvenChartProps) {
+  // Add year 0 if params are available
+  const year0 = params ? calculateYear0Data(params) : null
+  const fullData = year0 ? [year0, ...data] : data
+  
+  const chartData = fullData.slice(0, maxYears + 1).map((item) => ({
     year: item.year,
     'Nettovermögen Miete': item.netWealthRent,
     'Nettovermögen Eigentum': item.netWealthOwnership,
   }))
 
-  // Milestone years for comparison cards
-  const YEAR_10 = 9  // Array index for year 10
-  const YEAR_20 = 19 // Array index for year 20
-  const YEAR_30 = 29 // Array index for year 30
+  // Milestone years for comparison cards (adjust for year 0 index)
+  const YEAR_10 = 10  // Array index for year 10
+  const YEAR_20 = 20 // Array index for year 20
+  const YEAR_30 = 30 // Array index for year 30
 
   return (
     <Card>
@@ -45,8 +52,7 @@ export function TotalAssetsBreakEvenChart({ data, breakEvenYear, maxYears = 30 }
               label={{ value: 'Nettovermögen (CHF)', angle: -90, position: 'insideLeft', dy: 50 }}
             />
             <Tooltip
-              formatter={(value) => formatCurrency(value as number)}
-              labelFormatter={(label) => `Jahr ${label}`}
+              content={<CustomTooltip type="totalAssets" data={fullData} params={params} />}
             />
             <Legend />
 
@@ -54,7 +60,7 @@ export function TotalAssetsBreakEvenChart({ data, breakEvenYear, maxYears = 30 }
             {breakEvenYear && breakEvenYear <= maxYears && (
               <>
                 <ReferenceArea
-                  x1={1}
+                  x1={0}
                   x2={breakEvenYear}
                   fill="#47C881"
                   fillOpacity={0.1}

@@ -228,8 +228,8 @@ function App() {
               </TabsList>
               
               <TabsContent value="overview" className="space-y-6 mt-6">
-                <CostComparisonChart data={currentScenario.results.yearlyData} maxYears={timeHorizon} />
-                <WealthChart data={currentScenario.results.yearlyData} maxYears={timeHorizon} />
+                <CostComparisonChart data={currentScenario.results.yearlyData} maxYears={timeHorizon} params={currentScenario.params} />
+                <WealthChart data={currentScenario.results.yearlyData} maxYears={timeHorizon} params={currentScenario.params} />
                 <AnnualCostBreakdown data={currentScenario.results.yearlyData} maxYears={timeHorizon} />
               </TabsContent>
               
@@ -251,17 +251,19 @@ function App() {
                   data={currentScenario.results.yearlyData} 
                   breakEvenYear={currentScenario.results.breakEvenYear}
                   maxYears={timeHorizon}
+                  params={currentScenario.params}
                 />
                 <TotalAssetsBreakEvenChart
                   data={currentScenario.results.yearlyData}
                   breakEvenYear={currentScenario.results.netWealthBreakEvenYear}
                   maxYears={timeHorizon}
+                  params={currentScenario.params}
                 />
               </TabsContent>
               
               <TabsContent value="opportunity" className="space-y-6 mt-6">
-                <OpportunityCostChart data={currentScenario.results.yearlyData} maxYears={timeHorizon} />
-                <WealthChart data={currentScenario.results.yearlyData} maxYears={timeHorizon} />
+                <OpportunityCostChart data={currentScenario.results.yearlyData} maxYears={timeHorizon} params={currentScenario.params} />
+                <WealthChart data={currentScenario.results.yearlyData} maxYears={timeHorizon} params={currentScenario.params} />
               </TabsContent>
             </Tabs>
           </div>
