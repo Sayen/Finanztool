@@ -1,6 +1,7 @@
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../ui/Card'
 import { formatCurrency } from '../../lib/utils'
+import { DarkModeTooltip } from './DarkModeTooltip'
 import type { YearlyCalculation } from '../../types'
 
 interface CashflowChartProps {
@@ -43,10 +44,11 @@ export function CashflowChart({ data }: CashflowChartProps) {
             <XAxis dataKey="month" />
             <YAxis 
               tickFormatter={(value) => formatCurrency(value as number, 0)}
-              label={{ value: 'Betrag (CHF)', angle: -90, position: 'insideLeft' }}
-              width={80}
+              label={{ value: 'Betrag (CHF)', angle: -90, position: 'insideLeft', dx: -10 }}
+              width={90}
             />
             <Tooltip 
+              content={<DarkModeTooltip />}
               formatter={(value) => formatCurrency(value as number)}
             />
             <Legend />

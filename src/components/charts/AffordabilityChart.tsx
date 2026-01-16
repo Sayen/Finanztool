@@ -99,8 +99,9 @@ export function AffordabilityChart({ params, maxYears = 30 }: AffordabilityChart
               label={{ value: 'Jahre', position: 'insideBottom', offset: -5 }}
             />
             <YAxis 
-              label={{ value: 'Tragbarkeit (%)', angle: -90, position: 'insideLeft' }}
+              label={{ value: 'Tragbarkeit (%)', angle: -90, position: 'insideLeft', dx: -10 }}
               domain={[0, 50]}
+              width={90}
             />
             <Tooltip 
               content={<CustomTooltip type="affordability" data={fullData} params={params} />}

@@ -1,6 +1,7 @@
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../ui/Card'
 import { formatCurrency } from '../../lib/utils'
+import { DarkModeTooltip } from './DarkModeTooltip'
 import type { YearlyCalculation } from '../../types'
 
 interface TaxChartProps {
@@ -39,10 +40,11 @@ export function TaxChart({ data, displayYears, maxYears = 30 }: TaxChartProps) {
             <XAxis dataKey="year" />
             <YAxis 
               tickFormatter={(value) => formatCurrency(Math.abs(value) as number, 0)}
-              label={{ value: 'Steuerbetrag (CHF)', angle: -90, position: 'insideLeft' }}
-              width={80}
+              label={{ value: 'Steuerbetrag (CHF)', angle: -90, position: 'insideLeft', dx: -10 }}
+              width={90}
             />
             <Tooltip 
+              content={<DarkModeTooltip />}
               formatter={(value: number | undefined) => value !== undefined ? formatCurrency(Math.abs(value)) : ''}
               labelFormatter={(label) => label}
             />

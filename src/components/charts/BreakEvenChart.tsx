@@ -49,8 +49,8 @@ export function BreakEvenChart({ data, breakEvenYear, maxYears = 30, params }: B
             />
             <YAxis 
               tickFormatter={(value) => formatCurrency(value as number, 0)}
-              label={{ value: 'Kumulierte Kosten (CHF)', angle: -90, position: 'insideLeft' }}
-              width={80}
+              label={{ value: 'Kumulierte Kosten (CHF)', angle: -90, position: 'insideLeft', dx: -10 }}
+              width={90}
             />
             <Tooltip 
               content={<CustomTooltip type="breakeven" data={fullData} params={params} />}
