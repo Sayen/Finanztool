@@ -115,7 +115,8 @@ function WealthTooltipContent({ currentData, previousData, params }: { currentDa
   const investCashInOwnership = params?.additional?.investCashInOwnership || false
   
   // Calculate ETF depot value for ownership scenario
-  // netWealthOwnership = netEquity + ownershipScenarioWealth
+  // ownershipETFDepot represents the liquid investments (ownershipScenarioWealth)
+  // Since netWealthOwnership = netEquity + ownershipScenarioWealth, we extract it by subtraction
   const ownershipETFDepot = currentData.netWealthOwnership - currentData.netEquity
   
   return (
