@@ -48,8 +48,11 @@ export function calculateScenario(params: CalculationParams): CalculationResults
   let netWealthBreakEvenYear: number | null = null
   
   // Wealth tracking with income
-  let rentScenarioWealth = initialTotalWealth - params.purchase.equity // Remaining cash after not buying
-  let ownershipScenarioWealth = initialTotalWealth - initialInvestment // Remaining cash after buying
+  // Rent scenario: Person does NOT buy, so they keep their entire initial wealth to invest
+  let rentScenarioWealth = initialTotalWealth
+  // Ownership scenario: Person buys, paying equity + closing costs + fees (initial investment)
+  // Note: Closing costs (notary, registry, broker fees) are "lost" - they don't add to property value
+  let ownershipScenarioWealth = initialTotalWealth - initialInvestment
   
   for (let year = 1; year <= CALCULATION_YEARS; year++) {
     // Calculate inflation factor for this year
@@ -68,11 +71,14 @@ export function calculateScenario(params: CalculationParams): CalculationResults
     currentRent = currentRent * (1 + params.rent.annualIncrease / 100)
     
     // Ownership calculations
-    const mortgageInterest = mortgageBalance * (
-      (params.mortgage.firstMortgage * params.mortgage.firstMortgageRate / 100 +
-       params.mortgage.secondMortgage * params.mortgage.secondMortgageRate / 100) /
-      totalMortgage
-    )
+    // Calculate mortgage interest separately for first and second mortgage
+    // This ensures correct interest rates even after partial/full amortization of second mortgage
+    const firstMortgageBalance = params.mortgage.firstMortgage // First mortgage is never amortized
+    const secondMortgageBalance = Math.max(0, mortgageBalance - firstMortgageBalance) // Second mortgage gets amortized
+    
+    const mortgageInterest = 
+      (firstMortgageBalance * params.mortgage.firstMortgageRate / 100) +
+      (secondMortgageBalance * params.mortgage.secondMortgageRate / 100)
     
     const annualAmortization = year <= params.mortgage.amortizationYears && params.mortgage.secondMortgage > 0
       ? params.mortgage.secondMortgage / params.mortgage.amortizationYears
