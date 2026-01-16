@@ -1,7 +1,7 @@
-import { TooltipProps } from 'recharts'
-
-interface DarkModeTooltipProps extends TooltipProps<number, string> {
-  // Additional props if needed
+interface DarkModeTooltipProps {
+  active?: boolean
+  payload?: any[]
+  label?: string | number
 }
 
 /**
@@ -17,7 +17,7 @@ export function DarkModeTooltip({ active, payload, label }: DarkModeTooltipProps
     <div className="bg-popover border border-border text-popover-foreground rounded-lg shadow-lg p-3">
       <div className="font-semibold text-sm mb-2">{label}</div>
       <div className="space-y-1">
-        {payload.map((entry, index) => (
+        {payload.map((entry: any, index: number) => (
           <div key={`item-${index}`} className="flex items-center gap-2 text-xs">
             <div
               className="w-3 h-3 rounded-sm"
