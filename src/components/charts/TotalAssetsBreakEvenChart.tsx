@@ -49,7 +49,8 @@ export function TotalAssetsBreakEvenChart({ data, breakEvenYear, maxYears = 30, 
             />
             <YAxis
               tickFormatter={(value) => formatCurrency(value as number, 0)}
-              label={{ value: 'Nettovermögen (CHF)', angle: -90, position: 'insideLeft', dy: 50 }}
+              label={{ value: 'Nettovermögen (CHF)', angle: -90, position: 'insideLeft' }}
+              width={80}
             />
             <Tooltip
               content={<CustomTooltip type="totalAssets" data={fullData} params={params} />}

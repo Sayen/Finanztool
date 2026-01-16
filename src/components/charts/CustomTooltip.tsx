@@ -20,7 +20,7 @@ export function CustomTooltip({ active, payload, label, type, data, params }: Cu
   if (!currentData) return null
   
   return (
-    <div className="bg-card border border-border rounded-lg shadow-lg p-4 min-w-[280px] max-w-[400px]">
+    <div className="bg-card border border-border text-card-foreground rounded-lg shadow-lg p-4 min-w-[280px] max-w-[400px]">
       <div className="font-semibold text-sm mb-2 pb-2 border-b border-border">
         Jahr {year}
       </div>
@@ -112,6 +112,11 @@ function WealthTooltipContent({ currentData, previousData, params }: { currentDa
   
   const propertyAppreciationRate = params?.additional?.propertyAppreciationRate || 2.0
   const etfReturnRate = params?.additional?.etfReturnRate || 6.0
+  const investCashInOwnership = params?.additional?.investCashInOwnership || false
+  
+  // Calculate ETF depot value for ownership scenario
+  // netWealthOwnership = netEquity + ownershipScenarioWealth
+  const ownershipETFDepot = currentData.netWealthOwnership - currentData.netEquity
   
   return (
     <div className="space-y-3 text-xs">
@@ -162,6 +167,15 @@ function WealthTooltipContent({ currentData, previousData, params }: { currentDa
             <span className="text-muted-foreground">Eigenkapital:</span>
             <span className="font-mono font-semibold">{formatCurrency(currentData.netEquity)}</span>
           </div>
+          {investCashInOwnership && ownershipETFDepot > 0 && (
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">+ ETF-Depot:</span>
+              <span className="font-mono">
+                {formatCurrency(ownershipETFDepot)}
+                <span className="text-green-600 text-[10px] ml-1">(↑ +{formatPercent(etfReturnRate, 1)} p.a.)</span>
+              </span>
+            </div>
+          )}
         </div>
       </div>
       

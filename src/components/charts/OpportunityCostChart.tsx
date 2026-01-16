@@ -43,7 +43,8 @@ export function OpportunityCostChart({ data, maxYears = 30, params }: Opportunit
             />
             <YAxis 
               tickFormatter={(value) => formatCurrency(value as number, 0)}
-              label={{ value: 'Vermögenswert (CHF)', angle: -90, position: 'insideLeft', dy: 50 }}
+              label={{ value: 'Vermögenswert (CHF)', angle: -90, position: 'insideLeft' }}
+              width={80}
             />
             <Tooltip 
               content={<CustomTooltip type="opportunity" data={fullData} params={params} />}
