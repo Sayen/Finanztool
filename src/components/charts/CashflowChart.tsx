@@ -1,3 +1,4 @@
+import { useMemo } from 'react'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../ui/Card'
 import { formatCurrency } from '../../lib/utils'
@@ -14,20 +15,26 @@ export function CashflowChart({ data }: CashflowChartProps) {
   // Note: maxYears parameter accepted for interface consistency but not used (chart only shows first year)
   const yearData = data[0]
   
+  const monthlyData = useMemo(() => {
+    if (!yearData) {
+      return []
+    }
+
+    // Create monthly data for first year
+    return Array.from({ length: 12 }, (_, i) => ({
+      month: `Monat ${i + 1}`,
+      'Miete': yearData.rentCost / 12,
+      'Nebenkosten (Miete)': (yearData.rentUtilities + yearData.rentInsurance) / 12,
+      'Hypothekarzins': yearData.ownershipMortgageInterest / 12,
+      'Amortisation': yearData.ownershipAmortization / 12,
+      'Nebenkosten (Eigentum)': (yearData.ownershipUtilities + yearData.ownershipInsurance) / 12,
+      'Unterhalt': yearData.ownershipMaintenance / 12,
+    }))
+  }, [yearData])
+
   if (!yearData) {
     return null
   }
-  
-  // Create monthly data for first year
-  const monthlyData = Array.from({ length: 12 }, (_, i) => ({
-    month: `Monat ${i + 1}`,
-    'Miete': yearData.rentCost / 12,
-    'Nebenkosten (Miete)': (yearData.rentUtilities + yearData.rentInsurance) / 12,
-    'Hypothekarzins': yearData.ownershipMortgageInterest / 12,
-    'Amortisation': yearData.ownershipAmortization / 12,
-    'Nebenkosten (Eigentum)': (yearData.ownershipUtilities + yearData.ownershipInsurance) / 12,
-    'Unterhalt': yearData.ownershipMaintenance / 12,
-  }))
   
   return (
     <Card>
