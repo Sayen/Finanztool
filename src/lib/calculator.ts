@@ -253,22 +253,26 @@ function calculateMaintenanceCost(params: CalculationParams, year: number): numb
       kitchenBathRenovation, kitchenBathInitialInterval, kitchenBathInterval,
     } = params.runningCosts;
 
-    // Helper for cyclical cost calculation
-    const checkAndAddCost = (cost?: number, initial?: number, interval?: number) => {
-      if (cost && initial && interval && year >= initial) {
-        if ((year - initial) % interval === 0) {
-          maintenanceCost += cost;
-        }
-      }
-    };
-
-    checkAndAddCost(roofRenovation, roofInitialInterval, roofInterval);
-    checkAndAddCost(facadeRenovation, facadeInitialInterval, facadeInterval);
-    checkAndAddCost(heatingRenovation, heatingInitialInterval, heatingInterval);
-    checkAndAddCost(kitchenBathRenovation, kitchenBathInitialInterval, kitchenBathInterval);
+    maintenanceCost += calculateCyclicalCost(year, roofRenovation, roofInitialInterval, roofInterval);
+    maintenanceCost += calculateCyclicalCost(year, facadeRenovation, facadeInitialInterval, facadeInterval);
+    maintenanceCost += calculateCyclicalCost(year, heatingRenovation, heatingInitialInterval, heatingInterval);
+    maintenanceCost += calculateCyclicalCost(year, kitchenBathRenovation, kitchenBathInitialInterval, kitchenBathInterval);
   }
   
   return maintenanceCost
+}
+
+/**
+ * Helper for cyclical cost calculation
+ * Returns the cost if it applies for the given year, otherwise 0
+ */
+function calculateCyclicalCost(year: number, cost?: number, initial?: number, interval?: number): number {
+  if (cost && initial && interval && year >= initial) {
+    if ((year - initial) % interval === 0) {
+      return cost;
+    }
+  }
+  return 0;
 }
 
 /**
