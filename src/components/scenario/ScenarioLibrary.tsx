@@ -56,10 +56,15 @@ export function ScenarioLibrary() {
   
   // Filter scenarios based on search and filters
   const filteredScenarios = useMemo(() => {
+    const lowerSearchQuery = searchQuery.toLowerCase()
+
     return scenarios.filter(scenario => {
       // Search filter
-      const matchesSearch = scenario.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                          (scenario.description?.toLowerCase().includes(searchQuery.toLowerCase()))
+      let matchesSearch = true
+      if (lowerSearchQuery) {
+        matchesSearch = scenario.name.toLowerCase().includes(lowerSearchQuery) ||
+          (scenario.description?.toLowerCase().includes(lowerSearchQuery) ?? false)
+      }
 
       if (!matchesSearch) return false
 
