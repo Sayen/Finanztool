@@ -54,16 +54,25 @@ export function ScenarioLibrary() {
     setFilter('all')
   }
   
+  // Pre-calculate searchable text for performance
+  const searchableScenarios = useMemo(() => {
+    return scenarios.map(scenario => ({
+      ...scenario,
+      lowerName: scenario.name.toLowerCase(),
+      lowerDescription: scenario.description?.toLowerCase()
+    }))
+  }, [scenarios])
+
   // Filter scenarios based on search and filters
   const filteredScenarios = useMemo(() => {
     const lowerSearchQuery = searchQuery.toLowerCase()
 
-    return scenarios.filter(scenario => {
+    return searchableScenarios.filter(scenario => {
       // Search filter
       let matchesSearch = true
       if (lowerSearchQuery) {
-        matchesSearch = scenario.name.toLowerCase().includes(lowerSearchQuery) ||
-          (scenario.description?.toLowerCase().includes(lowerSearchQuery) ?? false)
+        matchesSearch = scenario.lowerName.includes(lowerSearchQuery) ||
+          (scenario.lowerDescription?.includes(lowerSearchQuery) ?? false)
       }
 
       if (!matchesSearch) return false
@@ -75,7 +84,7 @@ export function ScenarioLibrary() {
 
       return true
     })
-  }, [scenarios, searchQuery, filter])
+  }, [searchableScenarios, searchQuery, filter])
   
   // Sort scenarios
   const sortedScenarios = useMemo(() => {
