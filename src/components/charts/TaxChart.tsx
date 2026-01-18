@@ -1,3 +1,4 @@
+import { useMemo } from 'react'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../ui/Card'
 import { formatCurrency } from '../../lib/utils'
@@ -11,19 +12,21 @@ interface TaxChartProps {
 }
 
 export function TaxChart({ data, displayYears, maxYears = 30 }: TaxChartProps) {
-  // Use displayYears if provided, otherwise use default years based on maxYears
-  const yearsToDisplay = displayYears || [1, 5, 10, 15, 20, Math.min(30, maxYears)]
-  const chartData = yearsToDisplay
-    .filter(year => year <= data.length && year <= maxYears)
-    .map((year) => {
-      const item = data[year - 1]
-      return {
-        year: `Jahr ${year}`,
-        'Zinsabzug (Ersparnis)': item.taxSavingsInterestDeduction,
-        'Eigenmietwert (Steuerlast)': -item.rentalValueTax, // Negative for visual stacking
-        'Netto-Steuereffekt': item.netTaxEffect,
-      }
-    })
+  const chartData = useMemo(() => {
+    // Use displayYears if provided, otherwise use default years based on maxYears
+    const yearsToDisplay = displayYears || [1, 5, 10, 15, 20, Math.min(30, maxYears)]
+    return yearsToDisplay
+      .filter((year) => year <= data.length && year <= maxYears)
+      .map((year) => {
+        const item = data[year - 1]
+        return {
+          year: `Jahr ${year}`,
+          'Zinsabzug (Ersparnis)': item.taxSavingsInterestDeduction,
+          'Eigenmietwert (Steuerlast)': -item.rentalValueTax, // Negative for visual stacking
+          'Netto-Steuereffekt': item.netTaxEffect,
+        }
+      })
+  }, [data, displayYears, maxYears])
   
   return (
     <Card>
