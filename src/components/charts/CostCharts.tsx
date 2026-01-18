@@ -1,3 +1,4 @@
+import { useMemo } from 'react'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, BarChart, Bar } from 'recharts'
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/Card'
 import { formatCurrency } from '../../lib/utils'
@@ -12,15 +13,17 @@ interface CostComparisonChartProps {
 }
 
 export function CostComparisonChart({ data, maxYears = 30, params }: CostComparisonChartProps) {
-  // Add year 0 if params are available
-  const year0 = params ? calculateYear0Data(params) : null
-  const fullData = year0 ? [year0, ...data] : data
-  
-  const chartData = fullData.slice(0, maxYears + 1).map((item) => ({
-    year: item.year,
-    Miete: item.rentCumulativeCost,
-    Eigentum: item.ownershipCumulativeCost,
-  }))
+  const chartData = useMemo(() => {
+    // Add year 0 if params are available
+    const year0 = params ? calculateYear0Data(params) : null
+    const fullData = year0 ? [year0, ...data] : data
+
+    return fullData.slice(0, maxYears + 1).map((item) => ({
+      year: item.year,
+      Miete: item.rentCumulativeCost,
+      Eigentum: item.ownershipCumulativeCost,
+    }))
+  }, [data, maxYears, params])
   
   return (
     <Card>
@@ -73,15 +76,19 @@ interface WealthChartProps {
 }
 
 export function WealthChart({ data, maxYears = 30, params }: WealthChartProps) {
-  // Add year 0 if params are available
-  const year0 = params ? calculateYear0Data(params) : null
-  const fullData = year0 ? [year0, ...data] : data
-  
-  const chartData = fullData.slice(0, maxYears + 1).map((item) => ({
-    year: item.year,
-    'Nettovermögen Miete': item.netWealthRent,
-    'Nettovermögen Eigentum': item.netWealthOwnership,
-  }))
+  // Add year 0 if params are available (needed for tooltip)
+  const fullData = useMemo(() => {
+    const year0 = params ? calculateYear0Data(params) : null
+    return year0 ? [year0, ...data] : data
+  }, [data, params])
+
+  const chartData = useMemo(() => {
+    return fullData.slice(0, maxYears + 1).map((item) => ({
+      year: item.year,
+      'Nettovermögen Miete': item.netWealthRent,
+      'Nettovermögen Eigentum': item.netWealthOwnership,
+    }))
+  }, [fullData, maxYears])
   
   return (
     <Card>
@@ -133,22 +140,24 @@ interface AnnualCostBreakdownProps {
 }
 
 export function AnnualCostBreakdown({ data, displayYears, maxYears = 30 }: AnnualCostBreakdownProps) {
-  // Use displayYears if provided, otherwise use default years based on maxYears
-  const yearsToDisplay = displayYears || [1, 5, 10, 15, 20, Math.min(30, maxYears)]
-  const chartData = yearsToDisplay
-    .filter(year => year <= data.length && year <= maxYears)
-    .map((year) => {
-      const item = data[year - 1]
-      return {
-        year: `Jahr ${year}`,
-        'Miete': item.rentCost,
-        'Nebenkosten (Miete)': item.rentUtilities + item.rentInsurance,
-        'Hypothekarzins': item.ownershipMortgageInterest,
-        'Amortisation': item.ownershipAmortization,
-        'Nebenkosten (Eigentum)': item.ownershipUtilities + item.ownershipInsurance,
-        'Unterhalt': item.ownershipMaintenance,
-      }
-    })
+  const chartData = useMemo(() => {
+    // Use displayYears if provided, otherwise use default years based on maxYears
+    const yearsToDisplay = displayYears || [1, 5, 10, 15, 20, Math.min(30, maxYears)]
+    return yearsToDisplay
+      .filter((year) => year <= data.length && year <= maxYears)
+      .map((year) => {
+        const item = data[year - 1]
+        return {
+          year: `Jahr ${year}`,
+          'Miete': item.rentCost,
+          'Nebenkosten (Miete)': item.rentUtilities + item.rentInsurance,
+          'Hypothekarzins': item.ownershipMortgageInterest,
+          'Amortisation': item.ownershipAmortization,
+          'Nebenkosten (Eigentum)': item.ownershipUtilities + item.ownershipInsurance,
+          'Unterhalt': item.ownershipMaintenance,
+        }
+      })
+  }, [data, displayYears, maxYears])
   
   return (
     <Card>

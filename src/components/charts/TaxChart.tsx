@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useMemo, memo } from 'react'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../ui/Card'
 import { formatCurrency } from '../../lib/utils'
@@ -11,7 +11,7 @@ interface TaxChartProps {
   maxYears?: number
 }
 
-export function TaxChart({ data, displayYears, maxYears = 30 }: TaxChartProps) {
+export const TaxChart = memo(function TaxChart({ data, displayYears, maxYears = 30 }: TaxChartProps) {
   const chartData = useMemo(() => {
     // Use displayYears if provided, otherwise use default years based on maxYears
     const yearsToDisplay = displayYears || [1, 5, 10, 15, 20, Math.min(30, maxYears)]
@@ -81,4 +81,4 @@ export function TaxChart({ data, displayYears, maxYears = 30 }: TaxChartProps) {
       </CardContent>
     </Card>
   )
-}
+})
