@@ -1,3 +1,4 @@
+import { useMemo } from 'react'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../ui/Card'
 import { formatCurrency } from '../../lib/utils'
@@ -12,18 +13,22 @@ interface OpportunityCostChartProps {
 }
 
 export function OpportunityCostChart({ data, maxYears = 30, params }: OpportunityCostChartProps) {
-  // Add year 0 if params are available
-  const year0 = params ? calculateYear0Data(params) : null
-  const fullData = year0 ? [year0, ...data] : data
-  
-  const chartData = fullData.slice(0, maxYears + 1).map((item) => ({
-    year: item.year,
-    'Eigenkapital in Immobilie': item.netEquity,
-    'Alternatives ETF-Investment': item.opportunityCostETF,
-  }))
-  
-  const finalYear = chartData[chartData.length - 1]
-  const difference = finalYear['Alternatives ETF-Investment'] - finalYear['Eigenkapital in Immobilie']
+  const { fullData, chartData, difference, finalYear } = useMemo(() => {
+    // Add year 0 if params are available
+    const year0 = params ? calculateYear0Data(params) : null
+    const fullData = year0 ? [year0, ...data] : data
+
+    const chartData = fullData.slice(0, maxYears + 1).map((item) => ({
+      year: item.year,
+      'Eigenkapital in Immobilie': item.netEquity,
+      'Alternatives ETF-Investment': item.opportunityCostETF,
+    }))
+
+    const finalYear = chartData[chartData.length - 1]
+    const difference = finalYear ? finalYear['Alternatives ETF-Investment'] - finalYear['Eigenkapital in Immobilie'] : 0
+
+    return { fullData, chartData, difference, finalYear }
+  }, [data, maxYears, params])
   
   return (
     <Card>
