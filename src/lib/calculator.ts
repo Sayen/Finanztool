@@ -53,7 +53,19 @@ export function calculateScenario(params: CalculationParams): CalculationResults
   // Ownership scenario: Person buys, paying equity + closing costs + fees (initial investment)
   // Note: Closing costs (notary, registry, broker fees) are "lost" - they don't add to property value
   let ownershipScenarioWealth = initialTotalWealth - initialInvestment
+
+  // Pre-calculate constant running cost params
+  const {
+    maintenanceMode = 'simple',
+    maintenanceSimple,
+    roofRenovation, roofInitialInterval, roofInterval,
+    facadeRenovation, facadeInitialInterval, facadeInterval,
+    heatingRenovation, heatingInitialInterval, heatingInterval,
+    kitchenBathRenovation, kitchenBathInitialInterval, kitchenBathInterval,
+  } = params.runningCosts;
   
+  const purchasePrice = params.purchase.purchasePrice;
+
   for (let year = 1; year <= CALCULATION_YEARS; year++) {
     // Calculate inflation factor for this year
     // Note: year - 1 because year 1 is the base year (inflationFactor = 1.0, no inflation)
@@ -89,7 +101,21 @@ export function calculateScenario(params: CalculationParams): CalculationResults
     // Apply inflation to running costs
     const ownershipUtilities = params.runningCosts.utilities * 12 * inflationFactor
     const ownershipInsurance = params.runningCosts.insurance * inflationFactor
-    const maintenanceCost = calculateMaintenanceCost(params, year) * inflationFactor
+
+    // Calculate maintenance costs efficiently
+    // IMPORTANT: Either simple OR detailed model is used, never both together
+    let maintenanceBaseCost = 0;
+
+    if (maintenanceMode === 'simple') {
+      maintenanceBaseCost = purchasePrice * maintenanceSimple / 100;
+    } else if (maintenanceMode === 'detailed') {
+      maintenanceBaseCost += calculateCyclicalCost(year, roofRenovation, roofInitialInterval, roofInterval);
+      maintenanceBaseCost += calculateCyclicalCost(year, facadeRenovation, facadeInitialInterval, facadeInterval);
+      maintenanceBaseCost += calculateCyclicalCost(year, heatingRenovation, heatingInitialInterval, heatingInterval);
+      maintenanceBaseCost += calculateCyclicalCost(year, kitchenBathRenovation, kitchenBathInitialInterval, kitchenBathInterval);
+    }
+    const maintenanceCost = maintenanceBaseCost * inflationFactor;
+
     const parkingCost = (params.runningCosts.parkingCost || 0) * 12 * inflationFactor
     const condominiumFees = (params.runningCosts.condominiumFees || 0) * 12 * inflationFactor
     const renovationReserve = (params.runningCosts.renovationReserve || 0) * inflationFactor
@@ -229,37 +255,6 @@ function calculateAffordability(params: CalculationParams) {
     isAffordable: utilizationPercent <= AFFORDABILITY_MAX_RATIO,
     utilizationPercent,
   }
-}
-
-/**
- * Calculate maintenance costs (simple or detailed cyclical model)
- * IMPORTANT: Either simple OR detailed model is used, never both together
- */
-function calculateMaintenanceCost(params: CalculationParams, year: number): number {
-  // Get maintenance mode (default to 'simple' for backward compatibility)
-  const mode = params.runningCosts.maintenanceMode || 'simple'
-  
-  let maintenanceCost = 0
-
-  if (mode === 'simple') {
-    // Simple model: percentage of purchase price annually
-    maintenanceCost = params.purchase.purchasePrice * params.runningCosts.maintenanceSimple / 100
-  } else if (mode === 'detailed') {
-    // Detailed cyclical model: specific renovation costs at intervals
-    const {
-      roofRenovation, roofInitialInterval, roofInterval,
-      facadeRenovation, facadeInitialInterval, facadeInterval,
-      heatingRenovation, heatingInitialInterval, heatingInterval,
-      kitchenBathRenovation, kitchenBathInitialInterval, kitchenBathInterval,
-    } = params.runningCosts;
-
-    maintenanceCost += calculateCyclicalCost(year, roofRenovation, roofInitialInterval, roofInterval);
-    maintenanceCost += calculateCyclicalCost(year, facadeRenovation, facadeInitialInterval, facadeInterval);
-    maintenanceCost += calculateCyclicalCost(year, heatingRenovation, heatingInitialInterval, heatingInterval);
-    maintenanceCost += calculateCyclicalCost(year, kitchenBathRenovation, kitchenBathInitialInterval, kitchenBathInterval);
-  }
-  
-  return maintenanceCost
 }
 
 /**
