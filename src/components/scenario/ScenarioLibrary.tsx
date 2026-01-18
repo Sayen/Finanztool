@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/Card'
 import { Button } from '../ui/Button'
 import { Input } from '../ui/Input'
@@ -55,41 +55,45 @@ export function ScenarioLibrary() {
   }
   
   // Filter scenarios based on search and filters
-  let filteredScenarios = scenarios.filter(scenario => {
-    // Search filter
-    const matchesSearch = scenario.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         (scenario.description?.toLowerCase().includes(searchQuery.toLowerCase()))
-    
-    if (!matchesSearch) return false
-    
-    // Other filters
-    if (filter === 'favorites' && !scenario.isFavorite) return false
-    if (filter === 'affordable' && scenario.results && !scenario.results.affordabilityCheck.isAffordable) return false
-    if (filter === 'not-affordable' && scenario.results && scenario.results.affordabilityCheck.isAffordable) return false
-    
-    return true
-  })
+  const filteredScenarios = useMemo(() => {
+    return scenarios.filter(scenario => {
+      // Search filter
+      const matchesSearch = scenario.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                          (scenario.description?.toLowerCase().includes(searchQuery.toLowerCase()))
+
+      if (!matchesSearch) return false
+
+      // Other filters
+      if (filter === 'favorites' && !scenario.isFavorite) return false
+      if (filter === 'affordable' && scenario.results && !scenario.results.affordabilityCheck.isAffordable) return false
+      if (filter === 'not-affordable' && scenario.results && scenario.results.affordabilityCheck.isAffordable) return false
+
+      return true
+    })
+  }, [scenarios, searchQuery, filter])
   
   // Sort scenarios
-  const sortedScenarios = [...filteredScenarios].sort((a, b) => {
-    // Favorites always first
-    if (a.isFavorite && !b.isFavorite) return -1
-    if (!a.isFavorite && b.isFavorite) return 1
-    
-    // Then by selected sort
-    switch (sortBy) {
-      case 'name':
-        return a.name.localeCompare(b.name)
-      case 'price':
-        return a.params.purchase.purchasePrice - b.params.purchase.purchasePrice
-      case 'affordability':
-        if (!a.results || !b.results) return 0
-        return a.results.affordabilityCheck.utilizationPercent - b.results.affordabilityCheck.utilizationPercent
-      case 'date':
-      default:
-        return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
-    }
-  })
+  const sortedScenarios = useMemo(() => {
+    return [...filteredScenarios].sort((a, b) => {
+      // Favorites always first
+      if (a.isFavorite && !b.isFavorite) return -1
+      if (!a.isFavorite && b.isFavorite) return 1
+
+      // Then by selected sort
+      switch (sortBy) {
+        case 'name':
+          return a.name.localeCompare(b.name)
+        case 'price':
+          return a.params.purchase.purchasePrice - b.params.purchase.purchasePrice
+        case 'affordability':
+          if (!a.results || !b.results) return 0
+          return a.results.affordabilityCheck.utilizationPercent - b.results.affordabilityCheck.utilizationPercent
+        case 'date':
+        default:
+          return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
+      }
+    })
+  }, [filteredScenarios, sortBy])
   
   return (
     <div className="space-y-6">
