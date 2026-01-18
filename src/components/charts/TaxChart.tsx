@@ -1,4 +1,4 @@
-import { useMemo, memo } from 'react'
+import { useMemo, memo, useCallback } from 'react'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../ui/Card'
 import { formatCurrency } from '../../lib/utils'
@@ -27,7 +27,10 @@ export const TaxChart = memo(function TaxChart({ data, displayYears, maxYears = 
         }
       })
   }, [data, displayYears, maxYears])
-  
+
+  const formatYAxis = useCallback((value: number) => formatCurrency(Math.abs(value), 0), [])
+  const formatTooltip = useCallback((value: number | undefined) => (value !== undefined ? formatCurrency(Math.abs(value)) : ''), [])
+
   return (
     <Card>
       <CardHeader>
@@ -42,13 +45,13 @@ export const TaxChart = memo(function TaxChart({ data, displayYears, maxYears = 
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis dataKey="year" />
             <YAxis 
-              tickFormatter={(value) => formatCurrency(Math.abs(value) as number, 0)}
+              tickFormatter={formatYAxis}
               label={{ value: 'Steuerbetrag (CHF)', angle: -90, position: 'insideLeft', dx: -10 }}
               width={90}
             />
             <Tooltip 
               content={<DarkModeTooltip />}
-              formatter={(value: number | undefined) => value !== undefined ? formatCurrency(Math.abs(value)) : ''}
+              formatter={formatTooltip}
               labelFormatter={(label) => label}
             />
             <Legend />
