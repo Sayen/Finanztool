@@ -13,17 +13,19 @@ interface CostComparisonChartProps {
 }
 
 export function CostComparisonChart({ data, maxYears = 30, params }: CostComparisonChartProps) {
-  const chartData = useMemo(() => {
-    // Add year 0 if params are available
+  // Add year 0 if params are available
+  const fullData = useMemo(() => {
     const year0 = params ? calculateYear0Data(params) : null
-    const fullData = year0 ? [year0, ...data] : data
+    return year0 ? [year0, ...data] : data
+  }, [data, params])
 
+  const chartData = useMemo(() => {
     return fullData.slice(0, maxYears + 1).map((item) => ({
       year: item.year,
       Miete: item.rentCumulativeCost,
       Eigentum: item.ownershipCumulativeCost,
     }))
-  }, [data, maxYears, params])
+  }, [fullData, maxYears])
   
   return (
     <Card>
