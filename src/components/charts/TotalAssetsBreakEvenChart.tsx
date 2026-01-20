@@ -1,3 +1,4 @@
+import { useMemo } from 'react'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, ReferenceLine, ReferenceArea } from 'recharts'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../ui/Card'
 import { formatCurrency } from '../../lib/utils'
@@ -13,15 +14,19 @@ interface TotalAssetsBreakEvenChartProps {
 }
 
 export function TotalAssetsBreakEvenChart({ data, breakEvenYear, maxYears = 30, params }: TotalAssetsBreakEvenChartProps) {
-  // Add year 0 if params are available
-  const year0 = params ? calculateYear0Data(params) : null
-  const fullData = year0 ? [year0, ...data] : data
-  
-  const chartData = fullData.slice(0, maxYears + 1).map((item) => ({
-    year: item.year,
-    'Nettovermögen Miete': item.netWealthRent,
-    'Nettovermögen Eigentum': item.netWealthOwnership,
-  }))
+  const { fullData, chartData } = useMemo(() => {
+    // Add year 0 if params are available
+    const year0 = params ? calculateYear0Data(params) : null
+    const fullData = year0 ? [year0, ...data] : data
+
+    const chartData = fullData.slice(0, maxYears + 1).map((item) => ({
+      year: item.year,
+      'Nettovermögen Miete': item.netWealthRent,
+      'Nettovermögen Eigentum': item.netWealthOwnership,
+    }))
+
+    return { fullData, chartData }
+  }, [data, maxYears, params])
 
   // Milestone years for comparison cards (adjust for year 0 index)
   const YEAR_10 = 10  // Array index for year 10

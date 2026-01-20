@@ -260,13 +260,19 @@ function calculateAffordability(params: CalculationParams) {
 /**
  * Helper for cyclical cost calculation
  * Returns the cost if it applies for the given year, otherwise 0
+ * Hoisted outside the loop to avoid function recreation overhead (performance optimization)
  */
 function calculateCyclicalCost(year: number, cost?: number, initial?: number, interval?: number): number {
-  if (cost && initial && interval && year >= initial) {
-    if ((year - initial) % interval === 0) {
-      return cost;
-    }
+  // Early return if parameters are missing or year is before initial
+  if (!cost || !initial || !interval || year < initial) {
+    return 0;
   }
+
+  // Check if the current year matches the interval
+  if ((year - initial) % interval === 0) {
+    return cost;
+  }
+
   return 0;
 }
 
