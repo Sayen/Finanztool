@@ -28,18 +28,9 @@ export const TaxChart = memo(function TaxChart({ data, displayYears, maxYears = 
       })
   }, [data, displayYears, maxYears])
 
-  const formatYAxis = useCallback((value: unknown) => {
-    return formatCurrency(Math.abs(value as number), 0)
-  }, [])
+  const formatYAxis = useCallback((value: number) => formatCurrency(Math.abs(value), 0), [])
+  const formatTooltip = useCallback((value: number | undefined) => (value !== undefined ? formatCurrency(Math.abs(value)) : ''), [])
 
-  const formatTooltipValue = useCallback((value: number | undefined) => {
-    return value !== undefined ? formatCurrency(Math.abs(value)) : ''
-  }, [])
-
-  const formatTooltipLabel = useCallback((label: string | number) => {
-    return label
-  }, [])
-  
   return (
     <Card>
       <CardHeader>
@@ -60,8 +51,8 @@ export const TaxChart = memo(function TaxChart({ data, displayYears, maxYears = 
             />
             <Tooltip 
               content={<DarkModeTooltip />}
-              formatter={formatTooltipValue}
-              labelFormatter={formatTooltipLabel}
+              formatter={formatTooltip}
+              labelFormatter={(label) => label}
             />
             <Legend />
             <Bar dataKey="Zinsabzug (Ersparnis)" fill="#22c55e" />
