@@ -11,9 +11,11 @@ export function CategoryManager() {
   const [newCatName, setNewCatName] = useState('')
   const [newCatType, setNewCatType] = useState<ItemType>('expense')
   const [newCatParent, setNewCatParent] = useState<string>('')
+  const [newCatColor, setNewCatColor] = useState<string>('#3b82f6') // default blue-500
 
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editName, setEditName] = useState('')
+  const [editColor, setEditColor] = useState('')
 
   const handleAdd = (e: React.FormEvent) => {
     e.preventDefault()
@@ -21,7 +23,8 @@ export function CategoryManager() {
     addCategory({
       name: newCatName,
       type: newCatType,
-      parentId: newCatParent || undefined
+      parentId: newCatParent || undefined,
+      color: newCatColor
     })
     setNewCatName('')
   }
@@ -29,14 +32,23 @@ export function CategoryManager() {
   const startEdit = (cat: Category) => {
     setEditingId(cat.id)
     setEditName(cat.name)
+    setEditColor(cat.color || '#3b82f6')
   }
 
   const saveEdit = () => {
     if (editingId && editName) {
-        updateCategory(editingId, { name: editName })
+        updateCategory(editingId, { name: editName, color: editColor })
         setEditingId(null)
     }
   }
+
+  // Predefined colors
+  const colors = [
+    '#ef4444', '#f97316', '#f59e0b', '#84cc16', '#22c55e',
+    '#10b981', '#14b8a6', '#06b6d4', '#0ea5e9', '#3b82f6',
+    '#6366f1', '#8b5cf6', '#a855f7', '#d946ef', '#ec4899',
+    '#f43f5e', '#64748b', '#71717a'
+  ]
 
   // Filter possible parents (avoid circular dependency roughly - usually just prevent self)
   // And must match type
@@ -82,6 +94,20 @@ export function CategoryManager() {
                         onChange={(e) => setNewCatName(e.target.value)}
                     />
                 </div>
+
+                {/* Color Picker */}
+                <div className="flex gap-1 flex-wrap">
+                    {colors.map(c => (
+                        <button
+                            key={c}
+                            type="button"
+                            onClick={() => setNewCatColor(c)}
+                            className={`w-5 h-5 rounded-full border border-border ${newCatColor === c ? 'ring-2 ring-primary ring-offset-2' : ''}`}
+                            style={{ backgroundColor: c }}
+                        />
+                    ))}
+                </div>
+
                 <div className="flex gap-2 items-center">
                     <span className="text-xs text-muted-foreground w-32">Überkategorie:</span>
                     <select
@@ -106,14 +132,27 @@ export function CategoryManager() {
                 {categories.map(cat => (
                     <div key={cat.id} className="flex items-center justify-between p-2 hover:bg-muted rounded-md border border-transparent hover:border-border">
                         <div className="flex items-center gap-2">
-                            {cat.type === 'income' ? <div className="w-2 h-2 rounded-full bg-green-500" /> : <div className="w-2 h-2 rounded-full bg-red-500" />}
+                            <div className="w-3 h-3 rounded-full border border-border" style={{ backgroundColor: cat.color || (cat.type === 'income' ? '#22c55e' : '#ef4444') }} />
                             {editingId === cat.id ? (
-                                <input
-                                    value={editName}
-                                    onChange={(e) => setEditName(e.target.value)}
-                                    className="px-2 py-1 h-7 text-sm border rounded"
-                                    autoFocus
-                                />
+                                <div className="flex flex-col gap-2">
+                                    <input
+                                        value={editName}
+                                        onChange={(e) => setEditName(e.target.value)}
+                                        className="px-2 py-1 h-7 text-sm border rounded"
+                                        autoFocus
+                                    />
+                                    <div className="flex gap-1">
+                                        {colors.slice(0, 7).map(c => (
+                                            <button
+                                                key={c}
+                                                type="button"
+                                                onClick={() => setEditColor(c)}
+                                                className={`w-3 h-3 rounded-full border ${editColor === c ? 'ring-1 ring-primary' : ''}`}
+                                                style={{ backgroundColor: c }}
+                                            />
+                                        ))}
+                                    </div>
+                                </div>
                             ) : (
                                 <div className="flex flex-col">
                                     <span className="font-medium text-sm">{cat.name}</span>

@@ -8,7 +8,12 @@ import { Button } from '../components/ui/Button'
 import { Download, Upload } from 'lucide-react'
 
 export function BudgetPlanner() {
-  const { incomes, expenses, categories, addIncome, removeIncome, addExpense, removeExpense, importData, exportData } = useBudgetStore()
+  const {
+    incomes, expenses, categories,
+    addIncome, removeIncome, updateIncome,
+    addExpense, removeExpense, updateExpense,
+    importData, exportData
+  } = useBudgetStore()
   const [view, setView] = useState<Frequency>('monthly')
   const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -140,6 +145,7 @@ export function BudgetPlanner() {
           categories={categories}
           onAdd={addIncome}
           onRemove={removeIncome}
+          onUpdate={updateIncome}
           type="income"
         />
         <BudgetList
@@ -148,6 +154,7 @@ export function BudgetPlanner() {
           categories={categories}
           onAdd={addExpense}
           onRemove={removeExpense}
+          onUpdate={updateExpense}
           type="expense"
         />
       </div>

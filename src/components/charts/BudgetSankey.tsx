@@ -11,21 +11,24 @@ interface BudgetSankeyProps {
 
 export function BudgetSankey({ incomes, expenses, categories, view }: BudgetSankeyProps) {
   const data = useMemo(() => {
-    const nodes: { name: string }[] = []
+    const nodes: { name: string; fill?: string }[] = []
     const links: { source: number; target: number; value: number }[] = []
 
     // Helper to get node index or create it
-    const getNodeIndex = (name: string) => {
+    const getNodeIndex = (name: string, fill?: string) => {
       let index = nodes.findIndex(n => n.name === name)
       if (index === -1) {
         index = nodes.length
-        nodes.push({ name })
+        nodes.push({ name, fill })
+      } else if (fill && !nodes[index].fill) {
+        // Update color if not set yet (e.g. created by link reference without color)
+        nodes[index].fill = fill
       }
       return index
     }
 
     const budgetNodeName = 'Budget'
-    const budgetNodeIndex = getNodeIndex(budgetNodeName)
+    const budgetNodeIndex = getNodeIndex(budgetNodeName, '#64748b') // Slate-500 for Budget
 
     // Helper to calculate normalized amount
     const getAmount = (item: BudgetItem) => {
@@ -164,7 +167,7 @@ export function BudgetSankey({ incomes, expenses, categories, view }: BudgetSank
     nodes.length = 0
     links.length = 0
     // Re-init Budget
-    getNodeIndex(budgetNodeName)
+    getNodeIndex(budgetNodeName, '#64748b')
 
     // --- UNIFIED LOGIC ---
 
@@ -175,13 +178,16 @@ export function BudgetSankey({ incomes, expenses, categories, view }: BudgetSank
         calcTotalIncome += amount
         if (amount <= 0) return
 
-        const targetName = item.categoryId
-            ? categories.find(c => c.id === item.categoryId)?.name
-            : budgetNodeName
+        const cat = item.categoryId ? categories.find(c => c.id === item.categoryId) : null
+        const targetName = cat ? cat.name : budgetNodeName
+        const targetColor = cat ? cat.color : undefined
 
         if (targetName) {
+            // Ensure target node exists with color
+            if (targetColor) getNodeIndex(targetName, targetColor)
+
             links.push({
-                source: getNodeIndex(item.name),
+                source: getNodeIndex(item.name, '#22c55e'), // Default Green for income items
                 target: getNodeIndex(targetName),
                 value: amount
             })
@@ -196,14 +202,16 @@ export function BudgetSankey({ incomes, expenses, categories, view }: BudgetSank
         if (amount <= 0) return
 
         // Flow: Category/Budget -> Item
-        const sourceName = item.categoryId
-            ? categories.find(c => c.id === item.categoryId)?.name
-            : budgetNodeName
+        const cat = item.categoryId ? categories.find(c => c.id === item.categoryId) : null
+        const sourceName = cat ? cat.name : budgetNodeName
+        const sourceColor = cat ? cat.color : undefined
 
         if (sourceName) {
+            if (sourceColor) getNodeIndex(sourceName, sourceColor)
+
             links.push({
                 source: getNodeIndex(sourceName),
-                target: getNodeIndex(item.name),
+                target: getNodeIndex(item.name, '#ef4444'), // Default Red for expense items
                 value: amount
             })
         }
@@ -214,15 +222,17 @@ export function BudgetSankey({ incomes, expenses, categories, view }: BudgetSank
         const total = getCategoryTotal(cat.id, cat.type)
         if (total <= 0) return
 
+        // Ensure this category node exists with its color
+        getNodeIndex(cat.name, cat.color)
+
         if (cat.type === 'income') {
             // Income Category: Flows TO Parent or Budget
-            // (We assume items flow INTO this category, which we handled in step 1)
-            // Now link this category OUT.
-            const targetName = cat.parentId
-                ? categories.find(c => c.id === cat.parentId)?.name
-                : budgetNodeName
+            const parent = cat.parentId ? categories.find(c => c.id === cat.parentId) : null
+            const targetName = parent ? parent.name : budgetNodeName
+            const targetColor = parent ? parent.color : undefined
 
             if (targetName) {
+                if (targetColor) getNodeIndex(targetName, targetColor)
                 links.push({
                     source: getNodeIndex(cat.name),
                     target: getNodeIndex(targetName),
@@ -231,13 +241,12 @@ export function BudgetSankey({ incomes, expenses, categories, view }: BudgetSank
             }
         } else {
             // Expense Category: Flows FROM Parent or Budget
-            // (We assume items flow OUT of this category, handled in step 2)
-            // Now link flows INTO this category.
-            const sourceName = cat.parentId
-                ? categories.find(c => c.id === cat.parentId)?.name
-                : budgetNodeName
+            const parent = cat.parentId ? categories.find(c => c.id === cat.parentId) : null
+            const sourceName = parent ? parent.name : budgetNodeName
+            const sourceColor = parent ? parent.color : undefined
 
             if (sourceName) {
+                 if (sourceColor) getNodeIndex(sourceName, sourceColor)
                  links.push({
                      source: getNodeIndex(sourceName),
                      target: getNodeIndex(cat.name),
@@ -252,13 +261,13 @@ export function BudgetSankey({ incomes, expenses, categories, view }: BudgetSank
     if (savings > 0) {
       links.push({
         source: budgetNodeIndex,
-        target: getNodeIndex('Sparen / Verfügbar'),
+        target: getNodeIndex('Sparen / Verfügbar', '#10b981'), // Emerald-500
         value: savings
       })
     } else if (savings < 0) {
         const deficit = Math.abs(savings)
         links.push({
-            source: getNodeIndex('Defizit'),
+            source: getNodeIndex('Defizit', '#f43f5e'), // Rose-500
             target: budgetNodeIndex,
             value: deficit
         })
@@ -300,7 +309,33 @@ export function BudgetSankey({ incomes, expenses, categories, view }: BudgetSank
       <ResponsiveContainer width="100%" height="100%">
         <Sankey
           data={data}
-          node={{ strokeWidth: 0 }}
+          node={({ x, y, width, height, payload }: any) => {
+              const nodeFill = payload.fill || '#8884d8'
+
+              return (
+                <g>
+                  <rect
+                    x={x}
+                    y={y}
+                    width={width}
+                    height={height}
+                    fill={nodeFill}
+                    fillOpacity={1}
+                  />
+                  <text
+                    x={x + width / 2}
+                    y={y + height / 2}
+                    textAnchor="middle"
+                    dominantBaseline="middle"
+                    fill="#fff"
+                    fontSize={10}
+                    style={{ pointerEvents: 'none', textShadow: '0 0 2px rgba(0,0,0,0.5)' }}
+                  >
+                    {height > 20 ? payload.name : ''}
+                  </text>
+                </g>
+              )
+          }}
           nodePadding={50}
           margin={{
             left: 20,
@@ -308,17 +343,34 @@ export function BudgetSankey({ incomes, expenses, categories, view }: BudgetSank
             top: 20,
             bottom: 20,
           }}
-          link={{ stroke: '#8884d8', strokeOpacity: 0.3 }} // Hardcoded visible color
+          link={{ stroke: '#8884d8', strokeOpacity: 0.2 }}
         >
           <Tooltip
-             formatter={(value: any) => {
-                 // Custom tooltip to show flow direction
-                 return [
-                     typeof value === 'number'
-                       ? value.toLocaleString('de-CH', { style: 'currency', currency: 'CHF' })
-                       : value,
-                     'Betrag'
-                 ]
+             content={({ active, payload }) => {
+                 if (!active || !payload || !payload.length) return null
+                 const data = payload[0]
+                 const isLink = data.payload.source && data.payload.target
+
+                 return (
+                     <div className="bg-popover text-popover-foreground p-2 rounded-md shadow-md border text-sm">
+                        {isLink ? (
+                            <>
+                                <div className="font-semibold mb-1">Fluss</div>
+                                <div>{data.payload.source.name} → {data.payload.target.name}</div>
+                                <div className="font-mono mt-1">
+                                    {Number(data.value).toLocaleString('de-CH', { style: 'currency', currency: 'CHF' })}
+                                </div>
+                            </>
+                        ) : (
+                            <>
+                                <div className="font-semibold mb-1">{data.payload.name}</div>
+                                <div className="font-mono">
+                                    {Number(data.value).toLocaleString('de-CH', { style: 'currency', currency: 'CHF' })}
+                                </div>
+                            </>
+                        )}
+                     </div>
+                 )
              }}
           />
         </Sankey>

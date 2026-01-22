@@ -9,6 +9,7 @@ export interface Category {
   name: string
   type: ItemType
   parentId?: string
+  color?: string
 }
 
 export interface BudgetItem {
