@@ -435,6 +435,7 @@ export function BudgetSankey({ incomes, expenses, categories, view, totalIncome 
           }}
         >
           <Tooltip
+             isAnimationActive={false}
              content={({ active, payload }) => {
                  if (!active || !payload || !payload.length) return null
                  const data = payload[0]
