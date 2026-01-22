@@ -1,13 +1,19 @@
 import { Outlet, Link, useLocation } from 'react-router-dom'
-import { Menu, Moon, Sun, Home, Calculator, PieChart } from 'lucide-react'
+import { Menu, Moon, Sun, Home, Calculator, PieChart, User, LogIn, Shield } from 'lucide-react'
 import { Button } from './ui/Button'
 import { useTheme } from '../hooks/useTheme'
+import { useAuthStore } from '../stores/authStore'
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
 import { useEffect } from 'react'
 
 export function Layout() {
   const { theme, toggleTheme } = useTheme()
   const location = useLocation()
+  const { user, checkSession } = useAuthStore()
+
+  useEffect(() => {
+    checkSession()
+  }, [])
 
   const getPageTitle = () => {
     switch (location.pathname) {
@@ -17,6 +23,12 @@ export function Layout() {
         return 'Miete vs. Eigentum'
       case '/budget-planner':
         return 'Budget Planer'
+      case '/auth':
+        return 'Anmelden'
+      case '/profile':
+        return 'Profil'
+      case '/admin':
+        return 'Administration'
       default:
         return 'Finanz Tools'
     }
@@ -58,6 +70,36 @@ export function Layout() {
                         Budget Planer
                       </Link>
                     </DropdownMenu.Item>
+
+                    <DropdownMenu.Separator className="h-px bg-border my-1" />
+
+                    {!user && (
+                        <DropdownMenu.Item asChild>
+                            <Link to="/auth" className="flex items-center px-2 py-2 text-sm outline-none cursor-pointer hover:bg-accent hover:text-accent-foreground rounded-sm">
+                                <LogIn className="mr-2 h-4 w-4" />
+                                Anmelden
+                            </Link>
+                        </DropdownMenu.Item>
+                    )}
+
+                    {user && (
+                        <>
+                            <DropdownMenu.Item asChild>
+                                <Link to="/profile" className="flex items-center px-2 py-2 text-sm outline-none cursor-pointer hover:bg-accent hover:text-accent-foreground rounded-sm">
+                                    <User className="mr-2 h-4 w-4" />
+                                    Profil
+                                </Link>
+                            </DropdownMenu.Item>
+                            {user.isAdmin && (
+                                <DropdownMenu.Item asChild>
+                                    <Link to="/admin" className="flex items-center px-2 py-2 text-sm outline-none cursor-pointer hover:bg-accent hover:text-accent-foreground rounded-sm">
+                                        <Shield className="mr-2 h-4 w-4" />
+                                        Administration
+                                    </Link>
+                                </DropdownMenu.Item>
+                            )}
+                        </>
+                    )}
                   </DropdownMenu.Content>
                 </DropdownMenu.Portal>
               </DropdownMenu.Root>
@@ -68,15 +110,23 @@ export function Layout() {
               </div>
             </div>
 
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={toggleTheme}
-              className="dark:ring-1 dark:ring-border"
-              aria-label={theme === 'light' ? 'Zu Dark Mode wechseln' : 'Zu Light Mode wechseln'}
-            >
-              {theme === 'light' ? <Moon className="h-5 w-5" /> : <Sun className="h-5 w-5" />}
-            </Button>
+            <div className="flex items-center gap-2">
+                <Button asChild variant="ghost" size="sm" className="hidden sm:flex">
+                    <Link to={user ? "/profile" : "/auth"}>
+                        {user ? <User className="h-5 w-5" /> : <LogIn className="h-5 w-5" />}
+                    </Link>
+                </Button>
+
+                <Button
+                variant="ghost"
+                size="sm"
+                onClick={toggleTheme}
+                className="dark:ring-1 dark:ring-border"
+                aria-label={theme === 'light' ? 'Zu Dark Mode wechseln' : 'Zu Light Mode wechseln'}
+                >
+                {theme === 'light' ? <Moon className="h-5 w-5" /> : <Sun className="h-5 w-5" />}
+                </Button>
+            </div>
           </div>
         </div>
       </header>

@@ -24,6 +24,7 @@ interface ScenarioStore {
   recalculateScenario: (id: string) => void
   exportScenarios: () => string
   importScenarios: (json: string) => void
+  setScenarios: (scenarios: Scenario[]) => void
 }
 
 const getDefaultParams = (): CalculationParams => {
@@ -206,6 +207,11 @@ export const useScenarioStore = create<ScenarioStore>()(
           console.error('Failed to import scenarios:', error)
         }
       },
+
+      setScenarios: (scenarios) => set({
+        scenarios: scenarios,
+        currentScenarioId: scenarios.length > 0 ? scenarios[0].id : null
+      }),
     }),
     {
       name: 'finanztool-scenarios',

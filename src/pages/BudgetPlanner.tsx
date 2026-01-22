@@ -5,21 +5,40 @@ import { BudgetList } from '../components/budget/BudgetList'
 import { CategoryManager } from '../components/budget/CategoryManager'
 import { BudgetSankey } from '../components/charts/BudgetSankey'
 import { Button } from '../components/ui/Button'
-import { Download, Upload } from 'lucide-react'
+import { Download, Upload, Plus, Copy, Trash2, Edit2, Check, X } from 'lucide-react'
 
 export type ViewMode = Frequency | 'percent'
 
 export function BudgetPlanner() {
   const {
-    incomes, expenses, categories,
+    configs, currentConfigId,
+    createConfig, switchConfig, renameConfig, deleteConfig, duplicateConfig,
     addIncome, removeIncome, updateIncome,
     addExpense, removeExpense, updateExpense,
-    importData, exportData
+    importData, exportData,
+    getCurrentConfig
   } = useBudgetStore()
+
   const [view, setView] = useState<ViewMode>('monthly')
+  const [isRenaming, setIsRenaming] = useState(false)
+  const [newName, setNewName] = useState('')
   const fileInputRef = useRef<HTMLInputElement>(null)
 
-  // Calculate base totals (defaulting to monthly for calculation if view is percent)
+  const currentConfig = getCurrentConfig()
+
+  // Guard: if no config (should not happen due to migrate/default), show something
+  if (!currentConfig) {
+      return (
+          <div className="container mx-auto p-8 text-center">
+              <p>Keine Budget-Konfiguration gefunden.</p>
+              <Button onClick={() => createConfig("Mein Budget")}>Neues Budget erstellen</Button>
+          </div>
+      )
+  }
+
+  const { incomes, expenses, categories } = currentConfig
+
+  // Calculate base totals
   const calcView = view === 'percent' ? 'monthly' : view
   const totalIncome = calculateTotal(incomes, calcView)
   const totalExpenses = calculateTotal(expenses, calcView)
@@ -32,7 +51,7 @@ export function BudgetPlanner() {
     const url = URL.createObjectURL(blob)
     const link = document.createElement('a')
     link.href = url
-    link.download = `budget-plan-${new Date().toISOString().split('T')[0]}.json`
+    link.download = `budget-${currentConfig.name}-${new Date().toISOString().split('T')[0]}.json`
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
@@ -57,68 +76,124 @@ export function BudgetPlanner() {
       }
     }
     reader.readAsText(file)
-    // Reset input
     if (fileInputRef.current) fileInputRef.current.value = ''
+  }
+
+  const startRenaming = () => {
+      setNewName(currentConfig.name)
+      setIsRenaming(true)
+  }
+
+  const saveRename = () => {
+      if (newName.trim()) {
+          renameConfig(currentConfig.id, newName)
+      }
+      setIsRenaming(false)
   }
 
   return (
     <div className="container mx-auto px-4 py-8 space-y-8">
-      {/* Header Controls */}
+      {/* Header & Config Switcher */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold text-primary">Budget Planer</h1>
           <p className="text-muted-foreground">Visualisieren Sie Ihre Geldflüsse</p>
         </div>
 
-        <div className="flex items-center gap-2 flex-wrap">
+        <div className="flex items-center gap-2 bg-card border rounded-lg p-1">
+            <select
+                value={currentConfigId || ''}
+                onChange={(e) => switchConfig(e.target.value)}
+                className="bg-transparent text-sm font-medium px-2 py-1 outline-none max-w-[150px] truncate"
+            >
+                {configs.map(c => (
+                    <option key={c.id} value={c.id}>{c.name}</option>
+                ))}
+            </select>
+            <div className="h-4 w-px bg-border mx-1" />
+
+            {isRenaming ? (
+                <div className="flex items-center gap-1">
+                    <input
+                        value={newName}
+                        onChange={e => setNewName(e.target.value)}
+                        className="w-32 px-1 py-0.5 text-sm border rounded"
+                        autoFocus
+                    />
+                    <Button size="sm" variant="ghost" onClick={saveRename} className="h-7 w-7 p-0"><Check className="h-4 w-4 text-green-600" /></Button>
+                    <Button size="sm" variant="ghost" onClick={() => setIsRenaming(false)} className="h-7 w-7 p-0"><X className="h-4 w-4" /></Button>
+                </div>
+            ) : (
+                <Button size="sm" variant="ghost" onClick={startRenaming} title="Umbenennen" className="h-7 w-7 p-0">
+                    <Edit2 className="h-4 w-4" />
+                </Button>
+            )}
+
+            <Button size="sm" variant="ghost" onClick={() => createConfig("Neues Budget")} title="Neu" className="h-7 w-7 p-0">
+                <Plus className="h-4 w-4" />
+            </Button>
+            <Button size="sm" variant="ghost" onClick={() => duplicateConfig(currentConfig.id)} title="Duplizieren" className="h-7 w-7 p-0">
+                <Copy className="h-4 w-4" />
+            </Button>
+            {configs.length > 1 && (
+                <Button size="sm" variant="ghost" onClick={() => deleteConfig(currentConfig.id)} title="Löschen" className="h-7 w-7 p-0 text-destructive hover:text-destructive">
+                    <Trash2 className="h-4 w-4" />
+                </Button>
+            )}
+        </div>
+      </div>
+
+      {/* Toolbar */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <CategoryManager />
 
-          <div className="bg-card border rounded-lg p-1 flex items-center">
-            <button
-              onClick={() => setView('monthly')}
-              className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
-                view === 'monthly' ? 'bg-primary text-primary-foreground' : 'hover:bg-muted'
-              }`}
-            >
-              Monatlich
-            </button>
-            <button
-              onClick={() => setView('yearly')}
-              className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
-                view === 'yearly' ? 'bg-primary text-primary-foreground' : 'hover:bg-muted'
-              }`}
-            >
-              Jährlich
-            </button>
-            <button
-              onClick={() => setView('percent')}
-              className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
-                view === 'percent' ? 'bg-primary text-primary-foreground' : 'hover:bg-muted'
-              }`}
-            >
-              Prozent
-            </button>
+          <div className="flex items-center gap-2 flex-wrap">
+            <div className="bg-card border rounded-lg p-1 flex items-center">
+                <button
+                onClick={() => setView('monthly')}
+                className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
+                    view === 'monthly' ? 'bg-primary text-primary-foreground' : 'hover:bg-muted'
+                }`}
+                >
+                Monatlich
+                </button>
+                <button
+                onClick={() => setView('yearly')}
+                className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
+                    view === 'yearly' ? 'bg-primary text-primary-foreground' : 'hover:bg-muted'
+                }`}
+                >
+                Jährlich
+                </button>
+                <button
+                onClick={() => setView('percent')}
+                className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
+                    view === 'percent' ? 'bg-primary text-primary-foreground' : 'hover:bg-muted'
+                }`}
+                >
+                Prozent
+                </button>
+            </div>
+
+            <div className="h-6 w-px bg-border mx-2" />
+
+            <Button variant="outline" size="sm" onClick={() => fileInputRef.current?.click()}>
+                <Upload className="h-4 w-4 mr-2" />
+                Import
+            </Button>
+            <input
+                type="file"
+                ref={fileInputRef}
+                onChange={handleImport}
+                accept=".json"
+                className="hidden"
+            />
+
+            <Button variant="outline" size="sm" onClick={handleExport}>
+                <Download className="h-4 w-4 mr-2" />
+                Export
+            </Button>
           </div>
-
-          <div className="h-6 w-px bg-border mx-2" />
-
-          <Button variant="outline" size="sm" onClick={() => fileInputRef.current?.click()}>
-            <Upload className="h-4 w-4 mr-2" />
-            Import
-          </Button>
-          <input
-            type="file"
-            ref={fileInputRef}
-            onChange={handleImport}
-            accept=".json"
-            className="hidden"
-          />
-
-          <Button variant="outline" size="sm" onClick={handleExport}>
-            <Download className="h-4 w-4 mr-2" />
-            Export
-          </Button>
-        </div>
       </div>
 
       {/* KPI Cards */}
@@ -152,7 +227,7 @@ export function BudgetPlanner() {
         expenses={expenses}
         categories={categories}
         view={view}
-        totalIncome={totalIncome} // Pass total income for % calc
+        totalIncome={totalIncome}
       />
 
       {/* Input Lists */}
