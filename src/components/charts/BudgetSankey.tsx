@@ -296,6 +296,40 @@ export function BudgetSankey({ incomes, expenses, categories, view, totalIncome 
 
     let finalLinks = Array.from(aggregatedLinks.values())
 
+    // --- SORTING LOGIC ---
+    // Calculate node values (max of input or output)
+    const nodeIns = new Map<number, number>()
+    const nodeOuts = new Map<number, number>()
+
+    finalLinks.forEach(l => {
+      nodeOuts.set(l.source, (nodeOuts.get(l.source) || 0) + l.value)
+      nodeIns.set(l.target, (nodeIns.get(l.target) || 0) + l.value)
+    })
+
+    const nodeIndices = nodes.map((_, i) => i)
+
+    // Sort indices by value descending
+    nodeIndices.sort((a, b) => {
+      const valA = Math.max(nodeIns.get(a) || 0, nodeOuts.get(a) || 0)
+      const valB = Math.max(nodeIns.get(b) || 0, nodeOuts.get(b) || 0)
+      return valB - valA
+    })
+
+    // Map old index -> new index
+    const oldToNew = new Map<number, number>()
+    nodeIndices.forEach((oldIndex, newIndex) => {
+      oldToNew.set(oldIndex, newIndex)
+    })
+
+    // Reconstruct nodes and links
+    const sortedNodes = nodeIndices.map(i => nodes[i])
+    finalLinks = finalLinks.map(l => ({
+      ...l,
+      source: oldToNew.get(l.source)!,
+      target: oldToNew.get(l.target)!
+    }))
+    // ---------------------
+
     // Convert to Percentage if view is percent
     if (view === 'percent' && totalIncome > 0) {
         finalLinks = finalLinks.map(l => ({
@@ -305,7 +339,7 @@ export function BudgetSankey({ incomes, expenses, categories, view, totalIncome 
     }
 
     return {
-        nodes,
+        nodes: sortedNodes,
         links: finalLinks
     }
   }, [incomes, expenses, categories, view, totalIncome])
@@ -331,7 +365,6 @@ export function BudgetSankey({ incomes, expenses, categories, view, totalIncome 
         <Sankey
           data={data}
           iterations={64}
-          nodeSort={(a: any, b: any) => (b.value || 0) - (a.value || 0)}
           node={({ x, y, width, height, payload, containerWidth }: any) => {
               const nodeFill = payload.fill || '#8884d8'
 
