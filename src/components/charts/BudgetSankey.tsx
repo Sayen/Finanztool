@@ -44,55 +44,7 @@ export function BudgetSankey({ incomes, expenses, categories, view, totalIncome 
       return amount
     }
 
-    // --- Process Incomes ---
-    let totalIncome = 0
-    const incomeCategories = categories.filter(c => c.type === 'income')
-
-    // 1. Group Incomes by Category (or Direct)
-    const categoryFlows = new Map<string, number>() // Category ID -> Amount
-
-    incomes.forEach(item => {
-      const amount = getAmount(item)
-      totalIncome += amount
-
-      if (item.categoryId) {
-        // Flow: Item -> Category
-
-        // Find category
-        const cat = incomeCategories.find(c => c.id === item.categoryId)
-        if (cat) {
-             const currentCat = cat
-             const currentVal = categoryFlows.get(currentCat.id) || 0
-             categoryFlows.set(currentCat.id, currentVal + amount)
-
-             // Ensure this category node exists
-             getNodeIndex(cat.name, cat.color)
-
-             links.push({
-                 source: getNodeIndex(item.name),
-                 target: getNodeIndex(cat.name),
-                 value: amount
-             })
-
-        } else {
-            // Category not found, flow direct to budget
-             links.push({
-                source: getNodeIndex(item.name),
-                target: budgetNodeIndex,
-                value: amount
-             })
-        }
-      } else {
-        // Direct Flow: Item -> Budget
-        links.push({
-          source: getNodeIndex(item.name),
-          target: budgetNodeIndex,
-          value: amount
-        })
-      }
-    })
-
-    // 2. Process Income Category Flows (Category -> Parent/Budget)
+    // Helper for category totals (moved up for sorting)
     const getCategoryTotal = (catId: string, type: 'income' | 'expense'): number => {
         let total = 0
 
@@ -109,60 +61,27 @@ export function BudgetSankey({ incomes, expenses, categories, view, totalIncome 
         return total
     }
 
-    // Generate links for Categories
-    categories.forEach(cat => {
-        const total = getCategoryTotal(cat.id, cat.type)
-        if (total === 0) return // Skip empty categories
-
-        if (cat.type === 'income') {
-             // Flow: Category -> Parent/Budget
-             const targetIndex = cat.parentId
-                ? getNodeIndex(categories.find(c => c.id === cat.parentId)?.name || 'Budget') // Fallback if parent missing
-                : budgetNodeIndex
-
-             links.push({
-                 source: getNodeIndex(cat.name),
-                 target: targetIndex,
-                 value: total
-             })
-        } else {
-            // Flow: Parent/Budget -> Category
-            // For expenses, the logic is reversed.
-            // Items flow OUT of Category.
-            // So Category must receive flow FROM Parent/Budget.
-
-            const sourceIndex = cat.parentId
-                ? getNodeIndex(categories.find(c => c.id === cat.parentId)?.name || 'Budget')
-                : budgetNodeIndex
-
-            links.push({
-                source: sourceIndex,
-                target: getNodeIndex(cat.name),
-                value: total
-            })
-        }
+    // --- SORTING ---
+    // Sort inputs by amount (descending) to help Sankey layout minimize crossings
+    const sortedIncomes = [...incomes].sort((a, b) => getAmount(b) - getAmount(a))
+    const sortedExpenses = [...expenses].sort((a, b) => getAmount(b) - getAmount(a))
+    const sortedCategories = [...categories].sort((a, b) => {
+        const valA = getCategoryTotal(a.id, a.type)
+        const valB = getCategoryTotal(b.id, b.type)
+        return valB - valA
     })
 
-    // Now we need links for Items -> Category (Income) and Category -> Item (Expense)
-    // We did Income Items partly above, but let's redo uniformly.
-    // Reset links to be safe? No, let's just clear the "Income Logic" above and do it clean.
-
-    // CLEAR EVERYTHING
-    nodes.length = 0
-    links.length = 0
-    // Re-init Budget
-    getNodeIndex(budgetNodeName, '#64748b')
 
     // --- UNIFIED LOGIC ---
 
     // 1. Income Items
     let calcTotalIncome = 0
-    incomes.forEach(item => {
+    sortedIncomes.forEach(item => {
         const amount = getAmount(item)
         calcTotalIncome += amount
         if (amount <= 0) return
 
-        const cat = item.categoryId ? categories.find(c => c.id === item.categoryId) : null
+        const cat = item.categoryId ? sortedCategories.find(c => c.id === item.categoryId) : null
         const targetName = cat ? cat.name : budgetNodeName
         const targetColor = cat ? cat.color : undefined
 
@@ -180,13 +99,13 @@ export function BudgetSankey({ incomes, expenses, categories, view, totalIncome 
 
     // 2. Expense Items
     let calcTotalExpense = 0
-    expenses.forEach(item => {
+    sortedExpenses.forEach(item => {
         const amount = getAmount(item)
         calcTotalExpense += amount
         if (amount <= 0) return
 
         // Flow: Category/Budget -> Item
-        const cat = item.categoryId ? categories.find(c => c.id === item.categoryId) : null
+        const cat = item.categoryId ? sortedCategories.find(c => c.id === item.categoryId) : null
         const sourceName = cat ? cat.name : budgetNodeName
         const sourceColor = cat ? cat.color : undefined
 
@@ -202,7 +121,7 @@ export function BudgetSankey({ incomes, expenses, categories, view, totalIncome 
     })
 
     // 3. Categories (Internal Links)
-    categories.forEach(cat => {
+    sortedCategories.forEach(cat => {
         const total = getCategoryTotal(cat.id, cat.type)
         if (total <= 0) return
 
@@ -211,7 +130,7 @@ export function BudgetSankey({ incomes, expenses, categories, view, totalIncome 
 
         if (cat.type === 'income') {
             // Income Category: Flows TO Parent or Budget
-            const parent = cat.parentId ? categories.find(c => c.id === cat.parentId) : null
+            const parent = cat.parentId ? sortedCategories.find(c => c.id === cat.parentId) : null
             const targetName = parent ? parent.name : budgetNodeName
             const targetColor = parent ? parent.color : undefined
 
@@ -225,7 +144,7 @@ export function BudgetSankey({ incomes, expenses, categories, view, totalIncome 
             }
         } else {
             // Expense Category: Flows FROM Parent or Budget
-            const parent = cat.parentId ? categories.find(c => c.id === cat.parentId) : null
+            const parent = cat.parentId ? sortedCategories.find(c => c.id === cat.parentId) : null
             const sourceName = parent ? parent.name : budgetNodeName
             const sourceColor = parent ? parent.color : undefined
 
@@ -297,27 +216,28 @@ export function BudgetSankey({ incomes, expenses, categories, view, totalIncome 
   // Base height 600px, add 35px per node if we have many nodes
   const dynamicHeight = Math.max(600, data.nodes.length * 35)
 
+  // Recharts Sankey types might be incomplete in this version, so we cast to any for nodeSort
+  // to avoid TS errors while keeping the functionality which is supported by the underlying lib.
+  const SankeyComponent = Sankey as any
+
   return (
     <div
       className="w-full bg-card rounded-xl border p-4 overflow-x-auto overflow-y-hidden"
       style={{ height: dynamicHeight }}
     >
       <ResponsiveContainer width="100%" height="100%">
-        <Sankey
+        <SankeyComponent
           data={data}
           iterations={64}
+          nodeSort={(a: any, b: any) => {
+              // Sort nodes by value (descending) to minimize crossing
+              // Recharts/d3-sankey uses this to order nodes in each column
+              return (b.value || 0) - (a.value || 0)
+          }}
           node={({ x, y, width, height, payload }: any) => {
               const nodeFill = payload.fill || '#8884d8'
 
               // Text Positioning Logic
-              // User request:
-              // - Income (Left side/Layer 0) -> Text on Right of bar
-              // - Others (Budget, Expenses) -> Text on Left of bar
-
-              // We use a geometric check to identify the Income layer.
-              // Margin-left is 100. The first layer will be around x=100.
-              // Subsequent layers will be significantly further right.
-              // 250px provides a safe buffer even on small screens or with wide nodes.
               const isIncomeLayer = x < 250
 
               let textX = 0
@@ -335,6 +255,11 @@ export function BudgetSankey({ incomes, expenses, categories, view, totalIncome 
                   textAnchor = 'end'
               }
 
+              // Format the value for the label
+              const valueText = view === 'percent'
+                  ? `${Number(payload.value).toFixed(1)}%`
+                  : Number(payload.value).toLocaleString('de-CH', { style: 'currency', currency: 'CHF', maximumFractionDigits: 0 })
+
               return (
                 <g>
                   <rect
@@ -345,24 +270,35 @@ export function BudgetSankey({ incomes, expenses, categories, view, totalIncome 
                     fill={nodeFill}
                     fillOpacity={1}
                   />
-                  <text
-                    x={textX}
-                    y={y + height / 2}
-                    textAnchor={textAnchor}
-                    dominantBaseline="middle"
-                    fill={textColor}
-                    fontSize={12}
-                    fontWeight="500"
-                    style={{ pointerEvents: 'none', textShadow }}
-                  >
-                    {height > 10 ? payload.name : ''}
-                  </text>
+                  {height > 10 && (
+                      <text
+                        x={textX}
+                        y={y + height / 2}
+                        textAnchor={textAnchor}
+                        fill={textColor}
+                        fontSize={12}
+                        fontWeight="500"
+                        style={{ pointerEvents: 'none', textShadow }}
+                      >
+                         {/* Name on first line */}
+                         <tspan x={textX} dy={height > 20 ? "-0.4em" : "0.3em"}>
+                             {payload.name}
+                         </tspan>
+
+                         {/* Amount on second line (if height permits) */}
+                         {height > 20 && (
+                             <tspan x={textX} dy="1.2em" fontSize={10} fillOpacity={0.7} fontWeight="400">
+                                 {valueText}
+                             </tspan>
+                         )}
+                      </text>
+                  )}
                 </g>
               )
           }}
           nodePadding={50}
           margin={{
-            left: 100, // Increase margins for outside labels
+            left: 100,
             right: 100,
             top: 20,
             bottom: 20,
@@ -436,7 +372,7 @@ export function BudgetSankey({ incomes, expenses, categories, view, totalIncome 
                  )
              }}
           />
-        </Sankey>
+        </SankeyComponent>
       </ResponsiveContainer>
     </div>
   )
