@@ -104,6 +104,8 @@ export function Layout() {
                 </DropdownMenu.Portal>
               </DropdownMenu.Root>
 
+              <img src="/logo.png" alt="Finanz Tools Logo" className="h-10 w-auto" />
+
               <div className="flex flex-col">
                 <h1 className="text-lg font-bold text-primary leading-tight">{getPageTitle()}</h1>
                 <p className="text-xs text-muted-foreground hidden sm:block">Schweizer Finanz-Tools</p>
