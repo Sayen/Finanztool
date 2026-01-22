@@ -3,6 +3,7 @@ import { Menu, Moon, Sun, Home, Calculator, PieChart } from 'lucide-react'
 import { Button } from './ui/Button'
 import { useTheme } from '../hooks/useTheme'
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
+import { useEffect } from 'react'
 
 export function Layout() {
   const { theme, toggleTheme } = useTheme()
@@ -20,6 +21,10 @@ export function Layout() {
         return 'Finanz Tools'
     }
   }
+
+  useEffect(() => {
+    document.title = `${getPageTitle()} | Finanz Tools Schweiz`
+  }, [location.pathname])
 
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col">
