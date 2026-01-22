@@ -6,7 +6,7 @@ import type { Category, ItemType } from '../../stores/budgetStore'
 import * as Dialog from '@radix-ui/react-dialog'
 
 export function CategoryManager() {
-  const { categories, addCategory, removeCategory, updateCategory } = useBudgetStore()
+  const { addCategory, removeCategory, updateCategory, getCurrentConfig } = useBudgetStore()
   const [isOpen, setIsOpen] = useState(false)
   const [newCatName, setNewCatName] = useState('')
   const [newCatType, setNewCatType] = useState<ItemType>('expense')
@@ -17,6 +17,9 @@ export function CategoryManager() {
   const [editName, setEditName] = useState('')
   const [editColor, setEditColor] = useState('')
   const [editParent, setEditParent] = useState<string>('')
+
+  const config = getCurrentConfig()
+  const categories = config?.categories || []
 
   const handleAdd = (e: React.FormEvent) => {
     e.preventDefault()
