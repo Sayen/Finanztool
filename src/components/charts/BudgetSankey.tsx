@@ -318,11 +318,20 @@ export function BudgetSankey({ incomes, expenses, categories, view, totalIncome 
     )
   }
 
+  // Calculate dynamic height based on node count to prevent overlap
+  // Base height 600px, add 35px per node if we have many nodes
+  const dynamicHeight = Math.max(600, data.nodes.length * 35)
+
   return (
-    <div className="h-[600px] w-full bg-card rounded-xl border p-4">
+    <div
+      className="w-full bg-card rounded-xl border p-4 overflow-x-auto overflow-y-hidden"
+      style={{ height: dynamicHeight }}
+    >
       <ResponsiveContainer width="100%" height="100%">
         <Sankey
           data={data}
+          iterations={64}
+          nodeSort={(a: any, b: any) => (b.value || 0) - (a.value || 0)}
           node={({ x, y, width, height, payload, containerWidth }: any) => {
               const nodeFill = payload.fill || '#8884d8'
 
