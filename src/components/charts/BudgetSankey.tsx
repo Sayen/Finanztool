@@ -1,15 +1,17 @@
 import { ResponsiveContainer, Sankey, Tooltip } from 'recharts'
-import type { BudgetItem, Frequency, Category } from '../../stores/budgetStore'
+import type { BudgetItem, Category } from '../../stores/budgetStore'
+import type { ViewMode } from '../../pages/BudgetPlanner'
 import { useMemo } from 'react'
 
 interface BudgetSankeyProps {
   incomes: BudgetItem[]
   expenses: BudgetItem[]
   categories: Category[]
-  view: Frequency
+  view: ViewMode
+  totalIncome?: number
 }
 
-export function BudgetSankey({ incomes, expenses, categories, view }: BudgetSankeyProps) {
+export function BudgetSankey({ incomes, expenses, categories, view, totalIncome = 0 }: BudgetSankeyProps) {
   const data = useMemo(() => {
     const nodes: { name: string; fill?: string }[] = []
     const links: { source: number; target: number; value: number }[] = []
@@ -33,8 +35,12 @@ export function BudgetSankey({ incomes, expenses, categories, view }: BudgetSank
     // Helper to calculate normalized amount
     const getAmount = (item: BudgetItem) => {
       let amount = item.amount
-      if (view === 'monthly' && item.frequency === 'yearly') amount /= 12
-      if (view === 'yearly' && item.frequency === 'monthly') amount *= 12
+
+      const calcView = view === 'percent' ? 'monthly' : view
+
+      if (calcView === 'monthly' && item.frequency === 'yearly') amount /= 12
+      if (calcView === 'yearly' && item.frequency === 'monthly') amount *= 12
+
       return amount
     }
 
@@ -55,15 +61,18 @@ export function BudgetSankey({ incomes, expenses, categories, view }: BudgetSank
         // Find category
         const cat = incomeCategories.find(c => c.id === item.categoryId)
         if (cat) {
+             const currentCat = cat
+             const currentVal = categoryFlows.get(currentCat.id) || 0
+             categoryFlows.set(currentCat.id, currentVal + amount)
+
+             // Ensure this category node exists
+             getNodeIndex(cat.name, cat.color)
+
              links.push({
                  source: getNodeIndex(item.name),
                  target: getNodeIndex(cat.name),
                  value: amount
              })
-
-             const currentCat = cat
-             const currentVal = categoryFlows.get(currentCat.id) || 0
-             categoryFlows.set(currentCat.id, currentVal + amount)
 
         } else {
             // Category not found, flow direct to budget
@@ -273,12 +282,7 @@ export function BudgetSankey({ incomes, expenses, categories, view }: BudgetSank
         })
     }
 
-    // Deduplicate links?
-    // If multiple items have same name, we might have issues.
-    // Ideally items should be unique or aggregated.
-    // Recharts handles multiple links between same nodes by stacking them.
-    // But let's aggregate same source-target pairs to be cleaner.
-
+    // Deduplicate links
     const aggregatedLinks = new Map<string, { source: number, target: number, value: number }>()
     links.forEach(l => {
         const key = `${l.source}-${l.target}`
@@ -290,11 +294,21 @@ export function BudgetSankey({ incomes, expenses, categories, view }: BudgetSank
         }
     })
 
+    let finalLinks = Array.from(aggregatedLinks.values())
+
+    // Convert to Percentage if view is percent
+    if (view === 'percent' && totalIncome > 0) {
+        finalLinks = finalLinks.map(l => ({
+            ...l,
+            value: (l.value / totalIncome) * 100
+        }))
+    }
+
     return {
         nodes,
-        links: Array.from(aggregatedLinks.values())
+        links: finalLinks
     }
-  }, [incomes, expenses, categories, view])
+  }, [incomes, expenses, categories, view, totalIncome])
 
   if (data.nodes.length === 0 || data.links.length === 0) {
     return (
@@ -309,8 +323,50 @@ export function BudgetSankey({ incomes, expenses, categories, view }: BudgetSank
       <ResponsiveContainer width="100%" height="100%">
         <Sankey
           data={data}
-          node={({ x, y, width, height, payload }: any) => {
+          node={({ x, y, width, height, payload, containerWidth }: any) => {
               const nodeFill = payload.fill || '#8884d8'
+
+              // Text Positioning Logic
+              const centerX = x + width / 2
+              const isLeft = x < containerWidth / 3
+              const isRight = x > (containerWidth * 2) / 3
+
+              let textX = centerX
+              let textAnchor: 'start' | 'middle' | 'end' = 'middle'
+              let textColor = '#fff'
+              let textShadow = '0 0 2px rgba(0,0,0,0.5)'
+
+              // If bar is too thin, move text outside
+              if (width < 60 || height < 20) {
+                  textColor = 'currentColor' // Use theme color
+                  textShadow = 'none'
+
+                  if (isLeft) {
+                      textX = x + width + 6
+                      textAnchor = 'start'
+                  } else if (isRight) {
+                      textX = x - 6
+                      textAnchor = 'end'
+                  } else {
+                      // Middle nodes: if thin, keep above or just try center with background?
+                      // Let's keep center but with shadow for now, or just hide if very small?
+                      // Users said text in center is hard to read.
+                      // Let's force it slightly above?
+                  }
+              }
+
+              // Just enforce left/right labeling for input/output nodes regardless of width
+              if (isLeft) {
+                 textX = x - 6
+                 textAnchor = 'end'
+                 textColor = 'var(--foreground)' // Use CSS var for theme compatibility
+                 textShadow = 'none'
+              } else if (isRight) {
+                 textX = x + width + 6
+                 textAnchor = 'start'
+                 textColor = 'var(--foreground)'
+                 textShadow = 'none'
+              }
 
               return (
                 <g>
@@ -323,27 +379,60 @@ export function BudgetSankey({ incomes, expenses, categories, view }: BudgetSank
                     fillOpacity={1}
                   />
                   <text
-                    x={x + width / 2}
+                    x={textX}
                     y={y + height / 2}
-                    textAnchor="middle"
+                    textAnchor={textAnchor}
                     dominantBaseline="middle"
-                    fill="#fff"
-                    fontSize={10}
-                    style={{ pointerEvents: 'none', textShadow: '0 0 2px rgba(0,0,0,0.5)' }}
+                    fill={textColor}
+                    fontSize={12}
+                    fontWeight="500"
+                    style={{ pointerEvents: 'none', textShadow }}
                   >
-                    {height > 20 ? payload.name : ''}
+                    {height > 10 ? payload.name : ''}
                   </text>
                 </g>
               )
           }}
           nodePadding={50}
           margin={{
-            left: 20,
-            right: 20,
+            left: 100, // Increase margins for outside labels
+            right: 100,
             top: 20,
             bottom: 20,
           }}
-          link={{ stroke: '#8884d8', strokeOpacity: 0.2 }}
+          link={(props: any) => {
+              const { sourceX, sourceY, targetX, targetY, linkWidth, index, payload } = props
+              const sourceColor = payload.source.fill || '#8884d8'
+              const targetColor = payload.target.fill || '#8884d8'
+              const gradientId = `linkGradient-${index}`
+
+              return (
+                  <g>
+                      <defs>
+                          <linearGradient id={gradientId} x1="0%" y1="0%" x2="100%" y2="0%">
+                              <stop offset="0%" stopColor={sourceColor} stopOpacity={0.4} />
+                              <stop offset="100%" stopColor={targetColor} stopOpacity={0.4} />
+                          </linearGradient>
+                      </defs>
+                      <path
+                        d={`
+                          M${sourceX},${sourceY + linkWidth / 2}
+                          C${sourceX + (targetX - sourceX) / 2},${sourceY + linkWidth / 2}
+                           ${sourceX + (targetX - sourceX) / 2},${targetY + linkWidth / 2}
+                           ${targetX},${targetY + linkWidth / 2}
+                          L${targetX},${targetY - linkWidth / 2}
+                          C${sourceX + (targetX - sourceX) / 2},${targetY - linkWidth / 2}
+                           ${sourceX + (targetX - sourceX) / 2},${sourceY - linkWidth / 2}
+                           ${sourceX},${sourceY - linkWidth / 2}
+                          Z
+                        `}
+                        fill={`url(#${gradientId})`}
+                        stroke="none"
+                        onMouseEnter={() => {}}
+                      />
+                  </g>
+              )
+          }}
         >
           <Tooltip
              content={({ active, payload }) => {
@@ -358,14 +447,20 @@ export function BudgetSankey({ incomes, expenses, categories, view }: BudgetSank
                                 <div className="font-semibold mb-1">Fluss</div>
                                 <div>{data.payload.source.name} → {data.payload.target.name}</div>
                                 <div className="font-mono mt-1">
-                                    {Number(data.value).toLocaleString('de-CH', { style: 'currency', currency: 'CHF' })}
+                                    {view === 'percent'
+                                        ? `${Number(data.value).toFixed(1)}%`
+                                        : Number(data.value).toLocaleString('de-CH', { style: 'currency', currency: 'CHF' })
+                                    }
                                 </div>
                             </>
                         ) : (
                             <>
                                 <div className="font-semibold mb-1">{data.payload.name}</div>
                                 <div className="font-mono">
-                                    {Number(data.value).toLocaleString('de-CH', { style: 'currency', currency: 'CHF' })}
+                                    {view === 'percent'
+                                        ? `${Number(data.value).toFixed(1)}%`
+                                        : Number(data.value).toLocaleString('de-CH', { style: 'currency', currency: 'CHF' })
+                                    }
                                 </div>
                             </>
                         )}

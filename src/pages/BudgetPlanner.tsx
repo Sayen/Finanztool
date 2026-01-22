@@ -7,6 +7,8 @@ import { BudgetSankey } from '../components/charts/BudgetSankey'
 import { Button } from '../components/ui/Button'
 import { Download, Upload } from 'lucide-react'
 
+export type ViewMode = Frequency | 'percent'
+
 export function BudgetPlanner() {
   const {
     incomes, expenses, categories,
@@ -14,11 +16,13 @@ export function BudgetPlanner() {
     addExpense, removeExpense, updateExpense,
     importData, exportData
   } = useBudgetStore()
-  const [view, setView] = useState<Frequency>('monthly')
+  const [view, setView] = useState<ViewMode>('monthly')
   const fileInputRef = useRef<HTMLInputElement>(null)
 
-  const totalIncome = calculateTotal(incomes, view)
-  const totalExpenses = calculateTotal(expenses, view)
+  // Calculate base totals (defaulting to monthly for calculation if view is percent)
+  const calcView = view === 'percent' ? 'monthly' : view
+  const totalIncome = calculateTotal(incomes, calcView)
+  const totalExpenses = calculateTotal(expenses, calcView)
   const savings = totalIncome - totalExpenses
   const savingsRate = totalIncome > 0 ? (savings / totalIncome) * 100 : 0
 
@@ -86,6 +90,14 @@ export function BudgetPlanner() {
             >
               Jährlich
             </button>
+            <button
+              onClick={() => setView('percent')}
+              className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
+                view === 'percent' ? 'bg-primary text-primary-foreground' : 'hover:bg-muted'
+              }`}
+            >
+              Prozent
+            </button>
           </div>
 
           <div className="h-6 w-px bg-border mx-2" />
@@ -135,7 +147,13 @@ export function BudgetPlanner() {
       </div>
 
       {/* Sankey Chart */}
-      <BudgetSankey incomes={incomes} expenses={expenses} categories={categories} view={view} />
+      <BudgetSankey
+        incomes={incomes}
+        expenses={expenses}
+        categories={categories}
+        view={view}
+        totalIncome={totalIncome} // Pass total income for % calc
+      />
 
       {/* Input Lists */}
       <div className="grid md:grid-cols-2 gap-8">
@@ -147,6 +165,8 @@ export function BudgetPlanner() {
           onRemove={removeIncome}
           onUpdate={updateIncome}
           type="income"
+          view={view}
+          totalIncome={totalIncome}
         />
         <BudgetList
           title="Ausgaben"
@@ -156,6 +176,8 @@ export function BudgetPlanner() {
           onRemove={removeExpense}
           onUpdate={updateExpense}
           type="expense"
+          view={view}
+          totalIncome={totalIncome}
         />
       </div>
     </div>

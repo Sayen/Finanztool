@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Plus, Trash2, Edit2, Check } from 'lucide-react'
 import { Button } from '../ui/Button'
 import type { BudgetItem, Frequency, Category } from '../../stores/budgetStore'
+import type { ViewMode } from '../../pages/BudgetPlanner'
 
 interface BudgetListProps {
   title: string
@@ -11,9 +12,11 @@ interface BudgetListProps {
   onRemove: (id: string) => void
   onUpdate: (id: string, item: Partial<BudgetItem>) => void
   type: 'income' | 'expense'
+  view?: ViewMode
+  totalIncome?: number
 }
 
-export function BudgetList({ title, items, categories, onAdd, onRemove, onUpdate, type }: BudgetListProps) {
+export function BudgetList({ title, items, categories, onAdd, onRemove, onUpdate, type, view = 'monthly', totalIncome = 0 }: BudgetListProps) {
   const [newItemName, setNewItemName] = useState('')
   const [newItemAmount, setNewItemAmount] = useState('')
   const [newItemFrequency, setNewItemFrequency] = useState<Frequency>('monthly')
@@ -72,6 +75,20 @@ export function BudgetList({ title, items, categories, onAdd, onRemove, onUpdate
       <div className="space-y-4 mb-6">
         {items.map((item) => {
           const catName = item.categoryId ? categories.find(c => c.id === item.categoryId)?.name : null
+
+          let displayAmount = item.amount
+          if (view === 'percent') {
+              // Calculate effective monthly amount first
+              let monthlyAmount = item.amount
+              if (item.frequency === 'yearly') monthlyAmount /= 12
+
+              if (totalIncome > 0) {
+                  displayAmount = (monthlyAmount / totalIncome) * 100
+              } else {
+                  displayAmount = 0
+              }
+          }
+
           return (
             <div key={item.id} className="flex items-center justify-between p-3 bg-muted/50 rounded-md group hover:bg-muted transition-colors">
               <div>
@@ -83,7 +100,10 @@ export function BudgetList({ title, items, categories, onAdd, onRemove, onUpdate
               </div>
               <div className="flex items-center gap-2">
                 <div className="font-mono font-medium mr-2">
-                  {item.amount.toLocaleString('de-CH', { style: 'currency', currency: 'CHF' })}
+                  {view === 'percent'
+                    ? `${displayAmount.toFixed(1)}%`
+                    : item.amount.toLocaleString('de-CH', { style: 'currency', currency: 'CHF' })
+                  }
                 </div>
                 <Button
                   variant="ghost"
