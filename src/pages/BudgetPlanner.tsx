@@ -2,12 +2,13 @@ import { useState, useRef } from 'react'
 import { useBudgetStore, calculateTotal } from '../stores/budgetStore'
 import type { Frequency } from '../stores/budgetStore'
 import { BudgetList } from '../components/budget/BudgetList'
+import { CategoryManager } from '../components/budget/CategoryManager'
 import { BudgetSankey } from '../components/charts/BudgetSankey'
 import { Button } from '../components/ui/Button'
 import { Download, Upload } from 'lucide-react'
 
 export function BudgetPlanner() {
-  const { incomes, expenses, addIncome, removeIncome, addExpense, removeExpense, importData, exportData } = useBudgetStore()
+  const { incomes, expenses, categories, addIncome, removeIncome, addExpense, removeExpense, importData, exportData } = useBudgetStore()
   const [view, setView] = useState<Frequency>('monthly')
   const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -60,7 +61,9 @@ export function BudgetPlanner() {
           <p className="text-muted-foreground">Visualisieren Sie Ihre Geldflüsse</p>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
+          <CategoryManager />
+
           <div className="bg-card border rounded-lg p-1 flex items-center">
             <button
               onClick={() => setView('monthly')}
@@ -127,13 +130,14 @@ export function BudgetPlanner() {
       </div>
 
       {/* Sankey Chart */}
-      <BudgetSankey incomes={incomes} expenses={expenses} view={view} />
+      <BudgetSankey incomes={incomes} expenses={expenses} categories={categories} view={view} />
 
       {/* Input Lists */}
       <div className="grid md:grid-cols-2 gap-8">
         <BudgetList
           title="Einnahmen"
           items={incomes}
+          categories={categories}
           onAdd={addIncome}
           onRemove={removeIncome}
           type="income"
@@ -141,6 +145,7 @@ export function BudgetPlanner() {
         <BudgetList
           title="Ausgaben"
           items={expenses}
+          categories={categories}
           onAdd={addExpense}
           onRemove={removeExpense}
           type="expense"
