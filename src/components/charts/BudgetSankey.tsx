@@ -93,27 +93,6 @@ export function BudgetSankey({ incomes, expenses, categories, view, totalIncome 
     })
 
     // 2. Process Income Category Flows (Category -> Parent/Budget)
-    // We need to process from bottom up, or just iteratively until all are resolved.
-    // Since we don't have a guaranteed depth, let's process all categories that have value.
-    // Warning: Cycles would crash this. Assuming no cycles (Parent != Self).
-
-    // We iterate incomeCategories. To handle nested correctly, we might need topological sort.
-    // Simple approach: Repeatedly find categories that have values but haven't been linked out?
-    // Or just link them now. Recharts handles the "sum of inputs" visualization, we just need to provide the link with the correct value.
-    // Wait, Sankey links represent flow.
-    // If Item A (100) -> Cat X.
-    // Item B (50) -> Cat X.
-    // Then Cat X has 150.
-    // Link Cat X -> Budget must be value 150.
-    // But what if Cat Y (20) -> Cat X? Then Cat X has 170.
-    // We need to resolve the total flow through each category node.
-
-    // Let's do a recursive calculation for category totals.
-    // But data is flat list of items.
-
-    // It's easier to just iterate categories and sum their DIRECT items + DIRECT child categories.
-    // Recursion is best.
-
     const getCategoryTotal = (catId: string, type: 'income' | 'expense'): number => {
         let total = 0
 
@@ -131,10 +110,6 @@ export function BudgetSankey({ incomes, expenses, categories, view, totalIncome 
     }
 
     // Generate links for Categories
-    // We only need to generate the OUTGOING link for each category.
-    // If it's a root category -> flows to Budget (Income) or from Budget (Expense).
-    // If it's a child category -> flows to Parent (Income) or from Parent (Expense).
-
     categories.forEach(cat => {
         const total = getCategoryTotal(cat.id, cat.type)
         if (total === 0) return // Skip empty categories
@@ -296,40 +271,6 @@ export function BudgetSankey({ incomes, expenses, categories, view, totalIncome 
 
     let finalLinks = Array.from(aggregatedLinks.values())
 
-    // --- SORTING LOGIC ---
-    // Calculate node values (max of input or output)
-    const nodeIns = new Map<number, number>()
-    const nodeOuts = new Map<number, number>()
-
-    finalLinks.forEach(l => {
-      nodeOuts.set(l.source, (nodeOuts.get(l.source) || 0) + l.value)
-      nodeIns.set(l.target, (nodeIns.get(l.target) || 0) + l.value)
-    })
-
-    const nodeIndices = nodes.map((_, i) => i)
-
-    // Sort indices by value descending
-    nodeIndices.sort((a, b) => {
-      const valA = Math.max(nodeIns.get(a) || 0, nodeOuts.get(a) || 0)
-      const valB = Math.max(nodeIns.get(b) || 0, nodeOuts.get(b) || 0)
-      return valB - valA
-    })
-
-    // Map old index -> new index
-    const oldToNew = new Map<number, number>()
-    nodeIndices.forEach((oldIndex, newIndex) => {
-      oldToNew.set(oldIndex, newIndex)
-    })
-
-    // Reconstruct nodes and links
-    const sortedNodes = nodeIndices.map(i => nodes[i])
-    finalLinks = finalLinks.map(l => ({
-      ...l,
-      source: oldToNew.get(l.source)!,
-      target: oldToNew.get(l.target)!
-    }))
-    // ---------------------
-
     // Convert to Percentage if view is percent
     if (view === 'percent' && totalIncome > 0) {
         finalLinks = finalLinks.map(l => ({
@@ -339,7 +280,7 @@ export function BudgetSankey({ incomes, expenses, categories, view, totalIncome 
     }
 
     return {
-        nodes: sortedNodes,
+        nodes,
         links: finalLinks
     }
   }, [incomes, expenses, categories, view, totalIncome])
@@ -365,49 +306,33 @@ export function BudgetSankey({ incomes, expenses, categories, view, totalIncome 
         <Sankey
           data={data}
           iterations={64}
-          node={({ x, y, width, height, payload, containerWidth }: any) => {
+          node={({ x, y, width, height, payload }: any) => {
               const nodeFill = payload.fill || '#8884d8'
 
               // Text Positioning Logic
-              const centerX = x + width / 2
-              const isLeft = x < containerWidth / 3
-              const isRight = x > (containerWidth * 2) / 3
+              // User request:
+              // - Income (Left side/Layer 0) -> Text on Right of bar
+              // - Others (Budget, Expenses) -> Text on Left of bar
 
-              let textX = centerX
-              let textAnchor: 'start' | 'middle' | 'end' = 'middle'
-              let textColor = '#fff'
-              let textShadow = '0 0 2px rgba(0,0,0,0.5)'
+              // We use a geometric check to identify the Income layer.
+              // Margin-left is 100. The first layer will be around x=100.
+              // Subsequent layers will be significantly further right.
+              // 250px provides a safe buffer even on small screens or with wide nodes.
+              const isIncomeLayer = x < 250
 
-              // If bar is too thin, move text outside
-              if (width < 60 || height < 20) {
-                  textColor = 'currentColor' // Use theme color
-                  textShadow = 'none'
+              let textX = 0
+              let textAnchor: 'start' | 'end'
+              let textColor = 'var(--foreground)'
+              let textShadow = 'none'
 
-                  if (isLeft) {
-                      textX = x + width + 6
-                      textAnchor = 'start'
-                  } else if (isRight) {
-                      textX = x - 6
-                      textAnchor = 'end'
-                  } else {
-                      // Middle nodes: if thin, keep above or just try center with background?
-                      // Let's keep center but with shadow for now, or just hide if very small?
-                      // Users said text in center is hard to read.
-                      // Let's force it slightly above?
-                  }
-              }
-
-              // Just enforce left/right labeling for input/output nodes regardless of width
-              if (isLeft) {
-                 textX = x - 6
-                 textAnchor = 'end'
-                 textColor = 'var(--foreground)' // Use CSS var for theme compatibility
-                 textShadow = 'none'
-              } else if (isRight) {
-                 textX = x + width + 6
-                 textAnchor = 'start'
-                 textColor = 'var(--foreground)'
-                 textShadow = 'none'
+              if (isIncomeLayer) {
+                  // Income nodes: Text on Right of bar
+                  textX = x + width + 6
+                  textAnchor = 'start'
+              } else {
+                  // All other nodes: Text on Left of bar
+                  textX = x - 6
+                  textAnchor = 'end'
               }
 
               return (
