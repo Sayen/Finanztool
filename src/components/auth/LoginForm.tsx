@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Button } from '../ui/Button'
+import { Input } from '../ui/Input'
 import { useAuthStore } from '../../stores/authStore'
 import { useNavigate } from 'react-router-dom'
 
@@ -44,20 +45,18 @@ export function LoginForm() {
       {error && <div className="text-red-500 text-sm bg-red-50 p-2 rounded">{error}</div>}
       <div className="space-y-2">
         <label className="text-sm font-medium">Email</label>
-        <input
+        <Input
           type="email"
           required
-          className="w-full px-3 py-2 border rounded-md"
           value={email}
           onChange={e => setEmail(e.target.value)}
         />
       </div>
       <div className="space-y-2">
         <label className="text-sm font-medium">Passwort</label>
-        <input
+        <Input
           type="password"
           required
-          className="w-full px-3 py-2 border rounded-md"
           value={password}
           onChange={e => setPassword(e.target.value)}
         />

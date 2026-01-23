@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Button } from '../ui/Button'
+import { Input } from '../ui/Input'
 import { useAuthStore } from '../../stores/authStore'
 import { useNavigate } from 'react-router-dom'
 import { useBudgetStore } from '../../stores/budgetStore'
@@ -67,32 +68,29 @@ export function RegisterForm() {
       {error && <div className="text-red-500 text-sm bg-red-50 p-2 rounded">{error}</div>}
       <div className="space-y-2">
         <label className="text-sm font-medium">Email</label>
-        <input
+        <Input
           type="email"
           required
-          className="w-full px-3 py-2 border rounded-md"
           value={email}
           onChange={e => setEmail(e.target.value)}
         />
       </div>
       <div className="space-y-2">
         <label className="text-sm font-medium">Passwort</label>
-        <input
+        <Input
           type="password"
           required
           minLength={8}
-          className="w-full px-3 py-2 border rounded-md"
           value={password}
           onChange={e => setPassword(e.target.value)}
         />
       </div>
       <div className="space-y-2">
         <label className="text-sm font-medium">Passwort bestätigen</label>
-        <input
+        <Input
           type="password"
           required
           minLength={8}
-          className="w-full px-3 py-2 border rounded-md"
           value={confirmPass}
           onChange={e => setConfirmPass(e.target.value)}
         />
@@ -106,7 +104,7 @@ export function RegisterForm() {
             onChange={e => setImportLocal(e.target.checked)}
             className="rounded border-gray-300 text-primary focus:ring-primary"
         />
-        <label htmlFor="import" className="text-sm text-gray-700">
+        <label htmlFor="import" className="text-sm">
             Lokale Daten ins Profil übernehmen
         </label>
       </div>
