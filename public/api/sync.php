@@ -36,76 +36,96 @@ if ($method === 'GET') {
     ]);
 
 } elseif ($method === 'POST') {
-    // Sync data (Overwrite strategy for now, or per-item update)
-    // To implement "Update what changed", we can use the IDs.
+    // Verify CSRF Token
+    verifyCsrfToken();
+
     $input = getJsonInput();
 
     try {
         $pdo->beginTransaction();
 
-        // Save Budget Configs
-        if (isset($input['budgetConfigs'])) {
+        // 1. Budget Configs: Safe Union Merge
+        // Only update if incoming is newer. Do NOT delete missing items to prevent data loss.
+        if (isset($input['budgetConfigs']) && is_array($input['budgetConfigs'])) {
+            // Pre-fetch timestamps of existing items to compare
+            $stmtExist = $pdo->prepare("SELECT config_id, updated_at FROM budget_configs WHERE user_id = ?");
+            $stmtExist->execute([$userId]);
+            $existing = [];
+            while ($row = $stmtExist->fetch()) {
+                $existing[$row['config_id']] = $row['updated_at'];
+            }
+
             $stmtUpsert = $pdo->prepare("
                 INSERT INTO budget_configs (user_id, config_id, name, content, updated_at)
                 VALUES (?, ?, ?, ?, ?)
                 ON DUPLICATE KEY UPDATE name = VALUES(name), content = VALUES(content), updated_at = VALUES(updated_at)
             ");
 
-            // Also delete ones not in the list?
-            // If the frontend sends ALL configs, we should delete those missing from DB.
-            // Let's assume frontend sends ALL.
-
-            $incomingIds = [];
             foreach ($input['budgetConfigs'] as $config) {
-                $incomingIds[] = $config['id'];
-                $stmtUpsert->execute([
-                    $userId,
-                    $config['id'],
-                    $config['name'],
-                    json_encode($config),
-                    $config['updatedAt']
-                ]);
-            }
+                if (!isset($config['id']) || !isset($config['updatedAt'])) continue;
 
-            if (!empty($incomingIds)) {
-                $placeholders = str_repeat('?,', count($incomingIds) - 1) . '?';
-                $stmtDelete = $pdo->prepare("DELETE FROM budget_configs WHERE user_id = ? AND config_id NOT IN ($placeholders)");
-                $stmtDelete->execute(array_merge([$userId], $incomingIds));
-            } else {
-                // If empty list sent, delete all? Be careful.
-                // If frontend sends empty list, it means user deleted everything.
-                 $stmtDelete = $pdo->prepare("DELETE FROM budget_configs WHERE user_id = ?");
-                 $stmtDelete->execute([$userId]);
+                $clientTime = strtotime($config['updatedAt']);
+                $mysqlTime = date('Y-m-d H:i:s', $clientTime);
+
+                $shouldUpdate = true;
+                if (isset($existing[$config['id']])) {
+                    $serverTime = strtotime($existing[$config['id']]);
+                    // Only update if client time is strictly greater
+                    if ($clientTime <= $serverTime) {
+                        $shouldUpdate = false;
+                    }
+                }
+
+                if ($shouldUpdate) {
+                    $stmtUpsert->execute([
+                        $userId,
+                        $config['id'],
+                        $config['name'],
+                        json_encode($config),
+                        $mysqlTime
+                    ]);
+                }
             }
         }
 
-        // Save Scenario Configs (Rent vs Own)
-        if (isset($input['scenarioConfigs'])) {
+        // 2. Scenario Configs: Safe Union Merge
+        if (isset($input['scenarioConfigs']) && is_array($input['scenarioConfigs'])) {
+             $stmtExist = $pdo->prepare("SELECT config_id, updated_at FROM scenario_configs WHERE user_id = ?");
+            $stmtExist->execute([$userId]);
+            $existing = [];
+            while ($row = $stmtExist->fetch()) {
+                $existing[$row['config_id']] = $row['updated_at'];
+            }
+
             $stmtUpsert = $pdo->prepare("
                 INSERT INTO scenario_configs (user_id, config_id, name, content, updated_at)
                 VALUES (?, ?, ?, ?, ?)
                 ON DUPLICATE KEY UPDATE name = VALUES(name), content = VALUES(content), updated_at = VALUES(updated_at)
             ");
 
-            $incomingIds = [];
             foreach ($input['scenarioConfigs'] as $config) {
-                $incomingIds[] = $config['id'];
-                $stmtUpsert->execute([
-                    $userId,
-                    $config['id'],
-                    $config['name'],
-                    json_encode($config),
-                    $config['updatedAt']
-                ]);
-            }
+                if (!isset($config['id']) || !isset($config['updatedAt'])) continue;
 
-            if (!empty($incomingIds)) {
-                $placeholders = str_repeat('?,', count($incomingIds) - 1) . '?';
-                $stmtDelete = $pdo->prepare("DELETE FROM scenario_configs WHERE user_id = ? AND config_id NOT IN ($placeholders)");
-                $stmtDelete->execute(array_merge([$userId], $incomingIds));
-            } else {
-                 $stmtDelete = $pdo->prepare("DELETE FROM scenario_configs WHERE user_id = ?");
-                 $stmtDelete->execute([$userId]);
+                $clientTime = strtotime($config['updatedAt']);
+                $mysqlTime = date('Y-m-d H:i:s', $clientTime);
+
+                $shouldUpdate = true;
+                if (isset($existing[$config['id']])) {
+                    $serverTime = strtotime($existing[$config['id']]);
+                    if ($clientTime <= $serverTime) {
+                        $shouldUpdate = false;
+                    }
+                }
+
+                if ($shouldUpdate) {
+                    $stmtUpsert->execute([
+                        $userId,
+                        $config['id'],
+                        $config['name'],
+                        json_encode($config),
+                        $mysqlTime
+                    ]);
+                }
             }
         }
 

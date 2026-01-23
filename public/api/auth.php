@@ -13,12 +13,26 @@ if (!$pdo && $_GET['action'] !== 'check') {
     jsonResponse(['error' => 'Database not configured'], 503);
 }
 
+if ($pdo) {
+    ensureLoginAttemptsTable($pdo);
+}
+
 $action = $_GET['action'] ?? '';
 
 if ($action === 'login') {
     $input = getJsonInput();
     $email = $input['email'] ?? '';
     $password = $input['password'] ?? '';
+    $ip = $_SERVER['REMOTE_ADDR'];
+
+    // Rate Limiting
+    $stmt = $pdo->prepare("SELECT COUNT(*) FROM login_attempts WHERE (email = ? OR ip_address = ?) AND attempted_at > (NOW() - INTERVAL 15 MINUTE)");
+    $stmt->execute([$email, $ip]);
+    $attempts = $stmt->fetchColumn();
+
+    if ($attempts >= 5) {
+        jsonResponse(['error' => 'Too many failed login attempts. Please try again in 15 minutes.'], 429);
+    }
 
     $stmt = $pdo->prepare("SELECT * FROM users WHERE email = ?");
     $stmt->execute([$email]);
@@ -31,14 +45,21 @@ if ($action === 'login') {
         // Update last login
         $pdo->prepare("UPDATE users SET last_login = NOW() WHERE id = ?")->execute([$user['id']]);
 
+        $token = generateCsrfToken();
+
         jsonResponse([
             'user' => [
                 'id' => $user['id'],
                 'email' => $user['email'],
                 'isAdmin' => (bool)$user['is_admin']
-            ]
+            ],
+            'csrfToken' => $token
         ]);
     } else {
+        // Log attempt
+        $stmt = $pdo->prepare("INSERT INTO login_attempts (ip_address, email) VALUES (?, ?)");
+        $stmt->execute([$ip, $email]);
+
         jsonResponse(['error' => 'Invalid credentials'], 401);
     }
 } elseif ($action === 'register') {
@@ -48,7 +69,13 @@ if ($action === 'login') {
     $importData = $input['importData'] ?? null;
 
     if (strlen($password) < 8) {
-        jsonResponse(['error' => 'Password too short'], 400);
+        jsonResponse(['error' => 'Password must be at least 8 characters long'], 400);
+    }
+    if (!preg_match('/[0-9]/', $password)) {
+        jsonResponse(['error' => 'Password must contain at least one number'], 400);
+    }
+    if (!preg_match('/[^a-zA-Z0-9]/', $password)) {
+        jsonResponse(['error' => 'Password must contain at least one special character'], 400);
     }
 
     $stmt = $pdo->prepare("SELECT id FROM users WHERE email = ?");
@@ -102,12 +129,15 @@ if ($action === 'login') {
         $_SESSION['user_id'] = $userId;
         $_SESSION['is_admin'] = 0;
 
+        $token = generateCsrfToken();
+
         jsonResponse([
             'user' => [
                 'id' => $userId,
                 'email' => $email,
                 'isAdmin' => false
-            ]
+            ],
+            'csrfToken' => $token
         ]);
     } catch (Exception $e) {
         $pdo->rollBack();
@@ -126,12 +156,14 @@ if ($action === 'login') {
              $stmt->execute([$_SESSION['user_id']]);
              $user = $stmt->fetch();
              if ($user) {
+                 $token = generateCsrfToken();
                  jsonResponse([
                     'user' => [
                         'id' => $user['id'],
                         'email' => $user['email'],
                         'isAdmin' => (bool)$user['is_admin']
-                    ]
+                    ],
+                    'csrfToken' => $token
                 ]);
              }
         }

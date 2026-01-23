@@ -30,7 +30,7 @@ export function LoginForm() {
         throw new Error(data.error || 'Login failed')
       }
 
-      login(data.user)
+      login(data.user, data.csrfToken)
       navigate('/profile')
 
     } catch (err: any) {

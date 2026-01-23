@@ -1,7 +1,12 @@
 <?php
 if (file_exists('config.php')) {
-    echo "<h1>Already Installed</h1><p>Please delete config.php to reinstall.</p>";
-    exit;
+    http_response_code(403);
+    exit('Forbidden: Application is already installed.');
+}
+
+if (!file_exists('ENABLE_INSTALL')) {
+    http_response_code(403);
+    exit('Forbidden: Please create a file named ENABLE_INSTALL in this directory to proceed.');
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -59,6 +64,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ) ENGINE=InnoDB;
         ");
 
+        // Also create login_attempts here to be safe, although auth.php handles it too
+        $pdo->exec("
+            CREATE TABLE IF NOT EXISTS login_attempts (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                ip_address VARCHAR(45) NOT NULL,
+                email VARCHAR(255),
+                attempted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            ) ENGINE=InnoDB;
+        ");
+
         // Create Admin
         $hash = password_hash($adminPass, PASSWORD_DEFAULT);
         $stmt = $pdo->prepare("INSERT INTO users (email, password_hash, is_admin) VALUES (?, ?, 1)");
@@ -72,6 +87,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $configContent .= "define('DB_PASS', '" . addslashes($pass) . "');\n";
 
         file_put_contents('config.php', $configContent);
+
+        // Delete the installation marker
+        @unlink('ENABLE_INSTALL');
 
         echo "<h1>Installation Successful!</h1><p>You can now delete install.php and start using the application.</p>";
         echo "<a href='/'>Go to App</a>";
