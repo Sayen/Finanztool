@@ -1,7 +1,8 @@
 import { Outlet, Link, useLocation } from 'react-router-dom'
-import { Menu, Moon, Sun, Home, Calculator, PieChart, User, LogIn, Shield } from 'lucide-react'
+import { Menu, Moon, Sun, Home, Calculator, PieChart, User, LogIn, Shield, Eye, EyeOff } from 'lucide-react'
 import { Button } from './ui/Button'
 import { useTheme } from '../hooks/useTheme'
+import { usePrivacyMode } from '../hooks/usePrivacyMode'
 import { useAuthStore } from '../stores/authStore'
 import { useCloudSync } from '../hooks/useCloudSync'
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
@@ -9,6 +10,7 @@ import { useEffect, useRef } from 'react'
 
 export function Layout() {
   const { theme, toggleTheme } = useTheme()
+  const { isPrivate, togglePrivacy } = usePrivacyMode()
   const location = useLocation()
   const { user, checkSession } = useAuthStore()
 
@@ -130,6 +132,17 @@ export function Layout() {
                     <Link to={user ? "/profile" : "/auth"}>
                         {user ? <User className="h-5 w-5" /> : <LogIn className="h-5 w-5" />}
                     </Link>
+                </Button>
+
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={togglePrivacy}
+                  className="dark:ring-1 dark:ring-border"
+                  aria-label={isPrivate ? 'Privat-Modus deaktivieren' : 'Privat-Modus aktivieren'}
+                  title={isPrivate ? 'Privat-Modus deaktivieren' : 'Privat-Modus aktivieren'}
+                >
+                  {isPrivate ? <EyeOff className="h-5 w-5 text-muted-foreground" /> : <Eye className="h-5 w-5" />}
                 </Button>
 
                 <Button
