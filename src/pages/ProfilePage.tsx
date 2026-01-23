@@ -4,7 +4,7 @@ import { useBudgetStore } from '../stores/budgetStore'
 import { useScenarioStore } from '../stores/scenarioStore'
 import { Button } from '../components/ui/Button'
 import { useNavigate } from 'react-router-dom'
-import { LogOut, RefreshCw, AlertTriangle, DownloadCloud, UploadCloud } from 'lucide-react'
+import { LogOut, RefreshCw, AlertTriangle, DownloadCloud, UploadCloud, Trash2 } from 'lucide-react'
 
 export function ProfilePage() {
   const { user, logout } = useAuthStore()
@@ -80,6 +80,13 @@ export function ProfilePage() {
       navigate('/')
   }
 
+  const handleClearLocal = () => {
+    if (confirm('Sind Sie sicher? Alle lokalen Daten auf diesem Gerät werden unwiderruflich gelöscht.')) {
+        localStorage.clear()
+        window.location.reload()
+    }
+  }
+
   if (!user) return null
 
   return (
@@ -148,6 +155,20 @@ export function ProfilePage() {
                   <strong>Hinweis:</strong> "In Cloud speichern" überschreibt Ihre Daten in der Cloud mit den aktuellen lokalen Daten. "Aus Cloud laden" überschreibt Ihre lokalen Daten mit denen aus der Cloud.
               </div>
           </div>
+      </div>
+
+      <div className="bg-card border rounded-lg p-6 space-y-4 border-destructive/20">
+          <h2 className="text-xl font-semibold text-destructive flex items-center gap-2">
+              <AlertTriangle className="h-5 w-5" />
+              Gefahrenzone
+          </h2>
+          <p className="text-sm text-muted-foreground">
+              Hier können Sie alle lokal gespeicherten Daten löschen. Dies betrifft nur die Daten auf diesem Gerät.
+          </p>
+          <Button variant="destructive" onClick={handleClearLocal}>
+              <Trash2 className="h-4 w-4 mr-2" />
+              Lokale Daten löschen
+          </Button>
       </div>
 
       {user.isAdmin && (

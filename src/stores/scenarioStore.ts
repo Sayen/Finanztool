@@ -1,5 +1,6 @@
 import { create } from 'zustand'
-import { persist } from 'zustand/middleware'
+import { persist, createJSONStorage } from 'zustand/middleware'
+import { createAuthAwareStorage } from '../lib/storage'
 import type { Scenario, CalculationParams } from '../types'
 import { calculateScenario, deriveFromQuickStart } from '../lib/calculator'
 
@@ -216,6 +217,7 @@ export const useScenarioStore = create<ScenarioStore>()(
     {
       name: 'finanztool-scenarios',
       version: 1,
+      storage: createJSONStorage(() => createAuthAwareStorage()),
     }
   )
 )
