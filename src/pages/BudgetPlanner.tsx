@@ -43,6 +43,11 @@ export function BudgetPlanner() {
   const sortedIncomes = useMemo(() => sortBudgetData(incomes), [incomes])
   const sortedExpenses = useMemo(() => sortBudgetData(expenses), [expenses])
 
+  // Sort configs for selector
+  const sortedConfigs = useMemo(() => {
+    return [...configs].sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' }))
+  }, [configs])
+
   // Calculate base totals
   const calcView = view === 'percent' ? 'monthly' : view
   const totalIncome = calculateTotal(incomes, calcView)
@@ -105,17 +110,36 @@ export function BudgetPlanner() {
           <p className="text-muted-foreground">Visualisieren Sie Ihre Geldflüsse</p>
         </div>
 
-        <div className="flex items-center gap-2 bg-card border rounded-lg p-1">
+        <div className="flex items-center gap-2 bg-card border rounded-lg p-1 max-w-full overflow-hidden">
+            {/* Mobile: Dropdown */}
             <select
                 value={currentConfigId || ''}
                 onChange={(e) => switchConfig(e.target.value)}
-                className="bg-transparent text-sm font-medium px-2 py-1 outline-none max-w-[150px] truncate"
+                className="md:hidden bg-transparent text-sm font-medium px-2 py-1 outline-none max-w-[150px] truncate"
             >
-                {configs.map(c => (
+                {sortedConfigs.map(c => (
                     <option key={c.id} value={c.id}>{c.name}</option>
                 ))}
             </select>
-            <div className="h-4 w-px bg-border mx-1" />
+
+            {/* Desktop: Tabs */}
+            <div className="hidden md:flex items-center gap-1 overflow-x-auto max-w-[300px] lg:max-w-[600px]">
+                {sortedConfigs.map(c => (
+                    <button
+                        key={c.id}
+                        onClick={() => switchConfig(c.id)}
+                        className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors whitespace-nowrap ${
+                            currentConfigId === c.id
+                                ? 'bg-primary text-primary-foreground'
+                                : 'hover:bg-muted text-muted-foreground'
+                        }`}
+                    >
+                        {c.name}
+                    </button>
+                ))}
+            </div>
+
+            <div className="h-4 w-px bg-border mx-1 flex-shrink-0" />
 
             {isRenaming ? (
                 <div className="flex items-center gap-1">
