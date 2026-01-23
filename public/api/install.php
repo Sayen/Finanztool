@@ -81,10 +81,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         // Write config file
         $configContent = "<?php\n";
-        $configContent .= "define('DB_HOST', '" . addslashes($host) . "');\n";
-        $configContent .= "define('DB_NAME', '" . addslashes($db) . "');\n";
-        $configContent .= "define('DB_USER', '" . addslashes($user) . "');\n";
-        $configContent .= "define('DB_PASS', '" . addslashes($pass) . "');\n";
+        $configContent .= "define('DB_HOST', " . var_export($host, true) . ");\n";
+        $configContent .= "define('DB_NAME', " . var_export($db, true) . ");\n";
+        $configContent .= "define('DB_USER', " . var_export($user, true) . ");\n";
+        $configContent .= "define('DB_PASS', " . var_export($pass, true) . ");\n";
 
         file_put_contents('config.php', $configContent);
 

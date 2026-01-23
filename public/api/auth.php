@@ -74,6 +74,12 @@ if ($action === 'login') {
     if (!preg_match('/[0-9]/', $password)) {
         jsonResponse(['error' => 'Password must contain at least one number'], 400);
     }
+    if (!preg_match('/[A-Z]/', $password)) {
+        jsonResponse(['error' => 'Password must contain at least one uppercase letter'], 400);
+    }
+    if (!preg_match('/[a-z]/', $password)) {
+        jsonResponse(['error' => 'Password must contain at least one lowercase letter'], 400);
+    }
     if (!preg_match('/[^a-zA-Z0-9]/', $password)) {
         jsonResponse(['error' => 'Password must contain at least one special character'], 400);
     }

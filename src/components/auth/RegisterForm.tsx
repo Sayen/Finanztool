@@ -31,9 +31,12 @@ export function RegisterForm() {
         return
     }
     const hasNumber = /[0-9]/.test(password);
+    const hasUpperCase = /[A-Z]/.test(password);
+    const hasLowerCase = /[a-z]/.test(password);
     const hasSpecial = /[^a-zA-Z0-9]/.test(password);
-    if (!hasNumber || !hasSpecial) {
-        setError('Passwort muss mindestens eine Zahl und ein Sonderzeichen enthalten')
+
+    if (!hasNumber || !hasUpperCase || !hasLowerCase || !hasSpecial) {
+        setError('Passwort muss Groß- und Kleinbuchstaben, eine Zahl und ein Sonderzeichen enthalten')
         return
     }
 
