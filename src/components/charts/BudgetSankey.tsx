@@ -9,9 +9,10 @@ interface BudgetSankeyProps {
   categories: Category[]
   view: ViewMode
   totalIncome?: number
+  isPrivate?: boolean
 }
 
-export function BudgetSankey({ incomes, expenses, categories, view, totalIncome = 0 }: BudgetSankeyProps) {
+export function BudgetSankey({ incomes, expenses, categories, view, totalIncome = 0, isPrivate }: BudgetSankeyProps) {
   const data = useMemo(() => {
     const nodes: { name: string; fill?: string }[] = []
     const links: { source: number; target: number; value: number }[] = []
@@ -250,7 +251,10 @@ export function BudgetSankey({ incomes, expenses, categories, view, totalIncome 
               // Format the value for the label
               const valueText = view === 'percent'
                   ? `${Number(payload.value).toFixed(1)}%`
-                  : Number(payload.value).toLocaleString('de-CH', { style: 'currency', currency: 'CHF', maximumFractionDigits: 0 })
+                  : (isPrivate
+                      ? '*****'
+                      : Number(payload.value).toLocaleString('de-CH', { style: 'currency', currency: 'CHF', maximumFractionDigits: 0 })
+                    )
 
               return (
                 <g>
@@ -345,7 +349,10 @@ export function BudgetSankey({ incomes, expenses, categories, view, totalIncome 
                                 <div className="font-mono mt-1">
                                     {view === 'percent'
                                         ? `${Number(data.value).toFixed(1)}%`
-                                        : Number(data.value).toLocaleString('de-CH', { style: 'currency', currency: 'CHF' })
+                                        : (isPrivate
+                                            ? '*****'
+                                            : Number(data.value).toLocaleString('de-CH', { style: 'currency', currency: 'CHF' })
+                                          )
                                     }
                                 </div>
                             </>
@@ -355,7 +362,10 @@ export function BudgetSankey({ incomes, expenses, categories, view, totalIncome 
                                 <div className="font-mono">
                                     {view === 'percent'
                                         ? `${Number(data.value).toFixed(1)}%`
-                                        : Number(data.value).toLocaleString('de-CH', { style: 'currency', currency: 'CHF' })
+                                        : (isPrivate
+                                            ? '*****'
+                                            : Number(data.value).toLocaleString('de-CH', { style: 'currency', currency: 'CHF' })
+                                          )
                                     }
                                 </div>
                             </>

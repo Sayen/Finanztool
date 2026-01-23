@@ -7,10 +7,12 @@ import { BudgetSankey } from '../components/charts/BudgetSankey'
 import { Button } from '../components/ui/Button'
 import { sortBudgetData } from '../lib/budgetSorting'
 import { Download, Upload, Plus, Copy, Trash2, Edit2, Check, X } from 'lucide-react'
+import { usePrivacyMode } from '../hooks/usePrivacyMode'
 
 export type ViewMode = Frequency | 'percent'
 
 export function BudgetPlanner() {
+  const { isPrivate } = usePrivacyMode()
   const {
     configs, currentConfigId,
     createConfig, switchConfig, renameConfig, deleteConfig, duplicateConfig,
@@ -230,19 +232,19 @@ export function BudgetPlanner() {
         <div className="bg-card border rounded-lg p-4">
           <div className="text-sm text-muted-foreground">Einnahmen ({view === 'monthly' ? 'mtl.' : 'jährl.'})</div>
           <div className="text-2xl font-bold text-green-600">
-            {totalIncome.toLocaleString('de-CH', { style: 'currency', currency: 'CHF' })}
+            {isPrivate ? '*****' : totalIncome.toLocaleString('de-CH', { style: 'currency', currency: 'CHF' })}
           </div>
         </div>
         <div className="bg-card border rounded-lg p-4">
           <div className="text-sm text-muted-foreground">Ausgaben ({view === 'monthly' ? 'mtl.' : 'jährl.'})</div>
           <div className="text-2xl font-bold text-red-600">
-            {totalExpenses.toLocaleString('de-CH', { style: 'currency', currency: 'CHF' })}
+            {isPrivate ? '*****' : totalExpenses.toLocaleString('de-CH', { style: 'currency', currency: 'CHF' })}
           </div>
         </div>
         <div className="bg-card border rounded-lg p-4">
           <div className="text-sm text-muted-foreground">Verfügbar / Sparrate</div>
           <div className={`text-2xl font-bold ${savings >= 0 ? 'text-primary' : 'text-red-500'}`}>
-            {savings.toLocaleString('de-CH', { style: 'currency', currency: 'CHF' })}
+            {isPrivate ? '*****' : savings.toLocaleString('de-CH', { style: 'currency', currency: 'CHF' })}
             <span className="text-sm font-normal text-muted-foreground ml-2">
               ({savingsRate.toFixed(1)}%)
             </span>
@@ -257,6 +259,7 @@ export function BudgetPlanner() {
         categories={categories}
         view={view}
         totalIncome={totalIncome}
+        isPrivate={isPrivate}
       />
 
       {/* Input Lists */}
@@ -271,6 +274,7 @@ export function BudgetPlanner() {
           type="income"
           view={view}
           totalIncome={totalIncome}
+          isPrivate={isPrivate}
         />
         <BudgetList
           title="Ausgaben"
@@ -282,6 +286,7 @@ export function BudgetPlanner() {
           type="expense"
           view={view}
           totalIncome={totalIncome}
+          isPrivate={isPrivate}
         />
       </div>
     </div>

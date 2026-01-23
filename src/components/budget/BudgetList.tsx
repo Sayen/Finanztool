@@ -14,9 +14,10 @@ interface BudgetListProps {
   type: 'income' | 'expense'
   view?: ViewMode
   totalIncome?: number
+  isPrivate?: boolean
 }
 
-export function BudgetList({ title, items, categories, onAdd, onRemove, onUpdate, type, view = 'monthly', totalIncome = 0 }: BudgetListProps) {
+export function BudgetList({ title, items, categories, onAdd, onRemove, onUpdate, type, view = 'monthly', totalIncome = 0, isPrivate }: BudgetListProps) {
   const [newItemName, setNewItemName] = useState('')
   const [newItemAmount, setNewItemAmount] = useState('')
   const [newItemFrequency, setNewItemFrequency] = useState<Frequency>('monthly')
@@ -102,7 +103,10 @@ export function BudgetList({ title, items, categories, onAdd, onRemove, onUpdate
                 <div className="font-mono font-medium mr-2">
                   {view === 'percent'
                     ? `${displayAmount.toFixed(1)}%`
-                    : item.amount.toLocaleString('de-CH', { style: 'currency', currency: 'CHF' })
+                    : (isPrivate
+                        ? '*****'
+                        : item.amount.toLocaleString('de-CH', { style: 'currency', currency: 'CHF' })
+                      )
                   }
                 </div>
                 <Button
