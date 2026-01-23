@@ -47,6 +47,7 @@ if ($action === 'stats') {
     jsonResponse($stmt->fetchAll());
 
 } elseif ($action === 'delete_user') {
+    verifyCsrfToken();
     $input = getJsonInput();
     $id = $input['id'] ?? 0;
 
@@ -59,12 +60,25 @@ if ($action === 'stats') {
     jsonResponse(['success' => true]);
 
 } elseif ($action === 'reset_password') {
+    verifyCsrfToken();
     $input = getJsonInput();
     $id = $input['id'] ?? 0;
     $newPass = $input['password'] ?? '';
 
     if (strlen($newPass) < 8) {
-        jsonResponse(['error' => 'Password too short'], 400);
+        jsonResponse(['error' => 'Password must be at least 8 characters long'], 400);
+    }
+    if (!preg_match('/[0-9]/', $newPass)) {
+        jsonResponse(['error' => 'Password must contain at least one number'], 400);
+    }
+    if (!preg_match('/[A-Z]/', $newPass)) {
+        jsonResponse(['error' => 'Password must contain at least one uppercase letter'], 400);
+    }
+    if (!preg_match('/[a-z]/', $newPass)) {
+        jsonResponse(['error' => 'Password must contain at least one lowercase letter'], 400);
+    }
+    if (!preg_match('/[^a-zA-Z0-9]/', $newPass)) {
+        jsonResponse(['error' => 'Password must contain at least one special character'], 400);
     }
 
     $hash = password_hash($newPass, PASSWORD_DEFAULT);

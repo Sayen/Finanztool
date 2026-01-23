@@ -65,6 +65,8 @@ if ($method === 'GET') {
                 if (!isset($config['id']) || !isset($config['updatedAt'])) continue;
 
                 $clientTime = strtotime($config['updatedAt']);
+                if ($clientTime === false) continue;
+
                 $mysqlTime = date('Y-m-d H:i:s', $clientTime);
 
                 $shouldUpdate = true;
@@ -107,6 +109,8 @@ if ($method === 'GET') {
                 if (!isset($config['id']) || !isset($config['updatedAt'])) continue;
 
                 $clientTime = strtotime($config['updatedAt']);
+                if ($clientTime === false) continue;
+
                 $mysqlTime = date('Y-m-d H:i:s', $clientTime);
 
                 $shouldUpdate = true;
