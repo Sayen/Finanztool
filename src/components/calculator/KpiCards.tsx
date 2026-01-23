@@ -1,6 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/Card'
 import { formatCurrency, formatPercent } from '../../lib/utils'
 import { TrendingUp, TrendingDown, AlertCircle, CheckCircle } from 'lucide-react'
+import { usePrivacyMode } from '../../hooks/usePrivacyMode'
 
 interface KpiCardProps {
   title: string
@@ -60,25 +61,27 @@ export function ResultsOverview({
   breakEvenYear,
   equityAfter10Years,
 }: ResultsOverviewProps) {
+  const { isPrivate } = usePrivacyMode()
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
       <KpiCard
         title="Monatliche Miete"
-        value={formatCurrency(monthlyRent)}
+        value={isPrivate ? '*****' : formatCurrency(monthlyRent)}
         subtitle="Netto-Miete pro Monat"
         icon={<span className="text-rent">●</span>}
       />
       
       <KpiCard
         title="Monatliche Kosten Eigentum"
-        value={formatCurrency(monthlyOwnership)}
+        value={isPrivate ? '*****' : formatCurrency(monthlyOwnership)}
         subtitle="Zins, Amortisation & Nebenkosten"
         icon={<span className="text-ownership">●</span>}
       />
       
       <KpiCard
         title="Tragbarkeit"
-        value={formatPercent(utilizationPercent, 1)}
+        value={isPrivate ? '*****' : formatPercent(utilizationPercent, 1)}
         subtitle={isAffordable ? 'Tragbar ✓' : 'Nicht tragbar ✗'}
         status={isAffordable ? 'success' : 'error'}
         icon={isAffordable ? <CheckCircle className="h-4 w-4" /> : <AlertCircle className="h-4 w-4" />}
@@ -92,14 +95,14 @@ export function ResultsOverview({
       
       <KpiCard
         title="Eigenkapital nach 10 Jahren"
-        value={formatCurrency(equityAfter10Years)}
+        value={isPrivate ? '*****' : formatCurrency(equityAfter10Years)}
         subtitle="Vermögensaufbau"
         trend="up"
       />
       
       <KpiCard
         title="Monatliche Differenz"
-        value={formatCurrency(Math.abs(monthlyOwnership - monthlyRent))}
+        value={isPrivate ? '*****' : formatCurrency(Math.abs(monthlyOwnership - monthlyRent))}
         subtitle={monthlyOwnership > monthlyRent ? 'Eigentum teurer' : 'Miete teurer'}
         trend={monthlyOwnership > monthlyRent ? 'down' : 'up'}
       />

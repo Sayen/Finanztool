@@ -4,6 +4,7 @@ import { Label } from '../ui/Label'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/Tabs'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/Tooltip'
 import { useScenarioStore } from '../../stores/scenarioStore'
+import { usePrivacyMode } from '../../hooks/usePrivacyMode'
 import { formatCurrency } from '../../lib/utils'
 import { Info } from 'lucide-react'
 import type { CalculationParams, AdditionalParams } from '../../types'
@@ -25,6 +26,7 @@ const getAdditionalParam = <K extends keyof AdditionalParams>(
 }
 
 export function DetailedParameters() {
+  const { isPrivate } = usePrivacyMode()
   const currentScenario = useScenarioStore((state) => state.getCurrentScenario())
   const updateScenario = useScenarioStore((state) => state.updateScenario)
   
@@ -141,13 +143,13 @@ export function DetailedParameters() {
                 <div>
                   <p className="text-muted-foreground text-xs">Monatl. Miete</p>
                   <p className="font-mono font-semibold text-lg text-green-600 dark:text-green-500">
-                    {formatCurrency(currentScenario.results.kpis.monthlyRent)}
+                    {isPrivate ? '*****' : formatCurrency(currentScenario.results.kpis.monthlyRent)}
                   </p>
                 </div>
                 <div>
                   <p className="text-muted-foreground text-xs">Monatl. Eigentum (Jahr 1)</p>
                   <p className="font-mono font-semibold text-lg text-orange-600 dark:text-orange-500">
-                    {formatCurrency(currentScenario.results.kpis.monthlyOwnership)}
+                    {isPrivate ? '*****' : formatCurrency(currentScenario.results.kpis.monthlyOwnership)}
                   </p>
                 </div>
                 <div>
@@ -159,7 +161,7 @@ export function DetailedParameters() {
                 <div>
                   <p className="text-muted-foreground text-xs">Anfangsinvestition</p>
                   <p className="font-mono font-semibold text-lg">
-                    {formatCurrency(currentScenario.results.kpis.initialInvestment)}
+                    {isPrivate ? '*****' : formatCurrency(currentScenario.results.kpis.initialInvestment)}
                   </p>
                 </div>
               </div>
@@ -181,13 +183,13 @@ export function DetailedParameters() {
                       <div>
                         <p className="text-muted-foreground text-xs">Kum. Kosten Miete (BE)</p>
                         <p className="font-mono font-semibold text-green-600 dark:text-green-500">
-                          {formatCurrency(currentScenario.results.yearlyData[currentScenario.results.breakEvenYear - 1]?.rentCumulativeCost || 0)}
+                          {isPrivate ? '*****' : formatCurrency(currentScenario.results.yearlyData[currentScenario.results.breakEvenYear - 1]?.rentCumulativeCost || 0)}
                         </p>
                       </div>
                       <div>
                         <p className="text-muted-foreground text-xs">Kum. Kosten Eigentum (BE)</p>
                         <p className="font-mono font-semibold text-orange-600 dark:text-orange-500">
-                          {formatCurrency(currentScenario.results.yearlyData[currentScenario.results.breakEvenYear - 1]?.ownershipCumulativeCost || 0)}
+                          {isPrivate ? '*****' : formatCurrency(currentScenario.results.yearlyData[currentScenario.results.breakEvenYear - 1]?.ownershipCumulativeCost || 0)}
                         </p>
                       </div>
                     </>
@@ -203,49 +205,49 @@ export function DetailedParameters() {
                   <div>
                     <p className="text-muted-foreground text-xs">Eigenkapital nach 10 J.</p>
                     <p className="font-mono font-semibold">
-                      {formatCurrency(currentScenario.results.kpis.equityAfter10Years)}
+                      {isPrivate ? '*****' : formatCurrency(currentScenario.results.kpis.equityAfter10Years)}
                     </p>
                   </div>
                   <div>
                     <p className="text-muted-foreground text-xs">Eigenkapital nach 20 J.</p>
                     <p className="font-mono font-semibold">
-                      {formatCurrency(currentScenario.results.kpis.equityAfter20Years)}
+                      {isPrivate ? '*****' : formatCurrency(currentScenario.results.kpis.equityAfter20Years)}
                     </p>
                   </div>
                   <div>
                     <p className="text-muted-foreground text-xs">Immobilienwert nach 10 J.</p>
                     <p className="font-mono font-semibold">
-                      {formatCurrency(currentScenario.results.yearlyData[9]?.propertyValue || 0)}
+                      {isPrivate ? '*****' : formatCurrency(currentScenario.results.yearlyData[9]?.propertyValue || 0)}
                     </p>
                   </div>
                   <div>
                     <p className="text-muted-foreground text-xs">Immobilienwert nach 20 J.</p>
                     <p className="font-mono font-semibold">
-                      {formatCurrency(currentScenario.results.yearlyData[19]?.propertyValue || 0)}
+                      {isPrivate ? '*****' : formatCurrency(currentScenario.results.yearlyData[19]?.propertyValue || 0)}
                     </p>
                   </div>
                   <div>
                     <p className="text-muted-foreground text-xs">Hypothekensaldo nach 10 J.</p>
                     <p className="font-mono font-semibold">
-                      {formatCurrency(currentScenario.results.yearlyData[9]?.mortgageBalance || 0)}
+                      {isPrivate ? '*****' : formatCurrency(currentScenario.results.yearlyData[9]?.mortgageBalance || 0)}
                     </p>
                   </div>
                   <div>
                     <p className="text-muted-foreground text-xs">Hypothekensaldo nach 20 J.</p>
                     <p className="font-mono font-semibold">
-                      {formatCurrency(currentScenario.results.yearlyData[19]?.mortgageBalance || 0)}
+                      {isPrivate ? '*****' : formatCurrency(currentScenario.results.yearlyData[19]?.mortgageBalance || 0)}
                     </p>
                   </div>
                   <div>
                     <p className="text-muted-foreground text-xs">Gesamthypothek</p>
                     <p className="font-mono font-semibold">
-                      {formatCurrency(currentScenario.results.kpis.totalMortgage)}
+                      {isPrivate ? '*****' : formatCurrency(currentScenario.results.kpis.totalMortgage)}
                     </p>
                   </div>
                   <div>
                     <p className="text-muted-foreground text-xs">Netto-Steuereffekt (J1)</p>
                     <p className={`font-mono font-semibold ${currentScenario.results.yearlyData[0].netTaxEffect > 0 ? 'text-green-600 dark:text-green-500' : 'text-red-600 dark:text-red-500'}`}>
-                      {formatCurrency(currentScenario.results.yearlyData[0].netTaxEffect)}
+                      {isPrivate ? '*****' : formatCurrency(currentScenario.results.yearlyData[0].netTaxEffect)}
                     </p>
                   </div>
                 </div>
@@ -271,7 +273,7 @@ export function DetailedParameters() {
                             {roi.toFixed(1)}%
                           </p>
                           <p className="text-xs text-muted-foreground">
-                            {formatCurrency(yearData.netEquity - results.kpis.initialInvestment)}
+                            {isPrivate ? '*****' : formatCurrency(yearData.netEquity - results.kpis.initialInvestment)}
                           </p>
                         </div>
                       )
@@ -311,7 +313,7 @@ export function DetailedParameters() {
                       </TooltipContent>
                     </Tooltip>
                   </div>
-                  <Input
+                  <Input className={isPrivate ? "blur-sm transition-all focus:blur-none" : ""}
                     id="netRent"
                     type="number"
                     value={params.rent.netRent}
@@ -319,7 +321,7 @@ export function DetailedParameters() {
                       rent: { ...params.rent, netRent: Number(e.target.value) }
                     })}
                   />
-                  <p className="text-xs text-muted-foreground">{formatCurrency(params.rent.netRent)}/Monat</p>
+                  <p className="text-xs text-muted-foreground">{isPrivate ? '*****' : formatCurrency(params.rent.netRent)}/Monat</p>
                 </div>
                 
                 <div className="space-y-2">
@@ -344,7 +346,7 @@ export function DetailedParameters() {
                       </TooltipContent>
                     </Tooltip>
                   </div>
-                  <Input
+                  <Input className={isPrivate ? "blur-sm transition-all focus:blur-none" : ""}
                     id="rentUtilities"
                     type="number"
                     value={params.rent.utilities}
@@ -352,7 +354,7 @@ export function DetailedParameters() {
                       rent: { ...params.rent, utilities: Number(e.target.value) }
                     })}
                   />
-                  <p className="text-xs text-muted-foreground">{formatCurrency(params.rent.utilities)}/Monat</p>
+                  <p className="text-xs text-muted-foreground">{isPrivate ? '*****' : formatCurrency(params.rent.utilities)}/Monat</p>
                 </div>
                 
                 <div className="space-y-2">
@@ -374,7 +376,7 @@ export function DetailedParameters() {
                       </TooltipContent>
                     </Tooltip>
                   </div>
-                  <Input
+                  <Input className={isPrivate ? "blur-sm transition-all focus:blur-none" : ""}
                     id="rentInsurance"
                     type="number"
                     value={params.rent.insurance}
@@ -382,7 +384,7 @@ export function DetailedParameters() {
                       rent: { ...params.rent, insurance: Number(e.target.value) }
                     })}
                   />
-                  <p className="text-xs text-muted-foreground">{formatCurrency(params.rent.insurance)}/Jahr</p>
+                  <p className="text-xs text-muted-foreground">{isPrivate ? '*****' : formatCurrency(params.rent.insurance)}/Jahr</p>
                 </div>
                 
                 <div className="space-y-2">
@@ -404,7 +406,7 @@ export function DetailedParameters() {
                       </TooltipContent>
                     </Tooltip>
                   </div>
-                  <Input
+                  <Input className={isPrivate ? "blur-sm transition-all focus:blur-none" : ""}
                     id="rentIncrease"
                     type="number"
                     step="0.1"
@@ -445,7 +447,7 @@ export function DetailedParameters() {
                       </TooltipContent>
                     </Tooltip>
                   </div>
-                  <Input
+                  <Input className={isPrivate ? "blur-sm transition-all focus:blur-none" : ""}
                     id="purchasePrice"
                     type="number"
                     value={params.purchase.purchasePrice}
@@ -453,7 +455,7 @@ export function DetailedParameters() {
                       handlePurchaseChange({ purchasePrice: Number(e.target.value) })
                     }
                   />
-                  <p className="text-xs text-muted-foreground">{formatCurrency(params.purchase.purchasePrice)}</p>
+                  <p className="text-xs text-muted-foreground">{isPrivate ? '*****' : formatCurrency(params.purchase.purchasePrice)}</p>
                 </div>
                 
                 <div className="space-y-2">
@@ -475,7 +477,7 @@ export function DetailedParameters() {
                       </TooltipContent>
                     </Tooltip>
                   </div>
-                  <Input
+                  <Input className={isPrivate ? "blur-sm transition-all focus:blur-none" : ""}
                     id="equity"
                     type="number"
                     value={params.purchase.equity}
@@ -483,7 +485,7 @@ export function DetailedParameters() {
                       handlePurchaseChange({ equity: Number(e.target.value) })
                     }
                   />
-                  <p className="text-xs text-muted-foreground">{formatCurrency(params.purchase.equity)}</p>
+                  <p className="text-xs text-muted-foreground">{isPrivate ? '*****' : formatCurrency(params.purchase.equity)}</p>
                 </div>
                 
                 <div className="space-y-2">
@@ -505,7 +507,7 @@ export function DetailedParameters() {
                       </TooltipContent>
                     </Tooltip>
                   </div>
-                  <Input
+                  <Input className={isPrivate ? "blur-sm transition-all focus:blur-none" : ""}
                     id="notaryFees"
                     type="number"
                     step="0.1"
@@ -515,7 +517,7 @@ export function DetailedParameters() {
                     })}
                   />
                   <p className="text-xs text-muted-foreground">
-                    {formatCurrency(params.purchase.purchasePrice * params.purchase.notaryFees / 100)}
+                    {isPrivate ? '*****' : formatCurrency(params.purchase.purchasePrice * params.purchase.notaryFees / 100)}
                   </p>
                 </div>
                 
@@ -538,7 +540,7 @@ export function DetailedParameters() {
                       </TooltipContent>
                     </Tooltip>
                   </div>
-                  <Input
+                  <Input className={isPrivate ? "blur-sm transition-all focus:blur-none" : ""}
                     id="landRegistry"
                     type="number"
                     step="0.1"
@@ -548,7 +550,7 @@ export function DetailedParameters() {
                     })}
                   />
                   <p className="text-xs text-muted-foreground">
-                    {formatCurrency(params.purchase.purchasePrice * params.purchase.landRegistryFees / 100)}
+                    {isPrivate ? '*****' : formatCurrency(params.purchase.purchasePrice * params.purchase.landRegistryFees / 100)}
                   </p>
                 </div>
                 
@@ -571,7 +573,7 @@ export function DetailedParameters() {
                       </TooltipContent>
                     </Tooltip>
                   </div>
-                  <Input
+                  <Input className={isPrivate ? "blur-sm transition-all focus:blur-none" : ""}
                     id="brokerFees"
                     type="number"
                     step="0.1"
@@ -581,7 +583,7 @@ export function DetailedParameters() {
                     })}
                   />
                   <p className="text-xs text-muted-foreground">
-                    {formatCurrency(params.purchase.purchasePrice * params.purchase.brokerFees / 100)}
+                    {isPrivate ? '*****' : formatCurrency(params.purchase.purchasePrice * params.purchase.brokerFees / 100)}
                   </p>
                 </div>
                 
@@ -604,7 +606,7 @@ export function DetailedParameters() {
                       </TooltipContent>
                     </Tooltip>
                   </div>
-                  <Input
+                  <Input className={isPrivate ? "blur-sm transition-all focus:blur-none" : ""}
                     id="mortgageProcessingFee"
                     type="number"
                     step="0.1"
@@ -614,7 +616,7 @@ export function DetailedParameters() {
                     })}
                   />
                   <p className="text-xs text-muted-foreground">
-                    {formatCurrency((params.mortgage.firstMortgage + params.mortgage.secondMortgage) * (params.purchase.mortgageProcessingFee || 0) / 100)}
+                    {isPrivate ? '*****' : formatCurrency((params.mortgage.firstMortgage + params.mortgage.secondMortgage) * (params.purchase.mortgageProcessingFee || 0) / 100)}
                   </p>
                 </div>
                 
@@ -637,7 +639,7 @@ export function DetailedParameters() {
                       </TooltipContent>
                     </Tooltip>
                   </div>
-                  <Input
+                  <Input className={isPrivate ? "blur-sm transition-all focus:blur-none" : ""}
                     id="propertyValuationFee"
                     type="number"
                     value={params.purchase.propertyValuationFee || 0}
@@ -646,7 +648,7 @@ export function DetailedParameters() {
                     })}
                   />
                   <p className="text-xs text-muted-foreground">
-                    {formatCurrency(params.purchase.propertyValuationFee || 0)}
+                    {isPrivate ? '*****' : formatCurrency(params.purchase.propertyValuationFee || 0)}
                   </p>
                 </div>
               </div>
@@ -684,7 +686,7 @@ export function DetailedParameters() {
                         </TooltipContent>
                       </Tooltip>
                     </div>
-                    <Input
+                    <Input className={isPrivate ? "blur-sm transition-all focus:blur-none" : ""}
                       id="firstMortgage"
                       type="number"
                       value={params.mortgage.firstMortgage}
@@ -694,7 +696,7 @@ export function DetailedParameters() {
                         })
                       }
                     />
-                    <p className="text-xs text-muted-foreground">{formatCurrency(params.mortgage.firstMortgage)}</p>
+                    <p className="text-xs text-muted-foreground">{isPrivate ? '*****' : formatCurrency(params.mortgage.firstMortgage)}</p>
                   </div>
                   
                   <div className="space-y-2">
@@ -709,7 +711,7 @@ export function DetailedParameters() {
                         </TooltipContent>
                       </Tooltip>
                     </div>
-                    <Input
+                    <Input className={isPrivate ? "blur-sm transition-all focus:blur-none" : ""}
                       id="firstMortgageRate"
                       type="number"
                       step="0.1"
@@ -746,7 +748,7 @@ export function DetailedParameters() {
                         </TooltipContent>
                       </Tooltip>
                     </div>
-                    <Input
+                    <Input className={isPrivate ? "blur-sm transition-all focus:blur-none" : ""}
                       id="secondMortgage"
                       type="number"
                       value={params.mortgage.secondMortgage}
@@ -756,7 +758,7 @@ export function DetailedParameters() {
                         })
                       }
                     />
-                    <p className="text-xs text-muted-foreground">{formatCurrency(params.mortgage.secondMortgage)}</p>
+                    <p className="text-xs text-muted-foreground">{isPrivate ? '*****' : formatCurrency(params.mortgage.secondMortgage)}</p>
                   </div>
                   
                   <div className="space-y-2">
@@ -778,7 +780,7 @@ export function DetailedParameters() {
                         </TooltipContent>
                       </Tooltip>
                     </div>
-                    <Input
+                    <Input className={isPrivate ? "blur-sm transition-all focus:blur-none" : ""}
                       id="secondMortgageRate"
                       type="number"
                       step="0.1"
@@ -806,7 +808,7 @@ export function DetailedParameters() {
                         </TooltipContent>
                       </Tooltip>
                     </div>
-                    <Input
+                    <Input className={isPrivate ? "blur-sm transition-all focus:blur-none" : ""}
                       id="amortizationYears"
                       type="number"
                       value={params.mortgage.amortizationYears}
@@ -907,7 +909,7 @@ export function DetailedParameters() {
                       </TooltipContent>
                     </Tooltip>
                   </div>
-                  <Input
+                  <Input className={isPrivate ? "blur-sm transition-all focus:blur-none" : ""}
                     id="ownershipUtilities"
                     type="number"
                     value={params.runningCosts.utilities}
@@ -915,7 +917,7 @@ export function DetailedParameters() {
                       runningCosts: { ...params.runningCosts, utilities: Number(e.target.value) }
                     })}
                   />
-                  <p className="text-xs text-muted-foreground">{formatCurrency(params.runningCosts.utilities)}/Monat</p>
+                  <p className="text-xs text-muted-foreground">{isPrivate ? '*****' : formatCurrency(params.runningCosts.utilities)}/Monat</p>
                 </div>
                 
                 <div className="space-y-2">
@@ -937,7 +939,7 @@ export function DetailedParameters() {
                       </TooltipContent>
                     </Tooltip>
                   </div>
-                  <Input
+                  <Input className={isPrivate ? "blur-sm transition-all focus:blur-none" : ""}
                     id="ownershipInsurance"
                     type="number"
                     value={params.runningCosts.insurance}
@@ -945,7 +947,7 @@ export function DetailedParameters() {
                       runningCosts: { ...params.runningCosts, insurance: Number(e.target.value) }
                     })}
                   />
-                  <p className="text-xs text-muted-foreground">{formatCurrency(params.runningCosts.insurance)}/Jahr</p>
+                  <p className="text-xs text-muted-foreground">{isPrivate ? '*****' : formatCurrency(params.runningCosts.insurance)}/Jahr</p>
                 </div>
                 
                 {/* Only show simple maintenance when in simple mode */}
@@ -972,7 +974,7 @@ export function DetailedParameters() {
                         </TooltipContent>
                       </Tooltip>
                     </div>
-                    <Input
+                    <Input className={isPrivate ? "blur-sm transition-all focus:blur-none" : ""}
                       id="maintenanceSimple"
                       type="number"
                       step="0.1"
@@ -982,7 +984,7 @@ export function DetailedParameters() {
                       })}
                     />
                     <p className="text-xs text-muted-foreground">
-                      {formatCurrency(params.purchase.purchasePrice * params.runningCosts.maintenanceSimple / 100)}/Jahr
+                      {isPrivate ? '*****' : formatCurrency(params.purchase.purchasePrice * params.runningCosts.maintenanceSimple / 100)}/Jahr
                     </p>
                   </div>
                 )}
@@ -1006,7 +1008,7 @@ export function DetailedParameters() {
                       </TooltipContent>
                     </Tooltip>
                   </div>
-                  <Input
+                  <Input className={isPrivate ? "blur-sm transition-all focus:blur-none" : ""}
                     id="parkingCost"
                     type="number"
                     value={params.runningCosts.parkingCost || 0}
@@ -1014,7 +1016,7 @@ export function DetailedParameters() {
                       runningCosts: { ...params.runningCosts, parkingCost: Number(e.target.value) }
                     })}
                   />
-                  <p className="text-xs text-muted-foreground">{formatCurrency(params.runningCosts.parkingCost || 0)}/Monat</p>
+                  <p className="text-xs text-muted-foreground">{isPrivate ? '*****' : formatCurrency(params.runningCosts.parkingCost || 0)}/Monat</p>
                 </div>
                 
                 <div className="space-y-2">
@@ -1036,7 +1038,7 @@ export function DetailedParameters() {
                       </TooltipContent>
                     </Tooltip>
                   </div>
-                  <Input
+                  <Input className={isPrivate ? "blur-sm transition-all focus:blur-none" : ""}
                     id="condominiumFees"
                     type="number"
                     value={params.runningCosts.condominiumFees || 0}
@@ -1044,7 +1046,7 @@ export function DetailedParameters() {
                       runningCosts: { ...params.runningCosts, condominiumFees: Number(e.target.value) }
                     })}
                   />
-                  <p className="text-xs text-muted-foreground">{formatCurrency(params.runningCosts.condominiumFees || 0)}/Monat</p>
+                  <p className="text-xs text-muted-foreground">{isPrivate ? '*****' : formatCurrency(params.runningCosts.condominiumFees || 0)}/Monat</p>
                 </div>
                 
                 <div className="space-y-2">
@@ -1066,7 +1068,7 @@ export function DetailedParameters() {
                       </TooltipContent>
                     </Tooltip>
                   </div>
-                  <Input
+                  <Input className={isPrivate ? "blur-sm transition-all focus:blur-none" : ""}
                     id="renovationReserve"
                     type="number"
                     value={params.runningCosts.renovationReserve || 0}
@@ -1074,7 +1076,7 @@ export function DetailedParameters() {
                       runningCosts: { ...params.runningCosts, renovationReserve: Number(e.target.value) }
                     })}
                   />
-                  <p className="text-xs text-muted-foreground">{formatCurrency(params.runningCosts.renovationReserve || 0)}/Jahr</p>
+                  <p className="text-xs text-muted-foreground">{isPrivate ? '*****' : formatCurrency(params.runningCosts.renovationReserve || 0)}/Jahr</p>
                 </div>
               </div>
               
@@ -1108,25 +1110,25 @@ export function DetailedParameters() {
                     standardCost = Math.round(purchasePrice * 0.05);
                     standardInitial = 25;
                     standardInterval = 25;
-                    tooltipText = `Typisch ~5% des Kaufpreises (${formatCurrency(standardCost)}). Intervall: 25 Jahre.`;
+                    tooltipText = `Typisch ~5% des Kaufpreises (${isPrivate ? '*****' : formatCurrency(standardCost)}). Intervall: 25 Jahre.`;
                     break;
                   case 'fassade':
                     standardCost = Math.round(purchasePrice * 0.04);
                     standardInitial = 20;
                     standardInterval = 20;
-                    tooltipText = `Typisch ~4% des Kaufpreises (${formatCurrency(standardCost)}). Intervall: 20 Jahre.`;
+                    tooltipText = `Typisch ~4% des Kaufpreises (${isPrivate ? '*****' : formatCurrency(standardCost)}). Intervall: 20 Jahre.`;
                     break;
                   case 'heizung':
                     standardCost = Math.round(purchasePrice * 0.02);
                     standardInitial = 18;
                     standardInterval = 18;
-                    tooltipText = `Typisch ~2% des Kaufpreises (${formatCurrency(standardCost)}). Intervall: 18 Jahre.`;
+                    tooltipText = `Typisch ~2% des Kaufpreises (${isPrivate ? '*****' : formatCurrency(standardCost)}). Intervall: 18 Jahre.`;
                     break;
                   case 'kitchenBath':
                     standardCost = Math.round(purchasePrice * 0.08);
                     standardInitial = 15;
                     standardInterval = 15;
-                    tooltipText = `Typisch ~8% des Kaufpreises (${formatCurrency(standardCost)}). Intervall: 15 Jahre.`;
+                    tooltipText = `Typisch ~8% des Kaufpreises (${isPrivate ? '*****' : formatCurrency(standardCost)}). Intervall: 15 Jahre.`;
                     break;
                 }
 
@@ -1150,7 +1152,7 @@ export function DetailedParameters() {
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                       <div className="space-y-2">
                         <Label htmlFor={`${key}Cost`}>Kosten (CHF)</Label>
-                        <Input
+                        <Input className={isPrivate ? "blur-sm transition-all focus:blur-none" : ""}
                           id={`${key}Cost`}
                           type="number"
                           value={params.runningCosts[renovation] as number || 0}
@@ -1159,11 +1161,11 @@ export function DetailedParameters() {
                           })}
                           placeholder={standardCost.toString()}
                         />
-                        <p className="text-xs text-muted-foreground">Standard: {formatCurrency(standardCost)}</p>
+                        <p className="text-xs text-muted-foreground">Standard: {isPrivate ? '*****' : formatCurrency(standardCost)}</p>
                       </div>
                       <div className="space-y-2">
                         <Label htmlFor={`${key}InitialInterval`}>Initialintervall (Jahre)</Label>
-                        <Input
+                        <Input className={isPrivate ? "blur-sm transition-all focus:blur-none" : ""}
                           id={`${key}InitialInterval`}
                           type="number"
                           value={params.runningCosts[initialInterval] as number || 0}
@@ -1176,7 +1178,7 @@ export function DetailedParameters() {
                       </div>
                       <div className="space-y-2">
                         <Label htmlFor={`${key}Interval`}>Folgeintervall (Jahre)</Label>
-                        <Input
+                        <Input className={isPrivate ? "blur-sm transition-all focus:blur-none" : ""}
                           id={`${key}Interval`}
                           type="number"
                           value={params.runningCosts[interval] as number || 0}
@@ -1223,7 +1225,7 @@ export function DetailedParameters() {
                       </TooltipContent>
                     </Tooltip>
                   </div>
-                  <Input
+                  <Input className={isPrivate ? "blur-sm transition-all focus:blur-none" : ""}
                     id="marginalTaxRate"
                     type="number"
                     step="0.1"
@@ -1254,7 +1256,7 @@ export function DetailedParameters() {
                       </TooltipContent>
                     </Tooltip>
                   </div>
-                  <Input
+                  <Input className={isPrivate ? "blur-sm transition-all focus:blur-none" : ""}
                     id="rentalValueRate"
                     type="number"
                     step="0.1"
@@ -1358,7 +1360,7 @@ export function DetailedParameters() {
                       </TooltipContent>
                     </Tooltip>
                   </div>
-                  <Input
+                  <Input className={isPrivate ? "blur-sm transition-all focus:blur-none" : ""}
                     id="householdIncome"
                     type="number"
                     value={params.quickStart.householdIncome}
@@ -1366,7 +1368,7 @@ export function DetailedParameters() {
                       quickStart: { ...params.quickStart, householdIncome: Number(e.target.value) }
                     })}
                   />
-                  <p className="text-xs text-muted-foreground">{formatCurrency(params.quickStart.householdIncome)}/Jahr</p>
+                  <p className="text-xs text-muted-foreground">{isPrivate ? '*****' : formatCurrency(params.quickStart.householdIncome)}/Jahr</p>
                 </div>
                 
                 <div className="space-y-2">
@@ -1388,7 +1390,7 @@ export function DetailedParameters() {
                       </TooltipContent>
                     </Tooltip>
                   </div>
-                  <Input
+                  <Input className={isPrivate ? "blur-sm transition-all focus:blur-none" : ""}
                     id="livingExpenses"
                     type="number"
                     value={params.quickStart.annualLivingExpenses || 0}
@@ -1396,7 +1398,7 @@ export function DetailedParameters() {
                       quickStart: { ...params.quickStart, annualLivingExpenses: Number(e.target.value) }
                     })}
                   />
-                  <p className="text-xs text-muted-foreground">{formatCurrency(params.quickStart.annualLivingExpenses || 0)}/Jahr</p>
+                  <p className="text-xs text-muted-foreground">{isPrivate ? '*****' : formatCurrency(params.quickStart.annualLivingExpenses || 0)}/Jahr</p>
                 </div>
                 
                 <div className="space-y-2">
@@ -1418,7 +1420,7 @@ export function DetailedParameters() {
                       </TooltipContent>
                     </Tooltip>
                   </div>
-                  <Input
+                  <Input className={isPrivate ? "blur-sm transition-all focus:blur-none" : ""}
                     id="initialTotalWealth"
                     type="number"
                     value={params.quickStart.initialTotalWealth || params.purchase.equity}
@@ -1426,7 +1428,7 @@ export function DetailedParameters() {
                       quickStart: { ...params.quickStart, initialTotalWealth: Number(e.target.value) }
                     })}
                   />
-                  <p className="text-xs text-muted-foreground">{formatCurrency(params.quickStart.initialTotalWealth || params.purchase.equity)}</p>
+                  <p className="text-xs text-muted-foreground">{isPrivate ? '*****' : formatCurrency(params.quickStart.initialTotalWealth || params.purchase.equity)}</p>
                 </div>
               </div>
             </CardContent>
@@ -1461,7 +1463,7 @@ export function DetailedParameters() {
                       </TooltipContent>
                     </Tooltip>
                   </div>
-                  <Input
+                  <Input className={isPrivate ? "blur-sm transition-all focus:blur-none" : ""}
                     id="propertyAppreciation"
                     type="number"
                     step="0.1"
@@ -1512,7 +1514,7 @@ export function DetailedParameters() {
                       </TooltipContent>
                     </Tooltip>
                   </div>
-                  <Input
+                  <Input className={isPrivate ? "blur-sm transition-all focus:blur-none" : ""}
                     id="etfReturn"
                     type="number"
                     step="0.1"
@@ -1563,7 +1565,7 @@ export function DetailedParameters() {
                       </TooltipContent>
                     </Tooltip>
                   </div>
-                  <Input
+                  <Input className={isPrivate ? "blur-sm transition-all focus:blur-none" : ""}
                     id="inflation"
                     type="number"
                     step="0.1"

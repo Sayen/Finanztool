@@ -29,6 +29,7 @@ export interface BudgetConfig {
   categories: Category[]
   createdAt: string
   updatedAt: string
+  isDeleted?: boolean
 }
 
 export interface BudgetState {
@@ -106,10 +107,28 @@ export const useBudgetStore = create<BudgetState>()(
       })),
 
       deleteConfig: (id) => set((state) => {
-        const newConfigs = state.configs.filter(c => c.id !== id)
+        // Soft delete: Mark as deleted instead of removing
+        const newConfigs = state.configs.map(c =>
+          c.id === id
+            ? { ...c, isDeleted: true, updatedAt: new Date().toISOString() }
+            : c
+        )
+
+        // If current config was deleted, switch to the alphabetically first active one
+        let newCurrentId = state.currentConfigId
+        if (state.currentConfigId === id) {
+          const activeConfigs = newConfigs.filter(c => !c.isDeleted)
+          if (activeConfigs.length > 0) {
+            activeConfigs.sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' }))
+            newCurrentId = activeConfigs[0].id
+          } else {
+            newCurrentId = null
+          }
+        }
+
         return {
           configs: newConfigs,
-          currentConfigId: state.currentConfigId === id ? (newConfigs[0]?.id || null) : state.currentConfigId
+          currentConfigId: newCurrentId
         }
       }),
 
@@ -218,9 +237,29 @@ export const useBudgetStore = create<BudgetState>()(
         } : c)
       })),
 
-      setConfigs: (configs) => set({
-        configs: configs.length > 0 ? configs : [defaultConfig],
-        currentConfigId: configs.length > 0 ? configs[0].id : defaultConfig.id
+      setConfigs: (configs) => set((state) => {
+        const newConfigs = configs.length > 0 ? configs : [defaultConfig]
+
+        // Try to preserve current selection if it exists and is active
+        const currentExists = newConfigs.find(c => c.id === state.currentConfigId && !c.isDeleted)
+
+        let newCurrentId = state.currentConfigId
+        if (!currentExists) {
+          // Fallback: Select alphabetically first active config
+          const activeConfigs = newConfigs.filter(c => !c.isDeleted)
+          if (activeConfigs.length > 0) {
+            activeConfigs.sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' }))
+            newCurrentId = activeConfigs[0].id
+          } else {
+            // No active configs found (all deleted or empty)
+            newCurrentId = newConfigs.length > 0 ? newConfigs[0].id : null
+          }
+        }
+
+        return {
+          configs: newConfigs,
+          currentConfigId: newCurrentId
+        }
       }),
 
       exportData: () => {
@@ -237,7 +276,7 @@ export const useBudgetStore = create<BudgetState>()(
     }),
     {
       name: 'budget-storage',
-      version: 3, // Increment version for migration
+      version: 4, // Increment version for migration
       migrate: (persistedState: any, version) => {
         if (version < 3) {
           // Migration from flat state to configs

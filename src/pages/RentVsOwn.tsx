@@ -11,12 +11,14 @@ import { TotalAssetsBreakEvenChart } from '../components/charts/TotalAssetsBreak
 import { OpportunityCostChart } from '../components/charts/OpportunityCostChart'
 import { ScenarioLibrary } from '../components/scenario/ScenarioLibrary'
 import { useScenarioStore } from '../stores/scenarioStore'
+import { usePrivacyMode } from '../hooks/usePrivacyMode'
 import { Button } from '../components/ui/Button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/Tabs'
 import { exportToPDF, exportToExcel, generateShareableUrl, copyToClipboard } from '../lib/export'
 import { Home, BarChart3, Settings, FileText, Download, Share2 } from 'lucide-react'
 
 export function RentVsOwn() {
+  const { isPrivate } = usePrivacyMode()
   const [activeTab, setActiveTab] = useState<'quickstart' | 'detailed' | 'charts' | 'scenarios'>('quickstart')
   const [shareMessage, setShareMessage] = useState<string>('')
   const [timeHorizon, setTimeHorizon] = useState<number>(30) // Default 30 years
@@ -196,44 +198,46 @@ export function RentVsOwn() {
                 <TabsTrigger value="opportunity">Opportunität</TabsTrigger>
               </TabsList>
 
-              <TabsContent value="overview" className="space-y-6 mt-6">
-                <CostComparisonChart data={currentScenario.results.yearlyData} maxYears={timeHorizon} params={currentScenario.params} />
-                <WealthChart data={currentScenario.results.yearlyData} maxYears={timeHorizon} params={currentScenario.params} />
-                <AnnualCostBreakdown data={currentScenario.results.yearlyData} maxYears={timeHorizon} />
-              </TabsContent>
+              <div className={isPrivate ? "blur-sm transition-all pointer-events-none select-none" : ""}>
+                <TabsContent value="overview" className="space-y-6 mt-6">
+                  <CostComparisonChart data={currentScenario.results.yearlyData} maxYears={timeHorizon} params={currentScenario.params} />
+                  <WealthChart data={currentScenario.results.yearlyData} maxYears={timeHorizon} params={currentScenario.params} />
+                  <AnnualCostBreakdown data={currentScenario.results.yearlyData} maxYears={timeHorizon} />
+                </TabsContent>
 
-              <TabsContent value="cashflow" className="space-y-6 mt-6">
-                <CashflowChart data={currentScenario.results.yearlyData} maxYears={timeHorizon} />
-                <AnnualCostBreakdown data={currentScenario.results.yearlyData} displayYears={[1, 2, 3, 5, 10]} maxYears={timeHorizon} />
-              </TabsContent>
+                <TabsContent value="cashflow" className="space-y-6 mt-6">
+                  <CashflowChart data={currentScenario.results.yearlyData} maxYears={timeHorizon} />
+                  <AnnualCostBreakdown data={currentScenario.results.yearlyData} displayYears={[1, 2, 3, 5, 10]} maxYears={timeHorizon} />
+                </TabsContent>
 
-              <TabsContent value="affordability" className="space-y-6 mt-6">
-                <AffordabilityChart params={currentScenario.params} maxYears={timeHorizon} />
-              </TabsContent>
+                <TabsContent value="affordability" className="space-y-6 mt-6">
+                  <AffordabilityChart params={currentScenario.params} maxYears={timeHorizon} />
+                </TabsContent>
 
-              <TabsContent value="taxes" className="space-y-6 mt-6">
-                <TaxChart data={currentScenario.results.yearlyData} maxYears={timeHorizon} />
-              </TabsContent>
+                <TabsContent value="taxes" className="space-y-6 mt-6">
+                  <TaxChart data={currentScenario.results.yearlyData} maxYears={timeHorizon} />
+                </TabsContent>
 
-              <TabsContent value="breakeven" className="space-y-6 mt-6">
-                <BreakEvenChart
-                  data={currentScenario.results.yearlyData}
-                  breakEvenYear={currentScenario.results.breakEvenYear}
-                  maxYears={timeHorizon}
-                  params={currentScenario.params}
-                />
-                <TotalAssetsBreakEvenChart
-                  data={currentScenario.results.yearlyData}
-                  breakEvenYear={currentScenario.results.netWealthBreakEvenYear}
-                  maxYears={timeHorizon}
-                  params={currentScenario.params}
-                />
-              </TabsContent>
+                <TabsContent value="breakeven" className="space-y-6 mt-6">
+                  <BreakEvenChart
+                    data={currentScenario.results.yearlyData}
+                    breakEvenYear={currentScenario.results.breakEvenYear}
+                    maxYears={timeHorizon}
+                    params={currentScenario.params}
+                  />
+                  <TotalAssetsBreakEvenChart
+                    data={currentScenario.results.yearlyData}
+                    breakEvenYear={currentScenario.results.netWealthBreakEvenYear}
+                    maxYears={timeHorizon}
+                    params={currentScenario.params}
+                  />
+                </TabsContent>
 
-              <TabsContent value="opportunity" className="space-y-6 mt-6">
-                <OpportunityCostChart data={currentScenario.results.yearlyData} maxYears={timeHorizon} params={currentScenario.params} />
-                <WealthChart data={currentScenario.results.yearlyData} maxYears={timeHorizon} params={currentScenario.params} />
-              </TabsContent>
+                <TabsContent value="opportunity" className="space-y-6 mt-6">
+                  <OpportunityCostChart data={currentScenario.results.yearlyData} maxYears={timeHorizon} params={currentScenario.params} />
+                  <WealthChart data={currentScenario.results.yearlyData} maxYears={timeHorizon} params={currentScenario.params} />
+                </TabsContent>
+              </div>
             </Tabs>
           </div>
         )}

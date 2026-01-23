@@ -5,6 +5,7 @@ import { Input } from '../ui/Input'
 import { Label } from '../ui/Label'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/Tooltip'
 import { useScenarioStore } from '../../stores/scenarioStore'
+import { usePrivacyMode } from '../../hooks/usePrivacyMode'
 import { deriveFromQuickStart } from '../../lib/calculator'
 import { formatCurrency } from '../../lib/utils'
 import { Info } from 'lucide-react'
@@ -15,6 +16,7 @@ interface QuickStartProps {
 }
 
 export function QuickStart({ setActiveTab }: QuickStartProps) {
+  const { isPrivate } = usePrivacyMode()
   const createScenario = useScenarioStore((state) => state.createScenario)
   const [scenarioName, setScenarioName] = useState('Neues Szenario')
   const [showAdvanced, setShowAdvanced] = useState(false)
@@ -73,6 +75,7 @@ export function QuickStart({ setActiveTab }: QuickStartProps) {
                 value={scenarioName}
                 onChange={(e) => setScenarioName(e.target.value)}
                 placeholder="z.B. Wohnung in der Schweiz"
+                className={isPrivate ? "blur-sm transition-all focus:blur-none" : ""}
               />
             </div>
             
@@ -98,6 +101,7 @@ export function QuickStart({ setActiveTab }: QuickStartProps) {
                 value={params.purchasePrice}
                 onChange={(e) => setParams({ ...params, purchasePrice: Number(e.target.value) })}
                 required
+                className={isPrivate ? "blur-sm transition-all focus:blur-none" : ""}
               />
               <p className="text-xs text-muted-foreground">{formatCurrency(params.purchasePrice)}</p>
             </div>
@@ -144,7 +148,7 @@ export function QuickStart({ setActiveTab }: QuickStartProps) {
                 value={params.equity}
                 onChange={(e) => setParams({ ...params, equity: Number(e.target.value) })}
                 required
-                className={isEquityTooLow ? "border-destructive" : ""}
+                className={`${isEquityTooLow ? "border-destructive" : ""} ${isPrivate ? "blur-sm transition-all focus:blur-none" : ""}`}
               />
               <p className={`text-xs ${isEquityTooLow ? "text-destructive font-semibold" : "text-muted-foreground"}`}>
                 {formatCurrency(params.equity)} ({equityRatio}%)
@@ -174,6 +178,7 @@ export function QuickStart({ setActiveTab }: QuickStartProps) {
                 value={params.householdIncome}
                 onChange={(e) => setParams({ ...params, householdIncome: Number(e.target.value) })}
                 required
+                className={isPrivate ? "blur-sm transition-all focus:blur-none" : ""}
               />
               <p className="text-xs text-muted-foreground">{formatCurrency(params.householdIncome)}</p>
             </div>
@@ -217,6 +222,7 @@ export function QuickStart({ setActiveTab }: QuickStartProps) {
                     type="number"
                     value={params.annualLivingExpenses || 0}
                     onChange={(e) => setParams({ ...params, annualLivingExpenses: Number(e.target.value) })}
+                    className={isPrivate ? "blur-sm transition-all focus:blur-none" : ""}
                   />
                   <p className="text-xs text-muted-foreground">{formatCurrency(params.annualLivingExpenses || 0)}</p>
                 </div>
@@ -245,6 +251,7 @@ export function QuickStart({ setActiveTab }: QuickStartProps) {
                     type="number"
                     value={params.initialTotalWealth || params.equity}
                     onChange={(e) => setParams({ ...params, initialTotalWealth: Number(e.target.value) })}
+                    className={isPrivate ? "blur-sm transition-all focus:blur-none" : ""}
                   />
                   <p className="text-xs text-muted-foreground">{formatCurrency(params.initialTotalWealth || params.equity)}</p>
                 </div>
