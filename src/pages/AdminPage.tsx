@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react'
 import { useAuthStore } from '../stores/authStore'
+import { useSettingsStore } from '../stores/settingsStore'
 import { useNavigate } from 'react-router-dom'
-import { Trash2, RefreshCw } from 'lucide-react'
+import { Trash2, RefreshCw, Save, Check } from 'lucide-react'
 import { Button } from '../components/ui/Button'
+import { Input } from '../components/ui/Input'
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts'
 
 interface Stats {
@@ -22,13 +24,20 @@ interface UserData {
 }
 
 export function AdminPage() {
-  const { user } = useAuthStore()
+  const { user, isLoading: authLoading } = useAuthStore()
+  const { settings, fetchSettings, updateSettings } = useSettingsStore()
   const navigate = useNavigate()
   const [stats, setStats] = useState<Stats | null>(null)
   const [users, setUsers] = useState<UserData[]>([])
   const [loading, setLoading] = useState(true)
 
+  // Local state for settings form
+  const [localSettings, setLocalSettings] = useState(settings)
+  const [saveSuccess, setSaveSuccess] = useState(false)
+
   useEffect(() => {
+    if (authLoading) return
+
     if (user && !user.isAdmin) {
         navigate('/profile')
         return
@@ -39,7 +48,14 @@ export function AdminPage() {
     }
 
     loadData()
-  }, [user, navigate])
+    fetchSettings()
+  }, [user, authLoading, navigate, fetchSettings])
+
+  useEffect(() => {
+      if (settings) {
+          setLocalSettings(settings)
+      }
+  }, [settings])
 
   const loadData = async () => {
       setLoading(true)
@@ -55,6 +71,16 @@ export function AdminPage() {
           console.error(e)
       } finally {
           setLoading(false)
+      }
+  }
+
+  const handleSaveSettings = async () => {
+      const success = await updateSettings(localSettings)
+      if (success) {
+          setSaveSuccess(true)
+          setTimeout(() => setSaveSuccess(false), 2000)
+      } else {
+          alert('Fehler beim Speichern')
       }
   }
 
@@ -121,6 +147,47 @@ export function AdminPage() {
               </div>
           </div>
       )}
+
+      {/* App Settings */}
+      <div className="bg-card border rounded-lg p-6">
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-lg font-semibold">Diagramm Einstellungen (Global)</h3>
+            <Button onClick={handleSaveSettings} disabled={saveSuccess} className="gap-2">
+                {saveSuccess ? <Check className="h-4 w-4" /> : <Save className="h-4 w-4" />}
+                {saveSuccess ? 'Gespeichert' : 'Speichern'}
+            </Button>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="space-y-2">
+                  <label className="text-sm font-medium">Abstand zwischen Balken (px)</label>
+                  <Input
+                    type="number"
+                    value={localSettings.nodePadding}
+                    onChange={e => setLocalSettings({...localSettings, nodePadding: parseInt(e.target.value) || 0})}
+                  />
+                  <p className="text-xs text-muted-foreground">Standard: 50. Empfohlen: 5-50.</p>
+              </div>
+              <div className="space-y-2">
+                  <label className="text-sm font-medium">Minimale Diagramm-Höhe (px)</label>
+                  <Input
+                    type="number"
+                    value={localSettings.minHeight}
+                    onChange={e => setLocalSettings({...localSettings, minHeight: parseInt(e.target.value) || 0})}
+                  />
+                  <p className="text-xs text-muted-foreground">Standard: 600.</p>
+              </div>
+              <div className="space-y-2">
+                  <label className="text-sm font-medium">Höhe pro Position (px)</label>
+                  <Input
+                    type="number"
+                    value={localSettings.heightPerNode}
+                    onChange={e => setLocalSettings({...localSettings, heightPerNode: parseInt(e.target.value) || 0})}
+                  />
+                  <p className="text-xs text-muted-foreground">Standard: 35. Erhöht die Gesamthöhe bei vielen Positionen.</p>
+              </div>
+          </div>
+      </div>
 
       {/* User Table */}
       <div className="bg-card border rounded-lg overflow-hidden">

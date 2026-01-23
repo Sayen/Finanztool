@@ -1,5 +1,6 @@
-import { useState, useRef, useMemo } from 'react'
+import { useState, useRef, useMemo, useEffect } from 'react'
 import { useBudgetStore, calculateTotal } from '../stores/budgetStore'
+import { useSettingsStore } from '../stores/settingsStore'
 import type { Frequency } from '../stores/budgetStore'
 import { BudgetList } from '../components/budget/BudgetList'
 import { CategoryManager } from '../components/budget/CategoryManager'
@@ -13,6 +14,12 @@ export type ViewMode = Frequency | 'percent'
 
 export function BudgetPlanner() {
   const { isPrivate } = usePrivacyMode()
+  const { settings, fetchSettings } = useSettingsStore()
+
+  useEffect(() => {
+    fetchSettings()
+  }, [fetchSettings])
+
   const {
     configs, currentConfigId,
     createConfig, switchConfig, renameConfig, deleteConfig, duplicateConfig,
@@ -263,6 +270,7 @@ export function BudgetPlanner() {
         view={view}
         totalIncome={totalIncome}
         isPrivate={isPrivate}
+        settings={settings}
       />
 
       {/* Input Lists */}

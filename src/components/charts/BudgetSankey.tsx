@@ -1,6 +1,7 @@
 import { ResponsiveContainer, Sankey, Tooltip } from 'recharts'
 import type { BudgetItem, Category } from '../../stores/budgetStore'
 import type { ViewMode } from '../../pages/BudgetPlanner'
+import type { AppSettings } from '../../stores/settingsStore'
 import { useMemo } from 'react'
 
 interface BudgetSankeyProps {
@@ -10,9 +11,10 @@ interface BudgetSankeyProps {
   view: ViewMode
   totalIncome?: number
   isPrivate?: boolean
+  settings?: AppSettings
 }
 
-export function BudgetSankey({ incomes, expenses, categories, view, totalIncome = 0, isPrivate }: BudgetSankeyProps) {
+export function BudgetSankey({ incomes, expenses, categories, view, totalIncome = 0, isPrivate, settings }: BudgetSankeyProps) {
   const data = useMemo(() => {
     const nodes: { name: string; fill?: string }[] = []
     const links: { source: number; target: number; value: number }[] = []
@@ -210,8 +212,9 @@ export function BudgetSankey({ incomes, expenses, categories, view, totalIncome 
   }
 
   // Calculate dynamic height based on node count to prevent overlap
-  // Base height 600px, add 35px per node if we have many nodes
-  const dynamicHeight = Math.max(600, data.nodes.length * 35)
+  const minHeight = settings?.minHeight || 600
+  const heightPerNode = settings?.heightPerNode || 35
+  const dynamicHeight = Math.max(minHeight, data.nodes.length * heightPerNode)
 
   // Recharts Sankey types might be incomplete in this version, so we cast to any for nodeSort
   // to avoid TS errors while keeping the functionality which is supported by the underlying lib.
@@ -292,7 +295,7 @@ export function BudgetSankey({ incomes, expenses, categories, view, totalIncome 
                 </g>
               )
           }}
-          nodePadding={50}
+          nodePadding={settings?.nodePadding ?? 50}
           margin={{
             left: 100,
             right: 100,
