@@ -224,7 +224,7 @@ export function BudgetSankey({ incomes, expenses, categories, view, totalIncome 
       <ResponsiveContainer width="100%" height="100%">
         <SankeyComponent
           data={data}
-          iterations={64}
+          iterations={0}
           // nodeSort removed to respect input order
           node={({ x, y, width, height, payload }: any) => {
               const nodeFill = payload.fill || '#8884d8'
