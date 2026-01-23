@@ -140,6 +140,7 @@ export const useScenarioStore = create<ScenarioStore>()(
       },
       
       setCurrentScenario: (id: string | null) => {
+        if (id) localStorage.setItem('rent_vs_own_last_id', id)
         set({ currentScenarioId: id })
       },
       
@@ -209,9 +210,25 @@ export const useScenarioStore = create<ScenarioStore>()(
         }
       },
 
-      setScenarios: (scenarios) => set({
-        scenarios: scenarios,
-        currentScenarioId: scenarios.length > 0 ? scenarios[0].id : null
+      setScenarios: (scenarios) => set((state) => {
+        const lastSelectedId = localStorage.getItem('rent_vs_own_last_id')
+        const targetId = lastSelectedId || state.currentScenarioId
+
+        const exists = scenarios.find(s => s.id === targetId)
+
+        let newCurrentId = targetId
+        if (!exists) {
+          newCurrentId = scenarios.length > 0 ? scenarios[0].id : null
+        }
+
+        if (newCurrentId && newCurrentId !== lastSelectedId) {
+          localStorage.setItem('rent_vs_own_last_id', newCurrentId)
+        }
+
+        return {
+          scenarios: scenarios,
+          currentScenarioId: newCurrentId
+        }
       }),
     }),
     {

@@ -100,7 +100,10 @@ export const useBudgetStore = create<BudgetState>()(
         }))
       },
 
-      switchConfig: (id) => set({ currentConfigId: id }),
+      switchConfig: (id) => {
+        localStorage.setItem('budget_planner_last_id', id)
+        set({ currentConfigId: id })
+      },
 
       renameConfig: (id, name) => set((state) => ({
         configs: state.configs.map(c => c.id === id ? { ...c, name, updatedAt: new Date().toISOString() } : c)
@@ -240,10 +243,14 @@ export const useBudgetStore = create<BudgetState>()(
       setConfigs: (configs) => set((state) => {
         const newConfigs = configs.length > 0 ? configs : [defaultConfig]
 
-        // Try to preserve current selection if it exists and is active
-        const currentExists = newConfigs.find(c => c.id === state.currentConfigId && !c.isDeleted)
+        // Try to restore from LocalStorage (persists across reloads even when logged in)
+        // or preserve current selection
+        const lastSelectedId = localStorage.getItem('budget_planner_last_id')
+        const targetId = lastSelectedId || state.currentConfigId
 
-        let newCurrentId = state.currentConfigId
+        const currentExists = newConfigs.find(c => c.id === targetId && !c.isDeleted)
+
+        let newCurrentId = targetId
         if (!currentExists) {
           // Fallback: Select alphabetically first active config
           const activeConfigs = newConfigs.filter(c => !c.isDeleted)
@@ -254,6 +261,11 @@ export const useBudgetStore = create<BudgetState>()(
             // No active configs found (all deleted or empty)
             newCurrentId = newConfigs.length > 0 ? newConfigs[0].id : null
           }
+        }
+
+        // Update local storage if we changed to a fallback
+        if (newCurrentId && newCurrentId !== lastSelectedId) {
+          localStorage.setItem('budget_planner_last_id', newCurrentId)
         }
 
         return {
