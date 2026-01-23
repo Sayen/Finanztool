@@ -30,7 +30,8 @@ export function BudgetPlanner() {
   const currentConfig = getCurrentConfig()
 
   // Guard: if no config (should not happen due to migrate/default), show something
-  if (!currentConfig) {
+  // Also check if current config is deleted (shouldn't happen if logic is correct, but as safety)
+  if (!currentConfig || currentConfig.isDeleted) {
       return (
           <div className="container mx-auto p-8 text-center">
               <p>Keine Budget-Konfiguration gefunden.</p>
@@ -45,9 +46,11 @@ export function BudgetPlanner() {
   const sortedIncomes = useMemo(() => sortBudgetData(incomes), [incomes])
   const sortedExpenses = useMemo(() => sortBudgetData(expenses), [expenses])
 
-  // Sort configs for selector
+  // Sort configs for selector (exclude deleted)
   const sortedConfigs = useMemo(() => {
-    return [...configs].sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' }))
+    return configs
+      .filter(c => !c.isDeleted)
+      .sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' }))
   }, [configs])
 
   // Calculate base totals
@@ -166,7 +169,7 @@ export function BudgetPlanner() {
             <Button size="sm" variant="ghost" onClick={() => duplicateConfig(currentConfig.id)} title="Duplizieren" className="h-7 w-7 p-0">
                 <Copy className="h-4 w-4" />
             </Button>
-            {configs.length > 1 && (
+            {sortedConfigs.length > 1 && (
                 <Button size="sm" variant="ghost" onClick={() => deleteConfig(currentConfig.id)} title="Löschen" className="h-7 w-7 p-0 text-destructive hover:text-destructive">
                     <Trash2 className="h-4 w-4" />
                 </Button>
