@@ -4,7 +4,7 @@ import { useBudgetStore } from '../stores/budgetStore'
 import { useScenarioStore } from '../stores/scenarioStore'
 
 export function useCloudSync() {
-  const { user } = useAuthStore()
+  const { user, csrfToken } = useAuthStore()
   const { configs: budgetConfigs, setConfigs: setBudgetConfigs } = useBudgetStore()
   const { scenarios: scenarioConfigs, setScenarios: setScenarioConfigs } = useScenarioStore()
 
@@ -57,7 +57,8 @@ export function useCloudSync() {
         await fetch('api/sync.php', {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'X-CSRF-Token': csrfToken || ''
           },
           body: JSON.stringify(payload)
         })
@@ -67,5 +68,5 @@ export function useCloudSync() {
     }, 2000) // 2 second debounce
 
     return () => clearTimeout(timer)
-  }, [budgetConfigs, scenarioConfigs, user])
+  }, [budgetConfigs, scenarioConfigs, user, csrfToken])
 }

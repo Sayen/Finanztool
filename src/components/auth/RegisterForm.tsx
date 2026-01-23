@@ -30,6 +30,12 @@ export function RegisterForm() {
         setError('Passwort muss mind. 8 Zeichen lang sein')
         return
     }
+    const hasNumber = /[0-9]/.test(password);
+    const hasSpecial = /[^a-zA-Z0-9]/.test(password);
+    if (!hasNumber || !hasSpecial) {
+        setError('Passwort muss mindestens eine Zahl und ein Sonderzeichen enthalten')
+        return
+    }
 
     setError('')
     setLoading(true)
@@ -53,7 +59,7 @@ export function RegisterForm() {
         throw new Error(data.error || 'Registration failed')
       }
 
-      login(data.user)
+      login(data.user, data.csrfToken)
       navigate('/profile')
 
     } catch (err: any) {
