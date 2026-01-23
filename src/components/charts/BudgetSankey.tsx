@@ -61,16 +61,11 @@ export function BudgetSankey({ incomes, expenses, categories, view, totalIncome 
         return total
     }
 
-    // --- SORTING ---
-    // Sort inputs by amount (descending) to help Sankey layout minimize crossings
-    const sortedIncomes = [...incomes].sort((a, b) => getAmount(b) - getAmount(a))
-    const sortedExpenses = [...expenses].sort((a, b) => getAmount(b) - getAmount(a))
-    const sortedCategories = [...categories].sort((a, b) => {
-        const valA = getCategoryTotal(a.id, a.type)
-        const valB = getCategoryTotal(b.id, b.type)
-        return valB - valA
-    })
-
+    // --- SORTING REMOVED ---
+    // Using original order to respect user's manual arrangement or insertion order
+    const sortedIncomes = [...incomes]
+    const sortedExpenses = [...expenses]
+    const sortedCategories = [...categories]
 
     // --- UNIFIED LOGIC ---
 
@@ -114,7 +109,8 @@ export function BudgetSankey({ incomes, expenses, categories, view, totalIncome 
 
             links.push({
                 source: getNodeIndex(sourceName),
-                target: getNodeIndex(item.name, '#ef4444'), // Default Red for expense items
+                // INHERIT COLOR from Source (Category) for the Expense Item Bar
+                target: getNodeIndex(item.name, sourceColor || '#ef4444'),
                 value: amount
             })
         }
@@ -229,11 +225,7 @@ export function BudgetSankey({ incomes, expenses, categories, view, totalIncome 
         <SankeyComponent
           data={data}
           iterations={64}
-          nodeSort={(a: any, b: any) => {
-              // Sort nodes by value (descending) to minimize crossing
-              // Recharts/d3-sankey uses this to order nodes in each column
-              return (b.value || 0) - (a.value || 0)
-          }}
+          // nodeSort removed to respect input order
           node={({ x, y, width, height, payload }: any) => {
               const nodeFill = payload.fill || '#8884d8'
 

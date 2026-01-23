@@ -3,13 +3,26 @@ import { Menu, Moon, Sun, Home, Calculator, PieChart, User, LogIn, Shield } from
 import { Button } from './ui/Button'
 import { useTheme } from '../hooks/useTheme'
 import { useAuthStore } from '../stores/authStore'
+import { useCloudSync } from '../hooks/useCloudSync'
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 
 export function Layout() {
   const { theme, toggleTheme } = useTheme()
   const location = useLocation()
   const { user, checkSession } = useAuthStore()
+
+  // Enable Cloud Sync
+  useCloudSync()
+
+  // Handle logout cleanup (force reload to clear memory state)
+  const prevUserRef = useRef(user)
+  useEffect(() => {
+    if (prevUserRef.current && !user) {
+        window.location.href = '/'
+    }
+    prevUserRef.current = user
+  }, [user])
 
   useEffect(() => {
     checkSession()

@@ -1,5 +1,6 @@
 import { create } from 'zustand'
-import { persist } from 'zustand/middleware'
+import { persist, createJSONStorage } from 'zustand/middleware'
+import { createAuthAwareStorage } from '../lib/storage'
 
 export type Frequency = 'monthly' | 'yearly'
 export type ItemType = 'income' | 'expense'
@@ -259,7 +260,8 @@ export const useBudgetStore = create<BudgetState>()(
           }
         }
         return persistedState
-      }
+      },
+      storage: createJSONStorage(() => createAuthAwareStorage()),
     }
   )
 )
