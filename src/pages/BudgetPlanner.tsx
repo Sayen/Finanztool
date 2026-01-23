@@ -1,10 +1,11 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useMemo } from 'react'
 import { useBudgetStore, calculateTotal } from '../stores/budgetStore'
 import type { Frequency } from '../stores/budgetStore'
 import { BudgetList } from '../components/budget/BudgetList'
 import { CategoryManager } from '../components/budget/CategoryManager'
 import { BudgetSankey } from '../components/charts/BudgetSankey'
 import { Button } from '../components/ui/Button'
+import { sortBudgetData } from '../lib/budgetSorting'
 import { Download, Upload, Plus, Copy, Trash2, Edit2, Check, X } from 'lucide-react'
 
 export type ViewMode = Frequency | 'percent'
@@ -37,6 +38,10 @@ export function BudgetPlanner() {
   }
 
   const { incomes, expenses, categories } = currentConfig
+
+  // Sort data for display and Sankey
+  const sortedIncomes = useMemo(() => sortBudgetData(incomes), [incomes])
+  const sortedExpenses = useMemo(() => sortBudgetData(expenses), [expenses])
 
   // Calculate base totals
   const calcView = view === 'percent' ? 'monthly' : view
@@ -223,8 +228,8 @@ export function BudgetPlanner() {
 
       {/* Sankey Chart */}
       <BudgetSankey
-        incomes={incomes}
-        expenses={expenses}
+        incomes={sortedIncomes}
+        expenses={sortedExpenses}
         categories={categories}
         view={view}
         totalIncome={totalIncome}
@@ -234,7 +239,7 @@ export function BudgetPlanner() {
       <div className="grid md:grid-cols-2 gap-8">
         <BudgetList
           title="Einnahmen"
-          items={incomes}
+          items={sortedIncomes}
           categories={categories}
           onAdd={addIncome}
           onRemove={removeIncome}
@@ -245,7 +250,7 @@ export function BudgetPlanner() {
         />
         <BudgetList
           title="Ausgaben"
-          items={expenses}
+          items={sortedExpenses}
           categories={categories}
           onAdd={addExpense}
           onRemove={removeExpense}
