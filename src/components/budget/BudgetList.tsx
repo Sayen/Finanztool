@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { Plus, Trash2, Edit2, Check } from 'lucide-react'
+import { useState, useMemo } from 'react'
+import { Plus, Trash2, Edit2, Check, ChevronRight, ChevronDown } from 'lucide-react'
 import { Button } from '../ui/Button'
 import type { BudgetItem, Frequency, Category } from '../../stores/budgetStore'
 import type { ViewMode } from '../../pages/BudgetPlanner'
@@ -23,11 +23,55 @@ export function BudgetList({ title, items, categories, onAdd, onRemove, onUpdate
   const [newItemFrequency, setNewItemFrequency] = useState<Frequency>('monthly')
   const [newItemCategory, setNewItemCategory] = useState<string>('')
 
+  // Expanded/Collapsed state for groups
+  const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set())
+
   // Edit State
   const [editingId, setEditingId] = useState<string | null>(null)
 
   // Filter categories by type
   const availableCategories = categories.filter(c => c.type === type)
+
+  const toggleGroup = (id: string) => {
+    const newExpanded = new Set(expandedCategories)
+    if (newExpanded.has(id)) {
+        newExpanded.delete(id)
+    } else {
+        newExpanded.add(id)
+    }
+    setExpandedCategories(newExpanded)
+  }
+
+  // Group items logic
+  const groups = useMemo(() => {
+    const grouped: {
+        id: string;
+        name: string;
+        items: BudgetItem[];
+        monthlyTotal: number;
+    }[] = [];
+
+    items.forEach(item => {
+        const catId = item.categoryId || 'uncategorized';
+        let group = grouped.find(g => g.id === catId);
+
+        if (!group) {
+            const catName = item.categoryId
+                ? categories.find(c => c.id === item.categoryId)?.name || 'Unbekannt'
+                : 'Keine Kategorie';
+             group = { id: catId, name: catName, items: [], monthlyTotal: 0 };
+             grouped.push(group);
+        }
+
+        group.items.push(item);
+
+        let mAmount = item.amount;
+        if (item.frequency === 'yearly') mAmount /= 12;
+        group.monthlyTotal += mAmount;
+    });
+
+    return grouped;
+  }, [items, categories]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -74,60 +118,104 @@ export function BudgetList({ title, items, categories, onAdd, onRemove, onUpdate
       <h3 className="text-lg font-semibold mb-4">{title}</h3>
 
       <div className="space-y-4 mb-6">
-        {items.map((item) => {
-          const catName = item.categoryId ? categories.find(c => c.id === item.categoryId)?.name : null
+        {groups.map(group => {
+            const isExpanded = expandedCategories.has(group.id)
 
-          let displayAmount = item.amount
-          if (view === 'percent') {
-              // Calculate effective monthly amount first
-              let monthlyAmount = item.amount
-              if (item.frequency === 'yearly') monthlyAmount /= 12
+            // Calculate Group Display Values
+            let groupDisplayAmount = 0
+            if (view === 'monthly') groupDisplayAmount = group.monthlyTotal
+            else if (view === 'yearly') groupDisplayAmount = group.monthlyTotal * 12
+            else if (view === 'percent') {
+                if (totalIncome > 0) groupDisplayAmount = (group.monthlyTotal / totalIncome) * 100
+            }
 
-              if (totalIncome > 0) {
-                  displayAmount = (monthlyAmount / totalIncome) * 100
-              } else {
-                  displayAmount = 0
-              }
-          }
+            // Calculate Group Percentage for label (always show % alongside amount)
+            const groupPercent = totalIncome > 0 ? (group.monthlyTotal / totalIncome) * 100 : 0
 
-          return (
-            <div key={item.id} className="flex items-center justify-between p-3 bg-muted/50 rounded-md group hover:bg-muted transition-colors">
-              <div>
-                <div className="font-medium">{item.name}</div>
-                <div className="text-sm text-muted-foreground flex gap-2">
-                  <span>{item.frequency === 'monthly' ? 'Monatlich' : 'Jährlich'}</span>
-                  {catName && <span className="text-primary font-medium">• {catName}</span>}
+            return (
+                <div key={group.id} className="border rounded-md overflow-hidden">
+                    <div
+                        onClick={() => toggleGroup(group.id)}
+                        className="flex items-center justify-between p-3 bg-muted cursor-pointer hover:bg-muted/80 transition-colors select-none"
+                    >
+                        <div className="font-semibold text-sm">{group.name}</div>
+                        <div className="flex items-center gap-3 text-sm">
+                            <div className="flex flex-col items-end leading-tight">
+                                <span className="font-mono font-medium">
+                                    {view === 'percent'
+                                        ? `${groupDisplayAmount.toFixed(1)}%`
+                                        : (isPrivate
+                                            ? '*****'
+                                            : groupDisplayAmount.toLocaleString('de-CH', { style: 'currency', currency: 'CHF' })
+                                        )
+                                    }
+                                </span>
+                                {view !== 'percent' && (
+                                    <span className="text-xs text-muted-foreground">
+                                        {groupPercent.toFixed(1)}%
+                                    </span>
+                                )}
+                            </div>
+                            {isExpanded ? <ChevronDown className="h-5 w-5 text-muted-foreground" /> : <ChevronRight className="h-5 w-5 text-muted-foreground" />}
+                        </div>
+                    </div>
+
+                    {isExpanded && (
+                        <div className="divide-y border-t bg-muted/30">
+                            {group.items.map((item) => {
+                                let displayAmount = item.amount
+                                if (view === 'percent') {
+                                    let monthlyAmount = item.amount
+                                    if (item.frequency === 'yearly') monthlyAmount /= 12
+                                    if (totalIncome > 0) {
+                                        displayAmount = (monthlyAmount / totalIncome) * 100
+                                    } else {
+                                        displayAmount = 0
+                                    }
+                                }
+
+                                return (
+                                    <div key={item.id} className="flex items-center justify-between p-3 pl-6 hover:bg-muted/50 transition-colors group">
+                                        <div>
+                                            <div className="font-medium">{item.name}</div>
+                                            <div className="text-xs text-muted-foreground">
+                                                {item.frequency === 'monthly' ? 'Monatlich' : 'Jährlich'}
+                                            </div>
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                            <div className="font-mono text-sm">
+                                                {view === 'percent'
+                                                    ? `${displayAmount.toFixed(1)}%`
+                                                    : (isPrivate
+                                                        ? '*****'
+                                                        : item.amount.toLocaleString('de-CH', { style: 'currency', currency: 'CHF' })
+                                                    )
+                                                }
+                                            </div>
+                                            <Button
+                                                variant="ghost"
+                                                size="sm"
+                                                onClick={(e) => { e.stopPropagation(); startEdit(item); }}
+                                                className="h-7 w-7 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                                            >
+                                                <Edit2 className="h-4 w-4" />
+                                            </Button>
+                                            <Button
+                                                variant="ghost"
+                                                size="sm"
+                                                onClick={(e) => { e.stopPropagation(); onRemove(item.id); }}
+                                                className="h-7 w-7 p-0 text-destructive hover:text-destructive hover:bg-destructive/10 opacity-0 group-hover:opacity-100 transition-opacity"
+                                            >
+                                                <Trash2 className="h-4 w-4" />
+                                            </Button>
+                                        </div>
+                                    </div>
+                                )
+                            })}
+                        </div>
+                    )}
                 </div>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="font-mono font-medium mr-2">
-                  {view === 'percent'
-                    ? `${displayAmount.toFixed(1)}%`
-                    : (isPrivate
-                        ? '*****'
-                        : item.amount.toLocaleString('de-CH', { style: 'currency', currency: 'CHF' })
-                      )
-                  }
-                </div>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => startEdit(item)}
-                  className="opacity-0 group-hover:opacity-100 transition-opacity"
-                >
-                  <Edit2 className="h-4 w-4" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => onRemove(item.id)}
-                  className="text-destructive hover:text-destructive hover:bg-destructive/10 opacity-0 group-hover:opacity-100 transition-opacity"
-                >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
-              </div>
-            </div>
-          )
+            )
         })}
 
         {items.length === 0 && (
