@@ -122,8 +122,11 @@ export const useBudgetStore = create<BudgetState>()(
         if (state.currentConfigId === id) {
           const activeConfigs = newConfigs.filter(c => !c.isDeleted)
           if (activeConfigs.length > 0) {
-            activeConfigs.sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' }))
-            newCurrentId = activeConfigs[0].id
+            // Optimization: Use reduce instead of sort for O(N) performance
+            const first = activeConfigs.reduce((prev, curr) =>
+              prev.name.toLowerCase() < curr.name.toLowerCase() ? prev : curr
+            )
+            newCurrentId = first.id
           } else {
             newCurrentId = null
           }
@@ -255,8 +258,11 @@ export const useBudgetStore = create<BudgetState>()(
           // Fallback: Select alphabetically first active config
           const activeConfigs = newConfigs.filter(c => !c.isDeleted)
           if (activeConfigs.length > 0) {
-            activeConfigs.sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' }))
-            newCurrentId = activeConfigs[0].id
+            // Optimization: Use reduce instead of sort for O(N) performance
+            const first = activeConfigs.reduce((prev, curr) =>
+              prev.name.toLowerCase() < curr.name.toLowerCase() ? prev : curr
+            )
+            newCurrentId = first.id
           } else {
             // No active configs found (all deleted or empty)
             newCurrentId = newConfigs.length > 0 ? newConfigs[0].id : null
