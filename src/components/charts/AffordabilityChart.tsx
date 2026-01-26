@@ -34,7 +34,12 @@ export function AffordabilityChart({ params, maxYears = 30 }: AffordabilityChart
     const utilizationPercentYear0 = (monthlyCostsYear0 / monthlyIncome) * 100
     
     // Calculate affordability over time (years 1-maxYears)
-    const chartDataYears = Array.from({ length: maxYears }, (_, i) => {
+    // Optimized: using accumulator for inflation instead of Math.pow inside loop
+    const chartDataYears = []
+    let inflationFactor = 1.0
+    const inflationMultiplier = 1 + params.additional.inflationRate / 100
+
+    for (let i = 0; i < maxYears; i++) {
       const year = i + 1
 
       // Calculate mortgage balance after amortization
@@ -49,7 +54,7 @@ export function AffordabilityChart({ params, maxYears = 30 }: AffordabilityChart
         : 0
 
       // Apply inflation to running costs
-      const inflationFactor = Math.pow(1 + params.additional.inflationRate / 100, year - 1)
+      // inflationFactor starts at 1.0 (year 1)
       const annualCosts = calculatedInterest + annualAmortization +
                           (params.runningCosts.utilities +
                            (params.runningCosts.parkingCost || 0) +
@@ -61,11 +66,14 @@ export function AffordabilityChart({ params, maxYears = 30 }: AffordabilityChart
       const monthlyCosts = annualCosts / 12
       const utilizationPercent = (monthlyCosts / monthlyIncome) * 100
 
-      return {
+      chartDataYears.push({
         year,
         'Tragbarkeit (%)': utilizationPercent,
-      }
-    })
+      })
+
+      // Update inflation for next year
+      inflationFactor *= inflationMultiplier
+    }
     
     // Combine year 0 with other years
     const fullData: YearlyCalculation[] = [year0Data, ...Array.from({ length: maxYears }, (_, i) => {

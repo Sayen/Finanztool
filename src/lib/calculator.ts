@@ -66,12 +66,14 @@ export function calculateScenario(params: CalculationParams): CalculationResults
   
   const purchasePrice = params.purchase.purchasePrice;
 
+  // Initialize accumulators for performance optimization (replacing Math.pow in loop)
+  let inflationFactor = 1.0
+  const inflationMultiplier = 1 + additional.inflationRate / 100
+
+  let etfAccumulator = params.purchase.equity
+  const etfMultiplier = 1 + additional.etfReturnRate / 100
+
   for (let year = 1; year <= CALCULATION_YEARS; year++) {
-    // Calculate inflation factor for this year
-    // Note: year - 1 because year 1 is the base year (inflationFactor = 1.0, no inflation)
-    // Year 2 has inflationFactor = 1 + rate, Year 3 = (1 + rate)^2, etc.
-    const inflationFactor = Math.pow(1 + additional.inflationRate / 100, year - 1)
-    
     // Rent calculations
     const rentCost = currentRent * 12
     const rentUtilities = params.rent.utilities * 12 * inflationFactor
@@ -161,7 +163,11 @@ export function calculateScenario(params: CalculationParams): CalculationResults
     
     // Wealth calculations
     const netEquity = propertyValue - mortgageBalance
-    const opportunityCostETF = params.purchase.equity * Math.pow(1 + additional.etfReturnRate / 100, year)
+
+    // Update ETF accumulator for this year (year 1 = ^1, year 2 = ^2, etc.)
+    etfAccumulator *= etfMultiplier
+    const opportunityCostETF = etfAccumulator
+
     const netWealthRent = rentScenarioWealth
     const netWealthOwnership = netEquity + ownershipScenarioWealth
     
@@ -201,6 +207,9 @@ export function calculateScenario(params: CalculationParams): CalculationResults
       annualLivingExpenses: livingExpenses,
       netAnnualSavings: netSavingsRent, // Net savings in rent scenario (income - living - housing)
     })
+
+    // Update inflation factor for next year
+    inflationFactor *= inflationMultiplier
   }
   
   return {
