@@ -44,23 +44,31 @@ export function BudgetList({ title, items, categories, onAdd, onRemove, onUpdate
 
   // Group items logic
   const groups = useMemo(() => {
-    const grouped: {
+    // Create a map for fast category lookup
+    const categoryMap = new Map<string, string>();
+    categories.forEach(c => categoryMap.set(c.id, c.name));
+
+    const groupedMap = new Map<string, {
         id: string;
         name: string;
         items: BudgetItem[];
         monthlyTotal: number;
-    }[] = [];
+    }>();
 
     items.forEach(item => {
         const catId = item.categoryId || 'uncategorized';
-        let group = grouped.find(g => g.id === catId);
+        let group = groupedMap.get(catId);
 
         if (!group) {
-            const catName = item.categoryId
-                ? categories.find(c => c.id === item.categoryId)?.name || 'Unbekannt'
-                : 'Keine Kategorie';
+            let catName = 'Unbekannt';
+            if (!item.categoryId) {
+                catName = 'Keine Kategorie';
+            } else {
+                catName = categoryMap.get(item.categoryId) || 'Unbekannt';
+            }
+
              group = { id: catId, name: catName, items: [], monthlyTotal: 0 };
-             grouped.push(group);
+             groupedMap.set(catId, group);
         }
 
         group.items.push(item);
@@ -70,7 +78,7 @@ export function BudgetList({ title, items, categories, onAdd, onRemove, onUpdate
         group.monthlyTotal += mAmount;
     });
 
-    return grouped;
+    return Array.from(groupedMap.values());
   }, [items, categories]);
 
   const handleSubmit = (e: React.FormEvent) => {
