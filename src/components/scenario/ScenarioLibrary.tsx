@@ -104,7 +104,7 @@ export function ScenarioLibrary() {
           return a.results.affordabilityCheck.utilizationPercent - b.results.affordabilityCheck.utilizationPercent
         case 'date':
         default:
-          return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
+          return (b.updatedAt || '').localeCompare(a.updatedAt || '')
       }
     })
   }, [filteredScenarios, sortBy])
