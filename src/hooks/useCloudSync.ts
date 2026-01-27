@@ -39,6 +39,27 @@ export function useCloudSync() {
     }
   }, [user, setBudgetConfigs, setScenarioConfigs])
 
+  const workerRef = useRef<Worker | null>(null)
+
+  // Initialize Worker
+  useEffect(() => {
+    if (user && !workerRef.current) {
+      workerRef.current = new Worker(new URL('../workers/sync.worker.ts', import.meta.url), { type: 'module' })
+      workerRef.current.onmessage = (e) => {
+        if (e.data.type === 'ERROR') {
+          console.error('Cloud sync failed:', e.data.error)
+        }
+      }
+    }
+
+    return () => {
+      if (workerRef.current) {
+        workerRef.current.terminate()
+        workerRef.current = null
+      }
+    }
+  }, [user])
+
   // 2. SYNC ON CHANGE (Debounced)
   useEffect(() => {
     if (!user || isFetching.current) return
@@ -47,23 +68,19 @@ export function useCloudSync() {
       return
     }
 
-    const timer = setTimeout(async () => {
-      try {
+    const timer = setTimeout(() => {
+      if (workerRef.current) {
         const payload = {
           budgetConfigs,
           scenarioConfigs
         }
 
-        await fetch('api/sync.php', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-Token': csrfToken || ''
-          },
-          body: JSON.stringify(payload)
+        workerRef.current.postMessage({
+          type: 'SYNC',
+          payload,
+          csrfToken: csrfToken || '',
+          url: new URL('api/sync.php', window.location.href).toString()
         })
-      } catch (error) {
-        console.error('Cloud sync failed:', error)
       }
     }, 2000) // 2 second debounce
 
